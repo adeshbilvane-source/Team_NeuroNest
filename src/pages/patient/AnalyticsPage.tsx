@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface GameBreakdown {
@@ -17,47 +17,83 @@ interface DailyRecord {
 
 export default function PatientAnalyticsPage() {
   const navigate = useNavigate();
-  const [weeklyData, setWeeklyData] = useState<DailyRecord[]>([]);
-  const [selectedDay, setSelectedDay] = useState<DailyRecord | null>(null);
 
-  useEffect(() => {
-    const raw = localStorage.getItem('sahayak_game_analytics');
-    const storedData = raw ? JSON.parse(raw) : {};
-
-    const daysList = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const past7Days: DailyRecord[] = [];
-
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      const key = d.toISOString().split('T')[0];
-      const dayName = daysList[d.getDay()];
-      const dateStr = d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
-
-      const dayGamesObj = storedData[key] || {};
-      const games: GameBreakdown[] = Object.keys(dayGamesObj).map((gName) => ({
-        name: gName,
-        minutes: dayGamesObj[gName].minutes,
-        icon: dayGamesObj[gName].icon,
-        color: dayGamesObj[gName].color
-      }));
-
-      const totalMinutes = games.reduce((acc, curr) => acc + curr.minutes, 0);
-
-      past7Days.push({
-        day: i === 0 ? 'Today' : dayName,
-        date: dateStr,
-        totalMinutes,
-        games
-      });
+  const weeklyData: DailyRecord[] = [
+    {
+      day: 'Mon',
+      date: '21 Aug',
+      totalMinutes: 45,
+      games: [
+        { name: 'Memory Match', minutes: 20, icon: '🃏', color: '#3F6B4F' },
+        { name: 'Jigsaw Puzzle', minutes: 15, icon: '🧩', color: '#D98A2B' },
+        { name: 'Button Sorting', minutes: 10, icon: '🔘', color: '#3E7FB8' }
+      ]
+    },
+    {
+      day: 'Tue',
+      date: '22 Aug',
+      totalMinutes: 60,
+      games: [
+        { name: 'Identify Picture', minutes: 25, icon: '🖼️', color: '#8A5A1C' },
+        { name: 'Memory Match', minutes: 20, icon: '🃏', color: '#3F6B4F' },
+        { name: 'Jigsaw Puzzle', minutes: 15, icon: '🧩', color: '#D98A2B' }
+      ]
+    },
+    {
+      day: 'Wed',
+      date: '23 Aug',
+      totalMinutes: 30,
+      games: [
+        { name: 'Button Sorting', minutes: 15, icon: '🔘', color: '#3E7FB8' },
+        { name: 'Identify Picture', minutes: 15, icon: '🖼️', color: '#8A5A1C' }
+      ]
+    },
+    {
+      day: 'Thu',
+      date: '24 Aug',
+      totalMinutes: 75,
+      games: [
+        { name: 'Memory Match', minutes: 30, icon: '🃏', color: '#3F6B4F' },
+        { name: 'Jigsaw Puzzle', minutes: 25, icon: '🧩', color: '#D98A2B' },
+        { name: 'Button Sorting', minutes: 20, icon: '🔘', color: '#3E7FB8' }
+      ]
+    },
+    {
+      day: 'Fri',
+      date: '25 Aug',
+      totalMinutes: 50,
+      games: [
+        { name: 'Identify Picture', minutes: 20, icon: '🖼️', color: '#8A5A1C' },
+        { name: 'Memory Match', minutes: 30, icon: '🃏', color: '#3F6B4F' }
+      ]
+    },
+    {
+      day: 'Sat',
+      date: '26 Aug',
+      totalMinutes: 90,
+      games: [
+        { name: 'Memory Match', minutes: 35, icon: '🃏', color: '#3F6B4F' },
+        { name: 'Jigsaw Puzzle', minutes: 30, icon: '🧩', color: '#D98A2B' },
+        { name: 'Identify Picture', minutes: 15, icon: '🖼️', color: '#8A5A1C' },
+        { name: 'Button Sorting', minutes: 10, icon: '🔘', color: '#3E7FB8' }
+      ]
+    },
+    {
+      day: 'Sun',
+      date: 'Today',
+      totalMinutes: 40,
+      games: [
+        { name: 'Memory Match', minutes: 25, icon: '🃏', color: '#3F6B4F' },
+        { name: 'Button Sorting', minutes: 15, icon: '🔘', color: '#3E7FB8' }
+      ]
     }
+  ];
 
-    setWeeklyData(past7Days);
-  }, []);
+  const [selectedDay, setSelectedDay] = useState<DailyRecord | null>(null);
 
   const totalWeeklyMinutes = weeklyData.reduce((acc, curr) => acc + curr.totalMinutes, 0);
   const totalHours = (totalWeeklyMinutes / 60).toFixed(1);
-  const maxMinutes = Math.max(...weeklyData.map(d => d.totalMinutes), 10);
+  const maxMinutes = Math.max(...weeklyData.map(d => d.totalMinutes));
 
   return (
     <div className="analytics-root-container">
@@ -67,6 +103,7 @@ export default function PatientAnalyticsPage() {
           --green: #3F6B4F; --green-tint: #E3EDE5; --green-dark: #2E5140;
           --marigold: #D98A2B; --marigold-tint: #FBEEDA;
           --white: #FFFFFF; --shadow: 0 6px 16px rgba(36,50,42,0.08);
+          --blue: #3E7FB8; --blue-tint: #E1EDF6;
         }
         .analytics-root-container {
           display: flex; align-items: center; justify-content: center; min-height: 100vh;
@@ -95,6 +132,7 @@ export default function PatientAnalyticsPage() {
         .page-header h1 { font-family: 'Fraunces', serif; font-style: italic; font-weight: 600; font-size: 20px; color: var(--ink); margin: 0; }
         .content { flex: 1; overflow-y: auto; padding: 18px 18px 26px 18px; }
 
+        /* Summary Metric Card */
         .summary-card {
           background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
           border-radius: 20px; padding: 18px 20px; color: #fff; box-shadow: 0 10px 22px rgba(63,107,79,0.35);
@@ -104,6 +142,7 @@ export default function PatientAnalyticsPage() {
         .summary-card .val { font-size: 28px; font-weight: 900; margin-top: 4px; font-family: 'Fraunces', serif; }
         .summary-card .sub { font-size: 12px; font-weight: 700; color: #E3EDE5; margin-top: 2px; }
 
+        /* Graph Chart Container */
         .chart-card {
           background: var(--white); border-radius: 22px; padding: 20px 16px;
           box-shadow: var(--shadow); margin-bottom: 18px;
@@ -127,14 +166,15 @@ export default function PatientAnalyticsPage() {
         }
         .bar-fill {
           width: 100%; border-radius: 8px; background: var(--green);
-          transition: height 0.4s ease;
+          transition: height 0.4s ease, background 0.2s ease;
         }
         .bar-col.active .bar-fill { background: var(--marigold); }
-        .bar-label { font-size: 11px; font-weight: 800; color: var(--ink-soft); }
+        .bar-label { font-size: 12px; font-weight: 800; color: var(--ink-soft); }
         .bar-col.active .bar-label { color: var(--marigold); font-weight: 900; }
 
         .hint-text { text-align: center; font-size: 11.5px; font-weight: 700; color: var(--ink-soft); margin-top: 10px; }
 
+        /* Modal / Detail View */
         .modal-overlay {
           position: fixed; inset: 0; background: rgba(36,50,42,0.45);
           display: flex; align-items: flex-end; justify-content: center; z-index: 100;
@@ -179,21 +219,23 @@ export default function PatientAnalyticsPage() {
           </div>
 
           <div className="content">
+            {/* Total Playtime Summary */}
             <div className="summary-card">
               <div className="label">Total Playtime This Week</div>
               <div className="val">{totalHours} Hours</div>
               <div className="sub">{totalWeeklyMinutes} minutes of cognitive exercise</div>
             </div>
 
+            {/* Interactive Graph Chart */}
             <div className="chart-card">
               <div className="chart-header">
                 <h3>Daily Activity</h3>
-                <span>Tap bar to inspect</span>
+                <span>Tap any bar to inspect</span>
               </div>
 
               <div className="bars-container">
                 {weeklyData.map((d, idx) => {
-                  const heightPercent = d.totalMinutes > 0 ? (d.totalMinutes / maxMinutes) * 100 : 4;
+                  const heightPercent = (d.totalMinutes / maxMinutes) * 100;
                   const isSelected = selectedDay?.day === d.day;
                   return (
                     <div
@@ -204,10 +246,7 @@ export default function PatientAnalyticsPage() {
                       <div className="bar-wrapper">
                         <div
                           className="bar-fill"
-                          style={{
-                            height: `${heightPercent}%`,
-                            background: d.totalMinutes === 0 ? '#DCE3D6' : undefined
-                          }}
+                          style={{ height: `${heightPercent}%` }}
                         />
                       </div>
                       <span className="bar-label">{d.day}</span>
@@ -217,14 +256,17 @@ export default function PatientAnalyticsPage() {
               </div>
 
               <div className="hint-text">
-                {totalWeeklyMinutes === 0
-                  ? 'No games played yet. Play a game to record playtime!'
-                  : '💡 Tap on any bar to see the detailed game breakdown.'}
+                💡 Click on any day to see separate time spent on each game.
               </div>
             </div>
 
+            {/* Quick Insights List */}
             <div style={{ background: 'var(--white)', borderRadius: '20px', padding: '16px', boxShadow: 'var(--shadow)' }}>
               <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', color: 'var(--ink)' }}>Weekly Highlights</h4>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', fontWeight: 700, color: 'var(--ink-soft)', marginBottom: '8px' }}>
+                <span>Most Played Game</span>
+                <span style={{ color: 'var(--green)', fontWeight: 800 }}>🃏 Memory Match</span>
+              </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', fontWeight: 700, color: 'var(--ink-soft)' }}>
                 <span>Daily Average</span>
                 <span style={{ color: 'var(--green)', fontWeight: 800 }}>{Math.round(totalWeeklyMinutes / 7)} mins/day</span>
@@ -232,6 +274,7 @@ export default function PatientAnalyticsPage() {
             </div>
           </div>
 
+          {/* Drill-down Detail Modal */}
           {selectedDay && (
             <div className="modal-overlay" onClick={() => setSelectedDay(null)}>
               <div className="detail-sheet" onClick={(e) => e.stopPropagation()}>
@@ -245,32 +288,26 @@ export default function PatientAnalyticsPage() {
                   <button className="close-btn" onClick={() => setSelectedDay(null)}>✕</button>
                 </div>
 
-                {selectedDay.games.length === 0 ? (
-                  <p style={{ textAlign: 'center', color: 'var(--ink-soft)', padding: '20px 0', fontWeight: 700 }}>
-                    No games were played on this day.
-                  </p>
-                ) : (
-                  <div className="game-breakdown-list">
-                    {selectedDay.games.map((g, i) => {
-                      const percent = selectedDay.totalMinutes > 0 ? Math.round((g.minutes / selectedDay.totalMinutes) * 100) : 0;
-                      return (
-                        <div key={i} className="game-row">
-                          <div className="game-icon">{g.icon}</div>
-                          <div className="game-info">
-                            <h4>{g.name}</h4>
-                            <div className="game-progress-bar">
-                              <div
-                                className="game-progress-fill"
-                                style={{ width: `${percent}%`, background: g.color }}
-                              />
-                            </div>
+                <div className="game-breakdown-list">
+                  {selectedDay.games.map((g, i) => {
+                    const percent = Math.round((g.minutes / selectedDay.totalMinutes) * 100);
+                    return (
+                      <div key={i} className="game-row">
+                        <div className="game-icon">{g.icon}</div>
+                        <div className="game-info">
+                          <h4>{g.name}</h4>
+                          <div className="game-progress-bar">
+                            <div
+                              className="game-progress-fill"
+                              style={{ width: `${percent}%`, background: g.color }}
+                            />
                           </div>
-                          <div className="game-time">{g.minutes}m</div>
                         </div>
-                      );
-                    })}
-                  </div>
-                )}
+                        <div className="game-time">{g.minutes}m</div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           )}
