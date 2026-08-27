@@ -1,0 +1,14 @@
+{
+  "home": {
+    "greeting": "Good Morning",
+    "nextReminder": "Next Reminder"
+  },
+  "nav": {
+    "games": "Games",
+    "reminders": "Reminders",
+    "yoga": "Yoga",
+    "videos": "Videos",
+    "family": "Family",
+    "needHelp": "Need Help"
+  }
+}

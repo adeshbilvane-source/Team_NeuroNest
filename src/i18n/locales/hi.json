@@ -1,0 +1,15 @@
+{
+  "_note": "Placeholder only — these are NOT verified translations. Replace with a real Hindi speaker's review before shipping.",
+  "home": {
+    "greeting": "शुभ प्रभात",
+    "nextReminder": "अगला रिमाइंडर"
+  },
+  "nav": {
+    "games": "खेल",
+    "reminders": "रिमाइंडर",
+    "yoga": "योग",
+    "videos": "वीडियो",
+    "family": "परिवार",
+    "needHelp": "मदद चाहिए"
+  }
+}
