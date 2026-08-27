@@ -21,7 +21,6 @@ interface FamilyContact {
 export default function EmergencyPage() {
   const navigate = useNavigate();
 
-  // 1. Doctors State
   const [doctorsList, setDoctorsList] = useState<AppDoctor[]>(() => {
     const raw = localStorage.getItem('sahayak_registered_doctors');
     return raw ? JSON.parse(raw) : [];
@@ -30,7 +29,6 @@ export default function EmergencyPage() {
     return localStorage.getItem('sahayak_primary_doctor_id') || '';
   });
 
-  // 2. Family Contacts State (For Emergency Guardian Selection)
   const [familyList, setFamilyList] = useState<FamilyContact[]>(() => {
     const raw = localStorage.getItem('sahayak_family_contacts');
     return raw ? JSON.parse(raw) : [];
@@ -39,12 +37,10 @@ export default function EmergencyPage() {
     return localStorage.getItem('sahayak_primary_guardian_id') || '';
   });
 
-  // Modals
   const [showDoctorModal, setShowDoctorModal] = useState<boolean>(false);
   const [showAddDoctorModal, setShowAddDoctorModal] = useState<boolean>(false);
   const [showGuardianModal, setShowGuardianModal] = useState<boolean>(false);
 
-  // New Doctor Form State
   const [docName, setDocName] = useState<string>('');
   const [docSpecialty, setDocSpecialty] = useState<string>('Neurologist & Geriatrician');
   const [docHospital, setDocHospital] = useState<string>('');
@@ -156,7 +152,6 @@ export default function EmergencyPage() {
         }
         .section-link { color: var(--blue); font-size: 11.5px; font-weight: 800; cursor: pointer; text-transform: none; }
 
-        /* BIG SOS CARD */
         .sos-big-card {
           background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
           border-radius: 26px; padding: 22px 18px; text-align: center; color: #fff;
@@ -168,7 +163,6 @@ export default function EmergencyPage() {
         .sos-big-card h2 { margin: 0 0 4px; font-family: 'Fraunces', serif; font-size: 23px; font-weight: 900; }
         .sos-big-card p { margin: 0; font-size: 12px; font-weight: 700; opacity: 0.95; }
 
-        /* CONTACT ROW CARDS */
         .emer-card {
           background: var(--white); border-radius: 20px; padding: 14px 16px; box-shadow: var(--shadow);
           display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
@@ -224,7 +218,6 @@ export default function EmergencyPage() {
           </div>
 
           <div className="content">
-            {/* BIG 1-TAP SOS */}
             <div className="sos-big-card" onClick={handleSOSPress}>
               <div className="sos-icon">🆘</div>
               <h2>Tap for Emergency SOS</h2>
@@ -237,7 +230,6 @@ export default function EmergencyPage() {
               </p>
             </div>
 
-            {/* 1. EMERGENCY FAMILY CONTACT ADD-ON */}
             <div className="section-label">
               <span>Emergency Family Member</span>
               <span className="section-link" onClick={() => setShowGuardianModal(true)}>
@@ -267,7 +259,6 @@ export default function EmergencyPage() {
               </div>
             )}
 
-            {/* 2. ASSIGNED APP DOCTOR ADD-ON */}
             <div className="section-label" style={{ marginTop: 16 }}>
               <span>Assigned App Doctor</span>
               <span className="section-link" onClick={() => setShowDoctorModal(true)}>
@@ -297,7 +288,6 @@ export default function EmergencyPage() {
               </div>
             )}
 
-            {/* 3. NATIONAL SERVICES */}
             <div className="section-label" style={{ marginTop: 16 }}>
               <span>National Services</span>
             </div>
@@ -327,7 +317,6 @@ export default function EmergencyPage() {
         </div>
       </div>
 
-      {/* SELECT GUARDIAN MODAL */}
       {showGuardianModal && (
         <div className="modal-overlay" onClick={() => setShowGuardianModal(false)}>
           <div className="sheet" onClick={e => e.stopPropagation()}>
@@ -365,7 +354,6 @@ export default function EmergencyPage() {
         </div>
       )}
 
-      {/* SELECT DOCTOR MODAL */}
       {showDoctorModal && (
         <div className="modal-overlay" onClick={() => setShowDoctorModal(false)}>
           <div className="sheet" onClick={e => e.stopPropagation()}>
@@ -407,7 +395,6 @@ export default function EmergencyPage() {
         </div>
       )}
 
-      {/* ADD DOCTOR MODAL */}
       {showAddDoctorModal && (
         <div className="modal-overlay" onClick={() => setShowAddDoctorModal(false)}>
           <div className="sheet" onClick={e => e.stopPropagation()}>
