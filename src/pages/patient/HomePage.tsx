@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 export default function PatientHomePage() {
   const navigate = useNavigate();
-  const [userName, setUserName] = useState<string>('Adesh');
+  const [userName, setUserName] = useState<string>('adii');
   const [currentTime, setCurrentTime] = useState<string>('');
   const [currentDate, setCurrentDate] = useState<string>('');
   const [greeting, setGreeting] = useState<string>('Good Morning');
@@ -62,10 +62,8 @@ export default function PatientHomePage() {
     const diff = touchStart - touchEnd;
 
     if (diff > 40) {
-      // Swiped Left -> Analytics
       setCurrentSlide(1);
     } else if (diff < -40) {
-      // Swiped Right -> Reminder
       setCurrentSlide(0);
     }
     setTouchStart(null);
@@ -147,15 +145,22 @@ export default function PatientHomePage() {
           position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
           width: 120px; height: 24px; background: #111614; border-radius: 20px; z-index: 10;
         }
-        .header { padding: 44px 22px 10px 22px; }
-        .top-row { display: flex; justify-content: space-between; align-items: flex-start; }
-        .orient { font-weight: 800; color: var(--ink-soft); font-size: 14.5px; letter-spacing: 0.3px; }
-        .orient .time { color: var(--green); font-size: 14.5px; margin-left: 6px; }
-        .icon-row { display: flex; gap: 10px; }
-        .icon-btn {
-          width: 44px; height: 44px; border-radius: 14px; background: var(--white);
-          display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow); border: none; cursor: pointer;
+        .header { padding: 44px 20px 10px 20px; }
+        .top-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .orient { font-weight: 800; color: var(--ink-soft); font-size: 13.5px; letter-spacing: 0.2px; }
+        .orient .time { color: var(--green); font-size: 13.5px; margin-left: 4px; }
+        
+        .icon-row { display: flex; align-items: center; gap: 8px; }
+        .lang-pill {
+          height: 36px; padding: 0 12px; border-radius: 12px; background: var(--white);
+          box-shadow: var(--shadow); display: flex; align-items: center; gap: 5px;
+          font-weight: 800; font-size: 12.5px; color: var(--green); cursor: pointer; border: none;
         }
+        .icon-btn {
+          width: 36px; height: 36px; border-radius: 12px; background: var(--white);
+          display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow); border: none; cursor: pointer; flex-shrink: 0;
+        }
+
         .greeting { font-family: 'Fraunces', serif; font-weight: 600; font-style: italic; color: var(--ink); font-size: 28px; line-height: 1.15; margin: 14px 0 0 0; }
         .greeting .name { color: var(--green); font-style: normal; }
         .voice-row {
@@ -177,9 +182,8 @@ export default function PatientHomePage() {
         .voice-text .t1 { font-weight: 800; font-size: 14px; color: var(--ink); }
         .voice-text .t2 { font-weight: 600; font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
 
-        /* Carousel Swipeable Container */
         .banner-carousel-wrapper {
-          margin: 12px 22px 0 22px;
+          margin: 12px 20px 0 20px;
           position: relative;
           overflow: hidden;
           border-radius: 20px;
@@ -227,7 +231,7 @@ export default function PatientHomePage() {
         }
         .dot.active { width: 18px; border-radius: 10px; background: var(--green); }
 
-        .grid { margin: 12px 22px 0 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .grid { margin: 12px 20px 0 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .card {
           background: var(--green-tint); border-radius: 20px; padding: 14px; display: flex;
           flex-direction: column; align-items: flex-start; gap: 18px; min-height: 106px; border: none;
@@ -237,7 +241,7 @@ export default function PatientHomePage() {
         .card .icon-wrap { width: 44px; height: 44px; border-radius: 13px; background: var(--white); display: flex; align-items: center; justify-content: center; }
         .card .label { font-weight: 800; font-size: 15px; color: var(--ink); }
 
-        .sos-wrap { margin-top: auto; padding: 14px 22px 24px 22px; }
+        .sos-wrap { margin-top: auto; padding: 14px 20px 24px 20px; }
         .sos-btn {
           width: 100%; background: var(--red); border: none; border-radius: 20px; padding: 14px 18px;
           display: flex; align-items: center; gap: 14px; box-shadow: 0 10px 22px rgba(179,63,51,0.4); cursor: pointer; box-sizing: border-box;
@@ -255,14 +259,21 @@ export default function PatientHomePage() {
         <div className="phone-screen">
           <div className="notch"></div>
 
-          <div className="header home-page-header">
-            <div className="top-row home-header-top">
+          <div className="header">
+            {/* Top Row with Date, Language Pill and Exit Button */}
+            <div className="top-row">
               <div className="orient">
                 {currentDate}<span className="time">· {currentTime}</span>
               </div>
               <div className="icon-row">
+                <button className="lang-pill" aria-label="Change Language">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
+                    <path d="M4 5h11M9.5 3v2.2M6 5c0 4 2.5 6.5 6 8M13 5c-.6 3-2 5.5-4.5 7.5M14 21l4-9 4 9M15.6 18h4.8"/>
+                  </svg>
+                  EN
+                </button>
                 <button className="icon-btn" onClick={handleLogout} aria-label="Logout" title="Logout">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                     <polyline points="16 17 21 12 16 7" />
                     <line x1="21" y1="12" x2="9" y2="12" />
@@ -389,7 +400,6 @@ export default function PatientHomePage() {
               <div className="label">Videos</div>
             </button>
 
-            {/* 1. Dedicated Family Button */}
             <button className="card" onClick={() => navigate('/patient/family')} aria-label="Family">
               <div className="icon-wrap">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -411,7 +421,7 @@ export default function PatientHomePage() {
             </button>
           </div>
 
-          {/* 2. Dedicated Emergency SOS Button */}
+          {/* Emergency SOS Bar */}
           <div className="sos-wrap">
             <button
               className="sos-btn"
