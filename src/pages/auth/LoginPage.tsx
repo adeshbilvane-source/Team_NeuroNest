@@ -152,6 +152,10 @@ export default function LoginPage() {
         .role-icon {
           width: 52px; height: 52px; min-width: 52px;
           border-radius: 16px; background: var(--green-tint); display: flex; align-items: center; justify-content: center;
+          overflow: hidden; border: 2px solid var(--green-tint);
+        }
+        .role-icon img {
+          width: 100%; height: 100%; object-fit: cover; display: block;
         }
         .role-copy { display: flex; flex-direction: column; }
         .role-copy .t1 { font-size: 17px; font-weight: 800; color: var(--ink); }
@@ -219,10 +223,7 @@ export default function LoginPage() {
               <div className="role-list">
                 <button className="role-btn app-reveal app-delay-1" onClick={() => { setRole('patient'); setIsRegistering(false); setSubView('auth_form'); }}>
                   <div className="role-icon">
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="8" r="3.4" />
-                      <path d="M4.5 20c0-3.6 3-6 7.5-6s7.5 2.4 7.5 6" />
-                    </svg>
+                    <img src="/patient.jpg" alt="Patient" />
                   </div>
                   <div className="role-copy">
                     <div className="t1">Login as Patient</div>
@@ -237,11 +238,7 @@ export default function LoginPage() {
 
                 <button className="role-btn app-reveal app-delay-2" onClick={() => { setRole('caregiver'); setIsRegistering(false); setSubView('auth_form'); }}>
                   <div className="role-icon">
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M6 3v6.5a4.5 4.5 0 0 0 9 0V5" />
-                      <circle cx="18.5" cy="7" r="1.6" />
-                      <path d="M10.5 13.5V16a5.5 5.5 0 0 0 11 0v-1.2" />
-                    </svg>
+                    <img src="/doctor.jpg" alt="Doctor" />
                   </div>
                   <div className="role-copy">
                     <div className="t1">Login as Caregiver</div>
