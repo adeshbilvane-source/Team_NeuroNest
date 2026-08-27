@@ -29,6 +29,7 @@ export default function LanguageSwitcher() {
 
   const button = (
     <button
+      key={location.pathname}
       type="button"
       className="global-language-switcher"
       onClick={toggleLanguage}

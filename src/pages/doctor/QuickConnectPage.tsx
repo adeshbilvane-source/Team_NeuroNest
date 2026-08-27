@@ -1,5 +1,6 @@
 import { ArrowLeft, CheckCircle2, ExternalLink, Phone, Video } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { showToast } from '../../components/Toast'
 
 const CONTACTS = [
   { name: 'Ramesh Kulkarni', role: 'Family caregiver', initials: 'RK', phone: '+919800002101', status: 'Available now' },
@@ -13,7 +14,7 @@ function openVideoRoom(name: string) {
     window.location.href = 'https://meet.google.com/new'
     return
   }
-  window.alert(`Video room opened for ${name}. Share the room link with them to join.`)
+  showToast(`Video room opened for ${name}. Share the room link to invite them.`)
 }
 
 export default function QuickConnectPage() {

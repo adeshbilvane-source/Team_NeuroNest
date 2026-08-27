@@ -21,7 +21,7 @@ const STATS = {
   unreadMessages: 5,
 }
 const NEXT_APPOINTMENT = {
-  patientName: '[Patient Name]',
+  patientName: 'Ramesh Kulkarni',
   time: '11:00 AM',
 }
 const NOTIFICATION_COUNT = 3

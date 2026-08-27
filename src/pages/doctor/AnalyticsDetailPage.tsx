@@ -128,7 +128,7 @@ export default function AnalyticsDetailPage() {
   return (
     <div className="min-h-screen bg-canvas font-ui flex flex-col">
       {/* Header */}
-      <div className="px-4.5 pt-11 pb-3.5 bg-white shadow-sm flex items-center gap-3">
+      <div className="page-header px-4.5 pt-11 pb-3.5 bg-white shadow-sm flex items-center gap-3">
         <button
           onClick={() => navigate(-1)}
           aria-label="Back"

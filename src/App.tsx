@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import type { ReactNode } from 'react'
 import LoginPage from './pages/auth/LoginPage'
 import LanguageSwitcher from './components/LanguageSwitcher'
+import Toast from './components/Toast'
+import VoiceAssistant from './components/VoiceAssistant'
 
 // Patient stack
 import PatientHomePage from './pages/patient/HomePage'
@@ -56,6 +58,8 @@ export default function App() {
   return (
     <BrowserRouter>
       <LanguageSwitcher />
+      <Toast />
+      <VoiceAssistant />
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<LoginPage />} />
