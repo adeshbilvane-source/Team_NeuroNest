@@ -13,6 +13,7 @@
     "date-fns": "^4.4.0",
     "firebase": "^12.18.0",
     "i18next": "^26.4.0",
+    "jspdf": "^4.2.1",
     "lucide-react": "^1.34.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
