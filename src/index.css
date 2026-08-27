@@ -1,22 +1,89 @@
-@import "tailwindcss";
-
-@theme {
-  /* Design tokens — carried over from the approved mockups */
-  --color-canvas: #F3F6F0;
-  --color-ink: #24322A;
-  --color-ink-soft: #5B6A61;
-  --color-brand-green: #3F6B4F;
-  --color-brand-green-tint: #E3EDE5;
-  --color-marigold: #D98A2B;
-  --color-marigold-tint: #FBEEDA;
-  --color-alert-red: #B33F33;
-
-  --font-display: "Fraunces", serif;
-  --font-ui: "Nunito", sans-serif;
+/* Full width Auth container matching role-list cards */
+.auth-container {
+  padding: 20px 22px 30px 22px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
-body {
-  background-color: var(--color-canvas);
-  color: var(--color-ink);
-  font-family: var(--font-ui);
+.auth-header-card {
+  background: var(--white);
+  border-radius: 20px;
+  padding: 16px 18px;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.auth-header-card h1 {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 22px;
+  color: var(--ink);
+  margin: 0;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.auth-input-group {
+  width: 100%;
+}
+
+.auth-form input {
+  width: 100%;
+  padding: 18px 20px;
+  border-radius: 20px;
+  border: none;
+  background: var(--white);
+  box-shadow: var(--shadow);
+  font-size: 16px;
+  font-family: inherit;
+  font-weight: 700;
+  color: var(--ink);
+  outline: none;
+  transition: box-shadow 0.2s ease;
+}
+
+.auth-form input:focus {
+  box-shadow: 0 0 0 2px var(--green);
+}
+
+.auth-btn {
+  background: var(--green);
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 18px;
+  font-size: 17px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-top: 8px;
+  box-shadow: 0 8px 20px rgba(63, 107, 79, 0.3);
+  transition: transform 0.15s ease;
+}
+
+.auth-btn:active {
+  transform: scale(0.98);
+}
+
+.toggle-auth {
+  text-align: center;
+  font-size: 14px;
+  color: var(--ink-soft);
+  font-weight: 700;
+  margin-top: 14px;
+  cursor: pointer;
+}
+
+.toggle-auth span {
+  color: var(--green);
+  font-weight: 900;
 }
