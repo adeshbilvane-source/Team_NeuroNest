@@ -156,11 +156,6 @@ export default function PatientHomePage() {
           width: 44px; height: 44px; border-radius: 14px; background: var(--white);
           display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow); border: none; cursor: pointer;
         }
-        .lang-pill {
-          height: 44px; padding: 0 14px; border-radius: 14px; background: var(--white);
-          box-shadow: var(--shadow); display: flex; align-items: center; gap: 6px;
-          font-weight: 800; font-size: 13px; color: var(--green); cursor: pointer;
-        }
         .greeting { font-family: 'Fraunces', serif; font-weight: 600; font-style: italic; color: var(--ink); font-size: 28px; line-height: 1.15; margin: 14px 0 0 0; }
         .greeting .name { color: var(--green); font-style: normal; }
         .voice-row {
@@ -260,18 +255,12 @@ export default function PatientHomePage() {
         <div className="phone-screen">
           <div className="notch"></div>
 
-          <div className="header">
-            <div className="top-row">
+          <div className="header home-page-header">
+            <div className="top-row home-header-top">
               <div className="orient">
                 {currentDate}<span className="time">· {currentTime}</span>
               </div>
               <div className="icon-row">
-                <div className="lang-pill">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
-                    <path d="M4 5h11M9.5 3v2.2M6 5c0 4 2.5 6.5 6 8M13 5c-.6 3-2 5.5-4.5 7.5M14 21l4-9 4 9M15.6 18h4.8"/>
-                  </svg>
-                  EN
-                </div>
                 <button className="icon-btn" onClick={handleLogout} aria-label="Logout" title="Logout">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />

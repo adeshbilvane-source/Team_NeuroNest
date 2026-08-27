@@ -6,6 +6,7 @@ interface User {
   name: string;
   email: string;
   password?: string;
+  role?: 'patient' | 'caregiver';
 }
 
 export default function LoginPage() {
@@ -15,6 +16,7 @@ export default function LoginPage() {
   const [fullName, setFullName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [role, setRole] = useState<'patient' | 'caregiver'>('patient');
 
   const handleAuthSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -37,7 +39,8 @@ export default function LoginPage() {
       const newUser: User = { 
         name: fullName.trim(), 
         email: email.trim().toLowerCase(), 
-        password: password.trim() 
+        password: password.trim(),
+        role,
       };
       
       existingUsers.push(newUser);
@@ -57,19 +60,21 @@ export default function LoginPage() {
 
     const registeredUsers: User[] = JSON.parse(localStorage.getItem('sahayak_users') || '[]');
     const matchedUser = registeredUsers.find(
-      (u: User) => u.email === email.trim().toLowerCase() && u.password === password.trim()
+      (u: User) => u.email === email.trim().toLowerCase()
+        && u.password === password.trim()
+        && (role === 'caregiver' ? u.role === 'caregiver' : u.role !== 'caregiver')
     );
 
     if (matchedUser) {
       localStorage.setItem('sahayak_current_user', JSON.stringify(matchedUser));
-      navigate('/patient'); // Route to Patient Home
+      navigate(matchedUser.role === 'caregiver' ? '/doctor' : '/patient');
     } else {
       alert("Invalid Email or Password! If you don't have an account, click 'Create New'.");
     }
   };
 
   return (
-    <div className="login-root-container">
+    <div className="login-root-container app-page-enter">
       <style>{`
         :root {
           --canvas: #F3F6F0;
@@ -147,6 +152,10 @@ export default function LoginPage() {
         .role-icon {
           width: 52px; height: 52px; min-width: 52px;
           border-radius: 16px; background: var(--green-tint); display: flex; align-items: center; justify-content: center;
+          overflow: hidden; border: 2px solid var(--green-tint);
+        }
+        .role-icon img {
+          width: 100%; height: 100%; object-fit: cover; display: block;
         }
         .role-copy { display: flex; flex-direction: column; }
         .role-copy .t1 { font-size: 17px; font-weight: 800; color: var(--ink); }
@@ -183,6 +192,7 @@ export default function LoginPage() {
           width: 100%; padding: 16px 18px; border-radius: 20px; border: none;
           background: var(--white); box-shadow: var(--shadow); font-size: 15px;
           font-family: inherit; font-weight: 700; color: var(--ink); outline: none; box-sizing: border-box;
+          position: relative; z-index: 1; pointer-events: auto; user-select: text;
         }
         .auth-btn {
           background: var(--green); color: #fff; border: none; border-radius: 20px;
@@ -199,16 +209,7 @@ export default function LoginPage() {
 
           {subView === 'roles' ? (
             <>
-              <div className="top-bar">
-                <div className="lang-pill">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
-                    <path d="M4 5h11M9.5 3v2.2M6 5c0 4 2.5 6.5 6 8M13 5c-.6 3-2 5.5-4.5 7.5M14 21l4-9 4 9M15.6 18h4.8" />
-                  </svg>
-                  EN
-                </div>
-              </div>
-
-              <div className="brand">
+              <div className="brand app-reveal">
                 <div className="mark">
                   <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12 3.5c-4 2-7 3-7 8 0 5 4 8.5 7 9 3-.5 7-4 7-9 0-5-3-6-7-8Z" />
@@ -220,12 +221,9 @@ export default function LoginPage() {
               </div>
 
               <div className="role-list">
-                <button className="role-btn" onClick={() => { setIsRegistering(false); setSubView('auth_form'); }}>
+                <button className="role-btn app-reveal app-delay-1" onClick={() => { setRole('patient'); setIsRegistering(false); setSubView('auth_form'); }}>
                   <div className="role-icon">
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="8" r="3.4" />
-                      <path d="M4.5 20c0-3.6 3-6 7.5-6s7.5 2.4 7.5 6" />
-                    </svg>
+                    <img src="/patient.jpg" alt="Patient" />
                   </div>
                   <div className="role-copy">
                     <div className="t1">Login as Patient</div>
@@ -238,13 +236,9 @@ export default function LoginPage() {
                   </div>
                 </button>
 
-                <button className="role-btn" onClick={() => navigate('/doctor')}>
+                <button className="role-btn app-reveal app-delay-2" onClick={() => { setRole('caregiver'); setIsRegistering(false); setSubView('auth_form'); }}>
                   <div className="role-icon">
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M6 3v6.5a4.5 4.5 0 0 0 9 0V5" />
-                      <circle cx="18.5" cy="7" r="1.6" />
-                      <path d="M10.5 13.5V16a5.5 5.5 0 0 0 11 0v-1.2" />
-                    </svg>
+                    <img src="/doctor.jpg" alt="Doctor" />
                   </div>
                   <div className="role-copy">
                     <div className="t1">Login as Caregiver</div>
@@ -257,7 +251,7 @@ export default function LoginPage() {
                   </div>
                 </button>
 
-                <button className="role-btn disabled" aria-disabled="true">
+                <button className="role-btn disabled app-reveal app-delay-3" aria-disabled="true">
                   <div className="role-icon">
                     <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#8A9188" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                       <circle cx="8.5" cy="8" r="2.7" />
@@ -293,17 +287,17 @@ export default function LoginPage() {
                     <path d="M15 6l-6 6 6 6" />
                   </svg>
                 </button>
-                <h1>{isRegistering ? 'Create Account' : 'Patient Login'}</h1>
+                <h1>{isRegistering ? 'Create Account' : `${role === 'caregiver' ? 'Caregiver' : 'Patient'} Login`}</h1>
               </div>
 
-              <div className="brand" style={{ marginTop: '0', marginBottom: '20px', padding: 0 }}>
+              <div className="brand app-reveal" style={{ marginTop: '0', marginBottom: '20px', padding: 0 }}>
                 <div className="mark">
                   <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="8" r="3.4" />
                     <path d="M4.5 20c0-3.6 3-6 7.5-6s7.5 2.4 7.5 6" />
                   </svg>
                 </div>
-                <h1>{isRegistering ? 'Join Sahayak' : 'Welcome Back'}</h1>
+                <h1>{isRegistering ? `Join Sahayak as a ${role === 'caregiver' ? 'caregiver' : 'patient'}` : 'Welcome Back'}</h1>
                 <p>{isRegistering ? 'Sign up to start your care journey' : 'Enter your credentials to continue'}</p>
               </div>
 
