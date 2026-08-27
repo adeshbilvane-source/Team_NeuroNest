@@ -1,10 +1,70 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+interface FamilyContact {
+  id: string;
+  name: string;
+  relation: string;
+  phone: string;
+  availability: string;
+  avatarUrl?: string;
+}
 
 export default function FamilyEmergencyPage() {
   const navigate = useNavigate();
-  const [tab, setTab] = useState<'family' | 'emergency'>('family');
-  const [modalType, setModalType] = useState<'options' | 'caregiver' | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Real Contacts State
+  const [contacts, setContacts] = useState<FamilyContact[]>(() => {
+    const raw = localStorage.getItem('sahayak_family_contacts');
+    return raw ? JSON.parse(raw) : [];
+  });
+
+  const [showAddModal, setShowAddModal] = useState<boolean>(false);
+  const [newName, setNewName] = useState<string>('');
+  const [newRelation, setNewRelation] = useState<string>('Son');
+  const [newPhone, setNewPhone] = useState<string>('');
+  const [newAvailability, setNewAvailability] = useState<string>('Usually available');
+  const [newAvatar, setNewAvatar] = useState<string | null>(null);
+
+  useEffect(() => {
+    localStorage.setItem('sahayak_family_contacts', JSON.stringify(contacts));
+  }, [contacts]);
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setNewAvatar(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleAddContact = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newName.trim() || !newPhone.trim()) return;
+
+    const newContact: FamilyContact = {
+      id: 'fam-' + Date.now(),
+      name: newName.trim(),
+      relation: newRelation,
+      phone: newPhone.trim(),
+      availability: newAvailability.trim() || 'Available',
+      avatarUrl: newAvatar || undefined
+    };
+
+    setContacts(prev => [...prev, newContact]);
+    setNewName('');
+    setNewPhone('');
+    setNewAvatar(null);
+    setShowAddModal(false);
+  };
+
+  const handleDeleteContact = (id: string) => {
+    if (window.confirm('Remove this family member?')) {
+      setContacts(prev => prev.filter(c => c.id !== id));
+    }
+  };
 
   return (
     <div className="fam-root-container">
@@ -14,7 +74,6 @@ export default function FamilyEmergencyPage() {
           --green: #3F6B4F; --green-tint: #E3EDE5; --green-dark: #2E5140;
           --marigold: #D98A2B; --marigold-tint: #FBEEDA;
           --white: #FFFFFF; --shadow: 0 6px 16px rgba(36,50,42,0.08);
-          --red: #B33F33; --red-tint: #F4DEDA;
         }
         .fam-root-container {
           display: flex; align-items: center; justify-content: center; min-height: 100vh;
@@ -28,75 +87,76 @@ export default function FamilyEmergencyPage() {
           background: var(--canvas); border-radius: 34px; overflow: hidden;
           position: relative; min-height: 780px; display: flex; flex-direction: column; box-sizing: border-box;
         }
-        .notch {
-          position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
-          width: 120px; height: 24px; background: #111614; border-radius: 20px; z-index: 10;
+        .notch { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 120px; height: 24px; background: #111614; border-radius: 20px; z-index: 10; }
+        .page-header {
+          padding: 44px 18px 14px 18px; background: var(--white); box-shadow: var(--shadow);
+          display: flex; align-items: center; gap: 12px; z-index: 2;
         }
-        .page-header { padding: 44px 18px 0 18px; background: var(--white); box-shadow: var(--shadow); z-index: 2; }
-        .header-top { display: flex; align-items: center; gap: 12px; padding-bottom: 14px; }
         .back-btn {
           width: 38px; height: 38px; border-radius: 12px; background: var(--green-tint);
           border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;
         }
         .page-header h1 { font-family: 'Fraunces', serif; font-style: italic; font-weight: 600; font-size: 20px; color: var(--ink); margin: 0; }
-        .tabbar { display: flex; gap: 8px; padding-bottom: 14px; }
-        .tab {
-          padding: 10px 16px; border-radius: 20px; font-weight: 800; font-size: 13px; cursor: pointer;
-          background: var(--green-tint); color: var(--green); border: none; font-family: inherit;
+        .content { flex: 1; overflow-y: auto; padding: 16px 18px 26px 18px; }
+
+        .section-label {
+          font-size: 11.5px; font-weight: 900; color: var(--ink-soft);
+          text-transform: uppercase; letter-spacing: 0.6px; margin: 12px 0 10px;
         }
-        .tab.active { background: var(--green); color: #fff; }
-        .tab.red-active.active { background: var(--red); }
-        .content { flex: 1; overflow-y: auto; padding: 18px 18px 26px 18px; }
-        .section-label { margin: 0 0 12px; font-size: 12px; font-weight: 900; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.5px; }
-        .card {
-          background: var(--white); border-radius: 18px; padding: 14px 16px; margin-bottom: 12px;
-          display: flex; align-items: center; gap: 14px; box-shadow: var(--shadow);
+
+        .fam-card {
+          background: var(--white); border-radius: 20px; padding: 14px 16px; box-shadow: var(--shadow);
+          margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px;
         }
-        .avatar {
-          width: 48px; height: 48px; border-radius: 50%; background: var(--green-tint);
-          display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;
+        .fam-avatar {
+          width: 50px; height: 50px; border-radius: 50%; overflow: hidden; background: var(--marigold-tint);
+          display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;
         }
-        .card.emerg .avatar { background: var(--red-tint); }
-        .cbody { flex: 1; }
-        .cbody h4 { margin: 0 0 2px; font-size: 14.5px; color: var(--ink); }
-        .cbody p { margin: 0; color: var(--ink-soft); font-size: 11px; font-weight: 700; }
-        .pill-btn {
-          background: var(--green); color: #fff; border: none; border-radius: 13px; padding: 10px 14px;
-          font-size: 12.5px; font-weight: 800; cursor: pointer; font-family: inherit; white-space: nowrap;
+        .fam-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .fam-info { flex: 1; margin-left: 6px; }
+        .fam-info h4 { margin: 0; font-size: 14.5px; font-weight: 900; color: var(--ink); }
+        .fam-info p.rel { margin: 1px 0; font-size: 11.5px; font-weight: 800; color: var(--green); }
+        .fam-info p.sub { margin: 0; font-size: 10.5px; font-weight: 700; color: var(--ink-soft); }
+
+        .fam-actions { display: flex; align-items: center; gap: 6px; }
+        .vcall-btn {
+          background: var(--green); color: #fff; border: none; border-radius: 14px; padding: 9px 12px;
+          font-size: 12.5px; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 5px;
+          text-decoration: none;
         }
-        .pill-btn.red { background: var(--red); }
-        .more-btn { background: none; border: none; color: var(--ink-soft); font-size: 20px; cursor: pointer; padding: 4px 6px; }
-        .sos-card {
-          background: var(--red); border-radius: 20px; padding: 18px; margin-bottom: 20px;
-          box-shadow: 0 10px 22px rgba(179,63,51,0.35); text-align: center;
+        .del-contact-btn {
+          background: transparent; border: none; color: var(--ink-soft); font-size: 16px; cursor: pointer; padding: 4px;
         }
-        .sos-card button {
-          width: 100%; background: rgba(255,255,255,0.16); border: none; border-radius: 16px;
-          padding: 16px; font-size: 16px; font-weight: 900; color: #fff; cursor: pointer; font-family: inherit;
+
+        .add-contact-btn {
+          width: 100%; border: 2px dashed #B8C7BA; background: var(--white);
+          border-radius: 20px; padding: 14px; color: var(--green); font-weight: 900;
+          font-size: 13.5px; cursor: pointer; margin-top: 8px; box-sizing: border-box;
         }
-        .sos-card p { color: #F6D9D4; font-size: 11.5px; font-weight: 700; margin: 10px 0 0; line-height: 1.5; }
+
         .callout {
-          background: var(--marigold-tint); border-left: 4px solid var(--marigold); border-radius: 12px;
-          padding: 11px 14px; font-size: 12px; color: #7a5015; font-weight: 700; line-height: 1.5; margin: 6px 0 20px;
+          background: var(--marigold-tint); border-left: 4px solid var(--marigold); border-radius: 14px;
+          padding: 12px 14px; font-size: 11.5px; color: #7a5015; font-weight: 700; line-height: 1.45; margin-top: 14px;
         }
-        .caregiver-box { background: var(--white); border: 1.5px dashed #C7D3C9; border-radius: 18px; padding: 18px; text-align: center; }
-        .caregiver-box h3 { margin: 0 0 4px; font-size: 13.5px; color: var(--ink); }
-        .caregiver-box p { margin: 0 0 12px; color: var(--ink-soft); font-size: 11px; font-weight: 700; line-height: 1.4; }
-        .lock-btn {
-          background: var(--canvas); border: 1.5px solid #C7D3C9; color: var(--ink); border-radius: 12px;
-          padding: 10px 18px; font-weight: 800; font-size: 12.5px; cursor: pointer; font-family: inherit;
+
+        .modal-overlay {
+          position: fixed; inset: 0; background: rgba(36,50,42,0.6);
+          display: flex; align-items: flex-end; justify-content: center; z-index: 100;
         }
-        .modal { display: flex; position: fixed; inset: 0; background: rgba(36,50,42,.45); align-items: center; justify-content: center; z-index: 100; }
-        .modal-box { background: var(--white); border-radius: 20px; padding: 22px; width: 300px; max-width: 85%; }
-        .modal-box h3 { margin: 0 0 14px; font-family: 'Fraunces', serif; font-style: italic; font-size: 16px; color: var(--ink); }
-        .field { margin-bottom: 12px; }
-        .field label { display: block; font-size: 11px; color: var(--ink-soft); margin-bottom: 5px; font-weight: 800; }
-        .field input { width: 100%; padding: 10px; border-radius: 10px; border: 1.5px solid var(--green-tint); font-size: 13px; font-family: inherit; box-sizing: border-box; }
-        .modal-btns { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
-        .modal-btns button { padding: 11px; border-radius: 10px; border: none; font-weight: 800; cursor: pointer; font-family: inherit; font-size: 13px; }
-        .modal-btns .save { background: var(--green); color: #fff; }
-        .modal-btns .msg { background: var(--marigold); color: #fff; }
-        .modal-btns .cancel { background: var(--canvas); color: var(--ink); border: 1px solid #C7D3C9; }
+        .sheet {
+          width: 100%; max-width: 390px; background: var(--white); border-radius: 30px 30px 0 0;
+          padding: 24px 20px 32px 20px; box-sizing: border-box; box-shadow: 0 -10px 30px rgba(0,0,0,0.25);
+        }
+        .sheet h3 { margin: 0 0 16px 0; font-family: 'Fraunces', serif; font-size: 19px; color: var(--ink); }
+        .form-group { margin-bottom: 11px; }
+        .form-group label { display: block; font-size: 11.5px; font-weight: 800; color: var(--ink-soft); margin-bottom: 4px; }
+        .form-group select, .form-group input {
+          width: 100%; padding: 11px 12px; border-radius: 14px; border: 1.5px solid var(--green-tint);
+          background: var(--canvas); font-size: 13.5px; font-family: inherit; font-weight: 700; color: var(--ink); box-sizing: border-box;
+        }
+        .form-btns { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+        .submit-btn { background: var(--green); color: #fff; border: none; border-radius: 16px; padding: 14px; font-weight: 900; font-size: 14px; cursor: pointer; }
+        .cancel-btn { background: var(--canvas); border: 1.5px solid #C7D3C9; color: var(--ink); border-radius: 16px; padding: 12px; font-weight: 800; font-size: 13px; cursor: pointer; }
       `}</style>
 
       <div className="phone-wrapper">
@@ -104,97 +164,131 @@ export default function FamilyEmergencyPage() {
           <div className="notch"></div>
 
           <div className="page-header">
-            <div className="header-top">
-              <button className="back-btn" onClick={() => navigate('/patient')} aria-label="Back">
-                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
-              </button>
-              <h1>Family &amp; Emergency</h1>
-            </div>
-            <div className="tabbar">
-              <button className={`tab ${tab === 'family' ? 'active' : ''}`} onClick={() => setTab('family')}>👨‍👩‍👧 Family</button>
-              <button className={`tab red-active ${tab === 'emergency' ? 'active' : ''}`} onClick={() => setTab('emergency')}>🚨 Emergency</button>
-            </div>
+            <button className="back-btn" onClick={() => navigate('/patient')} aria-label="Back">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M15 6l-6 6 6 6" />
+              </svg>
+            </button>
+            <h1>Family Members</h1>
           </div>
 
           <div className="content">
-            {tab === 'family' ? (
-              <div>
-                <div className="section-label">Video call family</div>
-                <div className="card">
-                  <div className="avatar">👩</div>
-                  <div className="cbody"><h4>Daughter Priya</h4><p>Usually free in the evening</p></div>
-                  <button className="pill-btn" onClick={() => alert("Calling Priya...")}>📹 Video call</button>
-                  <button className="more-btn" onClick={() => setModalType('options')}>⋯</button>
-                </div>
-                <div className="card">
-                  <div className="avatar">👨</div>
-                  <div className="cbody"><h4>Son Rahul</h4><p>Usually free after work</p></div>
-                  <button className="pill-btn" onClick={() => alert("Calling Rahul...")}>📹 Video call</button>
-                  <button className="more-btn" onClick={() => setModalType('options')}>⋯</button>
-                </div>
-                <div className="callout">One big button calls them over video right away. The small "⋯" opens a plain call or message instead, so the card stays simple.</div>
+            <div className="section-label">Your Family Contacts</div>
 
-                <div className="caregiver-box">
-                  <h3>🔒 Add or edit family members</h3>
-                  <p>Set up once by a family member, not from here.</p>
-                  <button className="lock-btn" onClick={() => setModalType('caregiver')}>Open caregiver settings</button>
-                </div>
+            {contacts.length === 0 ? (
+              <div style={{ background: '#fff', borderRadius: '20px', padding: '28px 16px', textAlign: 'center', color: 'var(--ink-soft)', boxShadow: 'var(--shadow)' }}>
+                <div style={{ fontSize: '38px', marginBottom: '8px' }}>👨‍👩‍👧</div>
+                <h4 style={{ margin: '0 0 4px', fontSize: '15px', color: 'var(--ink)' }}>No family members added</h4>
+                <p style={{ margin: 0, fontSize: '12px', fontWeight: 700 }}>Add your loved ones below for direct 1-tap calls.</p>
               </div>
             ) : (
-              <div>
-                <div className="sos-card">
-                  <button onClick={() => alert("🚨 Calling Emergency Services and Caregiver!")}>🚨 Call for help now</button>
-                  <p>Calls your saved doctor immediately. No answer, and it tries the nurse next.</p>
+              contacts.map(c => (
+                <div key={c.id} className="fam-card">
+                  <div className="fam-avatar">
+                    {c.avatarUrl ? <img src={c.avatarUrl} alt={c.name} /> : '👤'}
+                  </div>
+                  <div className="fam-info">
+                    <h4>{c.name}</h4>
+                    <p className="rel">{c.relation}</p>
+                    <p className="sub">{c.availability}</p>
+                  </div>
+                  <div className="fam-actions">
+                    <a href={`tel:${c.phone}`} className="vcall-btn">
+                      📹 Call
+                    </a>
+                    <button className="del-contact-btn" onClick={() => handleDeleteContact(c.id)} title="Delete Contact">
+                      ✕
+                    </button>
+                  </div>
                 </div>
-
-                <div className="section-label">Saved emergency contacts</div>
-                <div className="card emerg">
-                  <div className="avatar">🩺</div>
-                  <div className="cbody"><h4>Dr. Sharma</h4><p>Family doctor</p></div>
-                  <button className="pill-btn red" onClick={() => alert("Calling Dr. Sharma...")}>📞 Call</button>
-                </div>
-                <div className="card emerg">
-                  <div className="avatar">💉</div>
-                  <div className="cbody"><h4>Nurse Anjali</h4><p>Home visit nurse</p></div>
-                  <button className="pill-btn red" onClick={() => alert("Calling Nurse Anjali...")}>📞 Call</button>
-                </div>
-                <div className="callout">Each contact has one button that always calls immediately. In an urgent moment, there's only one thing to decide.</div>
-
-                <div className="caregiver-box">
-                  <h3>🔒 Add or edit doctor / nurse</h3>
-                  <p>Locked so it can't open by accident.</p>
-                  <button className="lock-btn" onClick={() => setModalType('caregiver')}>Open caregiver settings</button>
-                </div>
-              </div>
+              ))
             )}
+
+            <button className="add-contact-btn" onClick={() => setShowAddModal(true)}>
+              + Add Family Contact
+            </button>
+
+            <div className="callout">
+              Tap the call button to connect with your family members instantly.
+            </div>
           </div>
         </div>
       </div>
 
-      {modalType === 'options' && (
-        <div className="modal">
-          <div className="modal-box">
-            <h3>More ways to reach them</h3>
-            <div className="modal-btns">
-              <button className="save" onClick={() => setModalType(null)}>📞 Plain phone call</button>
-              <button className="msg" onClick={() => setModalType(null)}>💬 Send a message</button>
-              <button className="cancel" onClick={() => setModalType(null)}>Close</button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ADD MODAL */}
+      {showAddModal && (
+        <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
+          <div className="sheet" onClick={e => e.stopPropagation()}>
+            <h3>Add Family Member</h3>
+            <form onSubmit={handleAddContact}>
+              <div className="form-group">
+                <label>Member Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Priya / Rahul"
+                  value={newName}
+                  onChange={e => setNewName(e.target.value)}
+                  required
+                />
+              </div>
 
-      {modalType === 'caregiver' && (
-        <div className="modal">
-          <div className="modal-box">
-            <h3>Caregiver settings</h3>
-            <div className="field"><label>Name</label><input placeholder="e.g. Son Rahul" /></div>
-            <div className="field"><label>Phone number</label><input placeholder="With country code" /></div>
-            <div className="field"><label>Relationship</label><input placeholder="e.g. Doctor, Daughter" /></div>
-            <div className="modal-btns">
-              <button className="save" onClick={() => setModalType(null)}>Save</button>
-              <button className="cancel" onClick={() => setModalType(null)}>Cancel</button>
-            </div>
+              <div className="form-group">
+                <label>Relationship</label>
+                <select value={newRelation} onChange={e => setNewRelation(e.target.value)}>
+                  <option value="Daughter">Daughter</option>
+                  <option value="Son">Son</option>
+                  <option value="Spouse">Spouse</option>
+                  <option value="Brother">Brother</option>
+                  <option value="Sister">Sister</option>
+                  <option value="Caregiver">Caregiver</option>
+                  <option value="Friend">Friend</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>Phone Number</label>
+                <input
+                  type="tel"
+                  placeholder="e.g. +91 98765 43210"
+                  value={newPhone}
+                  onChange={e => setNewPhone(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Availability / Note</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Usually free in the evening"
+                  value={newAvailability}
+                  onChange={e => setNewAvailability(e.target.value)}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Photo (Optional)</label>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  style={{ width: '100%', padding: '10px', borderRadius: '12px', border: '1.5px dashed var(--green)', background: 'var(--canvas)', fontWeight: 800, cursor: 'pointer' }}
+                >
+                  {newAvatar ? '✓ Photo Selected' : '📷 Upload Photo'}
+                </button>
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={fileInputRef}
+                  style={{ display: 'none' }}
+                  onChange={handlePhotoUpload}
+                />
+              </div>
+
+              <div className="form-btns">
+                <button type="submit" className="submit-btn">Save Member</button>
+                <button type="button" className="cancel-btn" onClick={() => setShowAddModal(false)}>Cancel</button>
+              </div>
+            </form>
           </div>
         </div>
       )}

@@ -311,7 +311,7 @@ export default function LoginPage() {
                 {isRegistering && (
                   <input
                     type="text"
-                    placeholder="Full Name (e.g. Adesh)"
+                    placeholder="Full Name (e.g. Adesh Bilvane )"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     required

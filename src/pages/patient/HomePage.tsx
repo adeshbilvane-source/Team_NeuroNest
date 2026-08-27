@@ -100,14 +100,14 @@ export default function PatientHomePage() {
         navigate('/patient/yoga');
       } else if (transcript.includes('reminder') || transcript.includes('medicine')) {
         navigate('/patient/reminders');
-      } else if (transcript.includes('family') || transcript.includes('call')) {
-        navigate('/patient/family-emergency');
+      } else if (transcript.includes('family') || transcript.includes('call my') || transcript.includes('son') || transcript.includes('daughter')) {
+        navigate('/patient/family');
       } else if (transcript.includes('video') || transcript.includes('photo')) {
         navigate('/patient/videos-library');
       } else if (transcript.includes('help') || transcript.includes('chat')) {
         navigate('/patient/chat');
-      } else if (transcript.includes('emergency') || transcript.includes('sos')) {
-        navigate('/patient/family-emergency');
+      } else if (transcript.includes('emergency') || transcript.includes('sos') || transcript.includes('doctor')) {
+        navigate('/patient/emergency');
       } else if (transcript.includes('logout')) {
         handleLogout();
       }
@@ -323,8 +323,8 @@ export default function PatientHomePage() {
                   </svg>
                 </div>
                 <div className="banner-copy">
-                <div className="label">Next Reminder ‹ Slide for Stats ›</div>
-               <div className="main">Take Blood Pressure Medicine — 2:00 PM</div>
+                  <div className="label">Next Reminder ‹ Slide for Stats ›</div>
+                  <div className="main">Take Blood Pressure Medicine — 2:00 PM</div>
                 </div>
                 <div className="banner-chevron">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
@@ -341,7 +341,7 @@ export default function PatientHomePage() {
                 <div className="banner-icon">📊</div>
                 <div className="banner-copy">
                   <div className="label">Playtime Analytics ‹ Slide ›</div>
-                  <div className="main">5.2 Hours Active · Tap to View Graph</div>
+                  <div className="main">Activity Insights · Tap to View Graph</div>
                 </div>
                 <div className="banner-chevron">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
@@ -370,15 +370,15 @@ export default function PatientHomePage() {
               <div className="label">Games</div>
             </button>
 
-           <button className="card" onClick={() => navigate('/patient/reminders')} aria-label="Reminders">
-  <div className="icon-wrap">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 2v2M8 4.5a3 3 0 0 1 6 0v1.8c0 2.6 1 4 2 5.2H6c1-1.2 2-2.6 2-5.2Z"/>
-      <path d="M4.5 13.5h13M10 16.5a2 2 0 0 0 3 0"/>
-    </svg>
-  </div>
-  <div className="label">Reminders or Appointment</div>
-</button>
+            <button className="card" onClick={() => navigate('/patient/reminders')} aria-label="Reminders">
+              <div className="icon-wrap">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2v2M8 4.5a3 3 0 0 1 6 0v1.8c0 2.6 1 4 2 5.2H6c1-1.2 2-2.6 2-5.2Z"/>
+                  <path d="M4.5 13.5h13M10 16.5a2 2 0 0 0 3 0"/>
+                </svg>
+              </div>
+              <div className="label">Reminders or Appointment</div>
+            </button>
 
             <button className="card" onClick={() => navigate('/patient/yoga')} aria-label="Yoga">
               <div className="icon-wrap">
@@ -400,7 +400,8 @@ export default function PatientHomePage() {
               <div className="label">Videos</div>
             </button>
 
-            <button className="card" onClick={() => navigate('/patient/family-emergency')} aria-label="Family">
+            {/* 1. Dedicated Family Button */}
+            <button className="card" onClick={() => navigate('/patient/family')} aria-label="Family">
               <div className="icon-wrap">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="8.5" cy="8" r="2.7"/><circle cx="16" cy="9" r="2.2"/>
@@ -421,11 +422,11 @@ export default function PatientHomePage() {
             </button>
           </div>
 
-          {/* Emergency SOS Bar */}
+          {/* 2. Dedicated Emergency SOS Button */}
           <div className="sos-wrap">
             <button
               className="sos-btn"
-              onClick={() => navigate('/patient/family-emergency')}
+              onClick={() => navigate('/patient/emergency')}
               aria-label="Emergency SOS"
             >
               <div className="sos-icon">

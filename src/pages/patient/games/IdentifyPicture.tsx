@@ -1,91 +1,108 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+type CategoryTab = 'Random' | 'Family photos' | 'My surroundings';
+
 interface QuestionItem {
   id: string;
-  display: string; // Emoji, icon ya base64 image URL
-  isImage: boolean;
+  display: string;
   name: string;
   category: 'random' | 'family' | 'surroundings';
 }
 
-interface CustomPhoto {
+export interface LibraryPhoto {
   id: string;
   imageUrl: string;
-  label: string; // e.g. "Brother", "Mother", "Living Room"
-  type: 'family' | 'surroundings';
+  label: string;
+  category: 'family' | 'surroundings' | 'general';
 }
 
-// Built-in 50+ Random Database (Vehicles, Animals, Objects, Food)
-const RANDOM_DATA: { name: string; icon: string }[] = [
-  { name: 'Car', icon: '🚗' },
-  { name: 'Motorcycle', icon: '🏍️' },
-  { name: 'Aeroplane', icon: '✈️' },
-  { name: 'Bicycle', icon: '🚲' },
-  { name: 'Bus', icon: '🚌' },
-  { name: 'Train', icon: '🚆' },
-  { name: 'Dog', icon: '🐕' },
-  { name: 'Cat', icon: '🐈' },
-  { name: 'Elephant', icon: '🐘' },
-  { name: 'Lion', icon: '🦁' },
-  { name: 'Cow', icon: '🐄' },
-  { name: 'Horse', icon: '🐎' },
-  { name: 'Apple', icon: '🍎' },
-  { name: 'Banana', icon: '🍌' },
-  { name: 'Mango', icon: '🥭' },
-  { name: 'Tea Cup', icon: '☕' },
-  { name: 'Chair', icon: '🪑' },
-  { name: 'Clock', icon: '⏰' },
-  { name: 'Umbrella', icon: '☂️' },
-  { name: 'House', icon: '🏠' },
-  { name: 'Tree', icon: '🌳' },
-  { name: 'Guitar', icon: '🎸' },
-  { name: 'Book', icon: '📖' },
-  { name: 'Telephone', icon: '☎️' },
-  { name: 'Spectacles', icon: '👓' }
+const REAL_RANDOM_DATA = [
+  { name: 'Car', image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=500&auto=format&fit=crop&q=80' },
+  { name: 'Dog', image: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=500&auto=format&fit=crop&q=80' },
+  { name: 'Cat', image: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=500&auto=format&fit=crop&q=80' },
+  { name: 'Apple', image: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=500&auto=format&fit=crop&q=80' },
+  { name: 'Banana', image: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=500&auto=format&fit=crop&q=80' },
+  { name: 'Tea Cup', image: 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=500&auto=format&fit=crop&q=80' },
+  { name: 'House', image: 'https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=500&auto=format&fit=crop&q=80' },
+  { name: 'Tree', image: 'https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?w=500&auto=format&fit=crop&q=80' },
+  { name: 'Aeroplane', image: 'https://images.unsplash.com/photo-1520437358207-323b43b50729?w=500&auto=format&fit=crop&q=80' },
+  { name: 'Bicycle', image: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=500&auto=format&fit=crop&q=80' },
+  { name: 'Elephant', image: 'https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?w=500&auto=format&fit=crop&q=80' },
+  { name: 'Clock', image: 'https://images.unsplash.com/photo-1508057198894-247b23fe5ade?w=500&auto=format&fit=crop&q=80' }
 ];
 
 export default function IdentifyPicture() {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Tab Mode
-  const [tab, setTab] = useState<'Random' | 'Family photos' | 'My surroundings'>('Random');
+  const [tab, setTab] = useState<CategoryTab>('Random');
 
-  // Game Level Progression (1 to 100)
-  const [level, setLevel] = useState<number>(() => {
-    return parseInt(localStorage.getItem('sahayak_identify_level') || '1', 10);
+  // Individual Level Storage for Each Tab
+  const [levels, setLevels] = useState<{ [key in CategoryTab]: number }>(() => ({
+    'Random': parseInt(localStorage.getItem('sahayak_level_random') || '1', 10),
+    'Family photos': parseInt(localStorage.getItem('sahayak_level_family') || '1', 10),
+    'My surroundings': parseInt(localStorage.getItem('sahayak_level_surroundings') || '1', 10)
+  }));
+
+  const currentLevel = levels[tab];
+
+  const [isRecoveryMode, setIsRecoveryMode] = useState<boolean>(false);
+  const [libraryPhotos, setLibraryPhotos] = useState<LibraryPhoto[]>(() => {
+    return JSON.parse(localStorage.getItem('sahayak_library_photos') || '[]');
   });
 
-  // Custom Uploads
-  const [customPhotos, setCustomPhotos] = useState<CustomPhoto[]>(() => {
-    return JSON.parse(localStorage.getItem('sahayak_custom_photos') || '[]');
-  });
-
-  // Upload Dialog State
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [photoLabel, setPhotoLabel] = useState<string>('Brother');
   const [showUploadModal, setShowUploadModal] = useState<boolean>(false);
 
-  // Current Quiz State
   const [currentQuestion, setCurrentQuestion] = useState<QuestionItem | null>(null);
   const [options, setOptions] = useState<string[]>([]);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
 
-  // Generate Question based on Level and Selected Tab
-  const generateQuiz = () => {
+  const sessionStartRef = useRef<number>(Date.now());
+
+  const saveAnalyticsTime = () => {
+    const elapsedSeconds = Math.floor((Date.now() - sessionStartRef.current) / 1000);
+    if (elapsedSeconds < 2) return;
+
+    const minutesSpent = Math.max(1, Math.round(elapsedSeconds / 60));
+    const raw = localStorage.getItem('sahayak_game_analytics');
+    const analytics = raw ? JSON.parse(raw) : {};
+    const todayKey = new Date().toISOString().split('T')[0];
+
+    if (!analytics[todayKey]) analytics[todayKey] = {};
+    if (!analytics[todayKey]['Identify Picture']) {
+      analytics[todayKey]['Identify Picture'] = { minutes: 0, icon: '🖼️', color: '#8A5A1C' };
+    }
+
+    analytics[todayKey]['Identify Picture'].minutes += minutesSpent;
+    localStorage.setItem('sahayak_game_analytics', JSON.stringify(analytics));
+    sessionStartRef.current = Date.now();
+  };
+
+  useEffect(() => {
+    return () => {
+      saveAnalyticsTime();
+    };
+  }, []);
+
+  const generateQuiz = (recovery: boolean = isRecoveryMode) => {
     setSelectedAnswer(null);
     setIsCorrect(null);
 
-    // Number of options increases with difficulty
-    let optionCount = 3;
-    if (level > 30) optionCount = 6;
-    else if (level > 10) optionCount = 4;
+    let optionCount = 2;
+    if (!recovery) {
+      if (currentLevel > 40) optionCount = 6;
+      else if (currentLevel > 15) optionCount = 4;
+      else optionCount = 3;
+    }
 
     if (tab === 'Random') {
-      const target = RANDOM_DATA[Math.floor(Math.random() * RANDOM_DATA.length)];
-      const distractors = RANDOM_DATA.filter(d => d.name !== target.name)
+      const target = REAL_RANDOM_DATA[Math.floor(Math.random() * REAL_RANDOM_DATA.length)];
+      const distractors = REAL_RANDOM_DATA
+        .filter(d => d.name !== target.name)
         .sort(() => Math.random() - 0.5)
         .slice(0, optionCount - 1)
         .map(d => d.name);
@@ -94,16 +111,14 @@ export default function IdentifyPicture() {
 
       setCurrentQuestion({
         id: 'rand-' + Date.now(),
-        display: target.icon,
-        isImage: false,
+        display: target.image,
         name: target.name,
         category: 'random'
       });
       setOptions(allOptions);
     } else {
-      // Family or Surroundings Mode
       const targetType = tab === 'Family photos' ? 'family' : 'surroundings';
-      const available = customPhotos.filter(p => p.type === targetType);
+      const available = libraryPhotos.filter(p => p.category === targetType);
 
       if (available.length === 0) {
         setCurrentQuestion(null);
@@ -112,12 +127,12 @@ export default function IdentifyPicture() {
       }
 
       const target = available[Math.floor(Math.random() * available.length)];
-      
-      const defaultPool = tab === 'Family photos' 
+      const defaultPool = tab === 'Family photos'
         ? ['Father', 'Mother', 'Brother', 'Sister', 'Son', 'Daughter', 'Grandson', 'Friend']
         : ['Living Room', 'Kitchen', 'Bedroom', 'Balcony', 'Garden', 'Temple Area', 'Main Door'];
 
-      const otherLabels = defaultPool.filter(l => l.toLowerCase() !== target.label.toLowerCase())
+      const otherLabels = defaultPool
+        .filter(l => l.toLowerCase() !== target.label.toLowerCase())
         .sort(() => Math.random() - 0.5)
         .slice(0, optionCount - 1);
 
@@ -126,7 +141,6 @@ export default function IdentifyPicture() {
       setCurrentQuestion({
         id: target.id,
         display: target.imageUrl,
-        isImage: true,
         name: target.label,
         category: targetType
       });
@@ -135,10 +149,14 @@ export default function IdentifyPicture() {
   };
 
   useEffect(() => {
-    generateQuiz();
-  }, [tab, level, customPhotos]);
+    const raw = localStorage.getItem('sahayak_library_photos');
+    if (raw) setLibraryPhotos(JSON.parse(raw));
+  }, [tab]);
 
-  // Answer Evaluation & Level Up
+  useEffect(() => {
+    generateQuiz(isRecoveryMode);
+  }, [tab, currentLevel, libraryPhotos]);
+
   const handleSelectOption = (chosen: string) => {
     if (selectedAnswer !== null || !currentQuestion) return;
 
@@ -147,18 +165,34 @@ export default function IdentifyPicture() {
     setIsCorrect(correct);
 
     if (correct) {
+      setIsRecoveryMode(false);
+      saveAnalyticsTime();
+
       setTimeout(() => {
-        if (level < 100) {
-          const nextLvl = level + 1;
-          setLevel(nextLvl);
-          localStorage.setItem('sahayak_identify_level', nextLvl.toString());
+        if (currentLevel < 100) {
+          const nextLvl = currentLevel + 1;
+          const updatedLevels = { ...levels, [tab]: nextLvl };
+          setLevels(updatedLevels);
+
+          const storageKey =
+            tab === 'Random'
+              ? 'sahayak_level_random'
+              : tab === 'Family photos'
+              ? 'sahayak_level_family'
+              : 'sahayak_level_surroundings';
+
+          localStorage.setItem(storageKey, nextLvl.toString());
         }
-        generateQuiz();
-      }, 1200);
+        generateQuiz(false);
+      }, 1000);
+    } else {
+      setIsRecoveryMode(true);
+      setTimeout(() => {
+        generateQuiz(true);
+      }, 1000);
     }
   };
 
-  // Handle Photo Upload / Camera Capture
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -174,20 +208,19 @@ export default function IdentifyPicture() {
   const handleSaveCustomPhoto = () => {
     if (!capturedImage || !photoLabel.trim()) return;
 
-    const newPhoto: CustomPhoto = {
+    const newPhoto: LibraryPhoto = {
       id: 'photo-' + Date.now(),
       imageUrl: capturedImage,
       label: photoLabel.trim(),
-      type: tab === 'Family photos' ? 'family' : 'surroundings'
+      category: tab === 'Family photos' ? 'family' : 'surroundings'
     };
 
-    const updated = [...customPhotos, newPhoto];
-    setCustomPhotos(updated);
-    localStorage.setItem('sahayak_custom_photos', JSON.stringify(updated));
+    const updated = [...libraryPhotos, newPhoto];
+    setLibraryPhotos(updated);
+    localStorage.setItem('sahayak_library_photos', JSON.stringify(updated));
 
     setCapturedImage(null);
     setShowUploadModal(false);
-    alert(`Saved photo for "${photoLabel}"!`);
   };
 
   return (
@@ -222,23 +255,17 @@ export default function IdentifyPicture() {
           border: none; display: flex; align-items: center; justify-content: center; cursor: pointer;
         }
         .page-header h1 { font-family: 'Fraunces', serif; font-style: italic; font-weight: 600; font-size: 19px; color: var(--ink); margin: 0; }
-        
         .level-badge {
           background: var(--marigold-tint); border: 1.5px solid var(--marigold);
           color: #8A5A1C; font-weight: 900; font-size: 12px; padding: 4px 10px; border-radius: 20px;
         }
-
         .content { flex: 1; overflow-y: auto; padding: 16px 18px 24px 18px; }
-
-        /* Chips navigation */
         .chip-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 12px; }
         .chip {
           background: var(--white); border: 1.5px solid var(--green-tint); color: var(--green);
           font-weight: 800; font-size: 12px; padding: 7px 14px; border-radius: 20px; cursor: pointer; white-space: nowrap;
         }
         .chip.active { background: var(--green); color: #fff; border-color: var(--green); }
-
-        /* Upload box */
         .upload-card {
           border: 2px dashed #B8C7BA; border-radius: 18px; padding: 14px; text-align: center;
           color: var(--ink); font-size: 12.5px; font-weight: 800; margin-bottom: 14px; background: var(--white);
@@ -247,27 +274,17 @@ export default function IdentifyPicture() {
           margin-top: 8px; background: var(--green); color: #fff; border: none; border-radius: 12px;
           padding: 8px 16px; font-size: 12px; font-weight: 800; cursor: pointer;
         }
-
-        /* Picture display box */
         .quiz-image-frame {
           width: 100%; aspect-ratio: 4/3; background: var(--white); border-radius: 22px;
           box-shadow: var(--shadow); display: flex; align-items: center; justify-content: center;
-          overflow: hidden; margin-bottom: 16px; position: relative; border: 2px solid var(--green-tint);
+          overflow: hidden; margin-bottom: 16px; border: 2px solid var(--green-tint);
         }
-        .emoji-display { font-size: 80px; }
         .photo-img { width: 100%; height: 100%; object-fit: cover; }
-
         .question-prompt {
           text-align: center; font-family: 'Fraunces', serif; font-size: 17px;
           font-weight: 600; color: var(--ink); margin-bottom: 14px;
         }
-
-        /* MCQ Options Grid */
-        .mcq-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 10px;
-        }
+        .mcq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .mcq-btn {
           background: var(--white); border: 2px solid transparent; border-radius: 16px;
           padding: 14px 10px; font-size: 14.5px; font-weight: 800; color: var(--ink);
@@ -277,13 +294,10 @@ export default function IdentifyPicture() {
         .mcq-btn:active { transform: scale(0.97); }
         .mcq-btn.correct { background: var(--green-tint); border-color: var(--green); color: var(--green); font-weight: 900; }
         .mcq-btn.wrong { background: var(--red-tint); border-color: var(--red); color: var(--red); }
-
         .callout {
           background: var(--marigold-tint); border-left: 4px solid var(--marigold); border-radius: 12px;
           padding: 10px 12px; font-size: 11.5px; color: #7a5015; font-weight: 700; line-height: 1.4; margin-top: 16px;
         }
-
-        /* Upload Modal */
         .modal-overlay {
           position: fixed; inset: 0; background: rgba(36,50,42,0.5);
           display: flex; align-items: center; justify-content: center; z-index: 100;
@@ -292,10 +306,8 @@ export default function IdentifyPicture() {
           background: var(--white); border-radius: 24px; padding: 20px; width: 310px; max-width: 90%;
           box-shadow: 0 10px 30px rgba(0,0,0,0.25); text-align: center;
         }
-        .modal-preview {
-          width: 100%; height: 160px; object-fit: cover; border-radius: 14px; margin-bottom: 12px;
-        }
-        .modal-box select, .modal-box input {
+        .modal-preview { width: 100%; height: 160px; object-fit: cover; border-radius: 14px; margin-bottom: 12px; }
+        .modal-box select {
           width: 100%; padding: 10px 12px; border-radius: 12px; border: 1.5px solid var(--green-tint);
           margin-bottom: 12px; font-family: inherit; font-size: 14px; font-weight: 700; box-sizing: border-box;
         }
@@ -309,34 +321,34 @@ export default function IdentifyPicture() {
         <div className="phone-screen">
           <div className="notch"></div>
 
-          {/* Header with Level 1-100 Progress */}
           <div className="page-header">
             <div className="header-left">
-              <button className="back-btn" onClick={() => navigate('/patient/games')} aria-label="Back">
+              <button className="back-btn" onClick={() => { saveAnalyticsTime(); navigate('/patient/games'); }} aria-label="Back">
                 <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M15 6l-6 6 6 6" />
                 </svg>
               </button>
               <h1>Identify Picture</h1>
             </div>
-            <div className="level-badge">⭐ Level {level} / 100</div>
+            <div className="level-badge">⭐ Level {currentLevel} / 100</div>
           </div>
 
           <div className="content">
-            {/* Category Tabs */}
             <div className="chip-row">
               {(['Random', 'Family photos', 'My surroundings'] as const).map(c => (
                 <div
                   key={c}
                   className={`chip ${tab === c ? 'active' : ''}`}
-                  onClick={() => setTab(c)}
+                  onClick={() => {
+                    setIsRecoveryMode(false);
+                    setTab(c);
+                  }}
                 >
-                  {c}
+                  {c} (Lvl {levels[c]})
                 </div>
               ))}
             </div>
 
-            {/* Upload Box ONLY visible in Family photos & Surroundings */}
             {tab !== 'Random' && (
               <div className="upload-card">
                 📸 Add {tab === 'Family photos' ? 'Family Member' : 'Room / Home'} Photo
@@ -358,15 +370,10 @@ export default function IdentifyPicture() {
               </div>
             )}
 
-            {/* Question Display Area */}
             {currentQuestion ? (
               <>
                 <div className="quiz-image-frame">
-                  {currentQuestion.isImage ? (
-                    <img src={currentQuestion.display} alt="Quiz Item" className="photo-img" />
-                  ) : (
-                    <span className="emoji-display">{currentQuestion.display}</span>
-                  )}
+                  <img src={currentQuestion.display} alt="Quiz Target" className="photo-img" />
                 </div>
 
                 <div className="question-prompt">
@@ -377,7 +384,6 @@ export default function IdentifyPicture() {
                     : 'What is shown in the picture?'}
                 </div>
 
-                {/* MCQ Options (Level-based count) */}
                 <div className="mcq-grid">
                   {options.map((opt, idx) => {
                     let btnClass = 'mcq-btn';
@@ -403,20 +409,19 @@ export default function IdentifyPicture() {
             ) : (
               <div style={{ textAlign: 'center', padding: '30px 10px', color: 'var(--ink-soft)' }}>
                 <p style={{ fontWeight: 800, fontSize: '15px' }}>No photos added for {tab} yet!</p>
-                <p style={{ fontSize: '12px' }}>Tap "Take / Upload Photo" above to add family faces or your home rooms to play.</p>
+                <p style={{ fontSize: '12px' }}>Upload photos here or from the Library to start playing Level {currentLevel}.</p>
               </div>
             )}
 
             <div className="callout">
-              {isCorrect === true && '🎉 Correct! Moving to the next level...'}
-              {isCorrect === false && '❌ Incorrect, try another choice!'}
-              {isCorrect === null && 'Choose the correct option matching the picture. Level increases difficulty!'}
+              {isCorrect === true && `🎉 Correct! Level ${currentLevel + 1} unlocked for ${tab}!`}
+              {isCorrect === false && '❌ Incorrect. Don\'t worry, here is a simpler one!'}
+              {isCorrect === null && `Playing ${tab} · Level ${currentLevel} of 100`}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Labeling Modal after Camera/File selection */}
       {showUploadModal && capturedImage && (
         <div className="modal-overlay">
           <div className="modal-box">

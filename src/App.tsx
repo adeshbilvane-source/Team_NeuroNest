@@ -12,6 +12,7 @@ import RemindersPage from './pages/patient/RemindersPage'
 import VideosLibraryPage from './pages/patient/VideosLibraryPage'
 import YogaPage from './pages/patient/YogaPage'
 import FamilyEmergencyPage from './pages/patient/FamilyEmergencyPage'
+import EmergencyPage from './pages/patient/EmergencyPage'
 import PatientChatThreadPage from './pages/patient/ChatPage'
 import PatientAnalyticsPage from './pages/patient/AnalyticsPage'
 import PatientAppointmentsPage from './pages/patient/AppointmentsPage'
@@ -40,21 +41,24 @@ export default function App() {
         {/* ---------------- PATIENT STACK ---------------- */}
         <Route path="/patient" element={<PatientHomePage />} />
 
-        {/* games.html was one hub + 4 internal JS panels; split into real routes
-            so browser back/forward and deep-linking work correctly */}
+        {/* Games */}
         <Route path="/patient/games" element={<GamesHubPage />} />
         <Route path="/patient/games/identify-picture" element={<IdentifyPicture />} />
         <Route path="/patient/games/memory-match" element={<MemoryMatch />} />
         <Route path="/patient/games/jigsaw" element={<JigsawPuzzle />} />
         <Route path="/patient/games/button-sorting" element={<ButtonSorting />} />
 
+        {/* Routine, Yoga & Media */}
         <Route path="/patient/reminders" element={<RemindersPage />} />
         <Route path="/patient/videos-library" element={<VideosLibraryPage />} />
         <Route path="/patient/yoga" element={<YogaPage />} />
-        <Route path="/patient/family-emergency" element={<FamilyEmergencyPage />} />
-        <Route path="/patient/chat" element={<PatientChatThreadPage />} />
 
-        {/* NOT YET DESIGNED — no mockup exists for either of these two */}
+        {/* Family & Emergency Routes */}
+        <Route path="/patient/family" element={<FamilyEmergencyPage />} />
+        <Route path="/patient/emergency" element={<EmergencyPage />} />
+        <Route path="/patient/family-emergency" element={<Navigate to="/patient/family" replace />} />
+
+        <Route path="/patient/chat" element={<PatientChatThreadPage />} />
         <Route path="/patient/analytics" element={<PatientAnalyticsPage />} />
         <Route path="/patient/appointments" element={<PatientAppointmentsPage />} />
 
@@ -65,9 +69,6 @@ export default function App() {
         <Route path="/doctor/patients" element={<PatientsListPage />} />
         <Route path="/doctor/patients/:patientId" element={<PatientProfilePage />} />
 
-        {/* ORPHANED — nothing on Home links here yet. Kept as its own route
-            rather than merged into /patients, since we don't know if
-            doctor_analytics_detail_mockup.html was meant to unify them. */}
         <Route path="/doctor/analytics" element={<AnalyticsHubPage />} />
         <Route path="/doctor/analytics/:patientId" element={<AnalyticsDetailPage />} />
 
