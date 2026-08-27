@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import type { ReactNode } from 'react'
 import LoginPage from './pages/auth/LoginPage'
+import LanguageSwitcher from './components/LanguageSwitcher'
 
 // Patient stack
 import PatientHomePage from './pages/patient/HomePage'
@@ -29,10 +31,31 @@ import PendingRequestsPage from './pages/doctor/PendingRequestsPage'
 import AppointmentDetailPage from './pages/doctor/AppointmentDetailPage'
 import DoctorChatListPage from './pages/doctor/ChatListPage'
 import DoctorChatThreadPage from './pages/doctor/ChatThreadPage'
+import QuickConnectPage from './pages/doctor/QuickConnectPage'
+import SettingsPage from './pages/doctor/SettingsPage'
+import NotificationsPage from './pages/doctor/NotificationsPage'
+
+function DoctorMobileFrame({ children }: { children: ReactNode }) {
+  return (
+    <div className="doctor-mobile-root">
+      <div className="doctor-mobile-phone">
+        <div className="doctor-mobile-screen">
+          <div className="doctor-mobile-notch" />
+          {children}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function DoctorPage({ children }: { children: ReactNode }) {
+  return <DoctorMobileFrame>{children}</DoctorMobileFrame>
+}
 
 export default function App() {
   return (
     <BrowserRouter>
+      <LanguageSwitcher />
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<LoginPage />} />
@@ -59,25 +82,28 @@ export default function App() {
         <Route path="/patient/appointments" element={<PatientAppointmentsPage />} />
 
         {/* ---------------- DOCTOR STACK ---------------- */}
-        <Route path="/doctor" element={<DoctorHomePage />} />
-        <Route path="/doctor/search" element={<DoctorSearchPage />} />
+        <Route path="/doctor" element={<DoctorPage><DoctorHomePage /></DoctorPage>} />
+        <Route path="/doctor/search" element={<DoctorPage><DoctorSearchPage /></DoctorPage>} />
 
-        <Route path="/doctor/patients" element={<PatientsListPage />} />
-        <Route path="/doctor/patients/:patientId" element={<PatientProfilePage />} />
+        <Route path="/doctor/patients" element={<DoctorPage><PatientsListPage /></DoctorPage>} />
+        <Route path="/doctor/patients/:patientId" element={<DoctorPage><PatientProfilePage /></DoctorPage>} />
 
         {/* ORPHANED — nothing on Home links here yet. Kept as its own route
             rather than merged into /patients, since we don't know if
             doctor_analytics_detail_mockup.html was meant to unify them. */}
-        <Route path="/doctor/analytics" element={<AnalyticsHubPage />} />
-        <Route path="/doctor/analytics/:patientId" element={<AnalyticsDetailPage />} />
+        <Route path="/doctor/analytics" element={<DoctorPage><AnalyticsHubPage /></DoctorPage>} />
+        <Route path="/doctor/analytics/:patientId" element={<DoctorPage><AnalyticsDetailPage /></DoctorPage>} />
 
-        <Route path="/doctor/appointments" element={<AppointmentsCalendarPage />} />
-        <Route path="/doctor/appointments/today" element={<AppointmentsTodayPage />} />
-        <Route path="/doctor/appointments/pending" element={<PendingRequestsPage />} />
-        <Route path="/doctor/appointments/:appointmentId" element={<AppointmentDetailPage />} />
+        <Route path="/doctor/appointments" element={<DoctorPage><AppointmentsCalendarPage /></DoctorPage>} />
+        <Route path="/doctor/appointments/today" element={<DoctorPage><AppointmentsTodayPage /></DoctorPage>} />
+        <Route path="/doctor/appointments/pending" element={<DoctorPage><PendingRequestsPage /></DoctorPage>} />
+        <Route path="/doctor/appointments/:appointmentId" element={<DoctorPage><AppointmentDetailPage /></DoctorPage>} />
 
-        <Route path="/doctor/chat" element={<DoctorChatListPage />} />
-        <Route path="/doctor/chat/:threadId" element={<DoctorChatThreadPage />} />
+        <Route path="/doctor/chat" element={<DoctorPage><DoctorChatListPage /></DoctorPage>} />
+        <Route path="/doctor/chat/:threadId" element={<DoctorPage><DoctorChatThreadPage /></DoctorPage>} />
+        <Route path="/doctor/call" element={<DoctorPage><QuickConnectPage /></DoctorPage>} />
+        <Route path="/doctor/settings" element={<DoctorPage><SettingsPage /></DoctorPage>} />
+        <Route path="/doctor/notifications" element={<DoctorPage><NotificationsPage /></DoctorPage>} />
 
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>

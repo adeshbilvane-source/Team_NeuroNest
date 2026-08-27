@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Bell,
@@ -14,7 +15,6 @@ import {
 // Placeholder data — replace with real Firebase/store data once wired.
 // Flagging explicitly: none of these numbers are real yet.
 const TODAY_LABEL = 'Wednesday, 26 Aug'
-const CAREGIVER_NAME = '[Caregiver Name]'
 const STATS = {
   appointmentsToday: 3,
   pendingRequests: 2,
@@ -28,16 +28,27 @@ const NOTIFICATION_COUNT = 3
 
 export default function DoctorHomePage() {
   const navigate = useNavigate()
+  const [caregiverName, setCaregiverName] = useState('[Caregiver Name]')
+
+  useEffect(() => {
+    try {
+      const currentUser = JSON.parse(localStorage.getItem('sahayak_current_user') || '{}')
+      if (currentUser.name) setCaregiverName(currentUser.name)
+    } catch {
+      // Keep the prototype placeholder when no profile is stored.
+    }
+  }, [])
 
   return (
-    <div className="min-h-screen bg-canvas font-ui flex flex-col">
+    <div className="min-h-screen bg-canvas font-ui flex flex-col app-page-enter">
       {/* Header */}
-      <div className="px-6 pt-11 pb-0">
-        <div className="flex items-start justify-between">
+      <div className="doctor-page-header px-6 pt-11 pb-0 app-reveal">
+        <div className="doctor-header-top flex items-start justify-between">
           <div className="font-bold text-ink-soft text-[13.5px]">{TODAY_LABEL}</div>
-          <div className="flex gap-2.5">
+          <div className="icon-row flex gap-2.5">
             <button
               aria-label="Notifications"
+              onClick={() => navigate('/doctor/notifications')}
               className="relative w-[42px] h-[42px] rounded-[13px] bg-white shadow-sm flex items-center justify-center"
             >
               <Bell size={20} className="text-brand-green" strokeWidth={2.2} />
@@ -49,6 +60,7 @@ export default function DoctorHomePage() {
             </button>
             <button
               aria-label="Settings"
+              onClick={() => navigate('/doctor/settings')}
               className="w-[42px] h-[42px] rounded-[13px] bg-white shadow-sm flex items-center justify-center"
             >
               <Settings size={20} className="text-brand-green" strokeWidth={2.2} />
@@ -59,7 +71,7 @@ export default function DoctorHomePage() {
         <h1 className="font-display italic font-semibold text-[24px] text-ink mt-4 leading-tight">
           Good Morning,
           <br />
-          <span className="not-italic text-brand-green">{CAREGIVER_NAME}</span>
+          <span className="not-italic text-brand-green">{caregiverName}</span>
         </h1>
 
         <button
@@ -73,7 +85,7 @@ export default function DoctorHomePage() {
         <div className="flex gap-2.5 mt-4">
           <button
             onClick={() => navigate('/doctor/appointments/today')}
-            className="flex-1 bg-white rounded-2xl px-2.5 py-3 shadow-sm text-center"
+            className="flex-1 min-w-0 bg-white rounded-2xl px-2.5 py-3 shadow-sm text-center"
           >
             <div className="text-[21px] font-black text-brand-green">{STATS.appointmentsToday}</div>
             <div className="text-[10.5px] font-extrabold text-ink-soft mt-0.5 leading-tight">
@@ -84,7 +96,7 @@ export default function DoctorHomePage() {
           </button>
           <button
             onClick={() => navigate('/doctor/appointments/pending')}
-            className="flex-1 bg-white rounded-2xl px-2.5 py-3 shadow-sm text-center"
+            className="flex-1 min-w-0 bg-white rounded-2xl px-2.5 py-3 shadow-sm text-center"
           >
             <div className="text-[21px] font-black text-marigold">{STATS.pendingRequests}</div>
             <div className="text-[10.5px] font-extrabold text-ink-soft mt-0.5 leading-tight">
@@ -95,7 +107,7 @@ export default function DoctorHomePage() {
           </button>
           <button
             onClick={() => navigate('/doctor/chat')}
-            className="flex-1 bg-white rounded-2xl px-2.5 py-3 shadow-sm text-center"
+            className="flex-1 min-w-0 bg-white rounded-2xl px-2.5 py-3 shadow-sm text-center"
           >
             <div className="text-[21px] font-black text-brand-green">{STATS.unreadMessages}</div>
             <div className="text-[10.5px] font-extrabold text-ink-soft mt-0.5 leading-tight">
@@ -110,7 +122,7 @@ export default function DoctorHomePage() {
       {/* Next appointment banner */}
       <button
         onClick={() => navigate('/doctor/appointments/today')}
-        className="mx-6 mt-4 rounded-[20px] px-4.5 py-4 flex items-center gap-3.5 text-left shadow-lg"
+        className="mx-6 mt-4 rounded-[20px] px-4.5 py-4 flex items-center gap-3.5 text-left shadow-lg app-reveal app-delay-1"
         style={{
           background: 'linear-gradient(135deg, #3F6B4F 0%, #345943 100%)',
           boxShadow: '0 10px 22px rgba(63,107,79,0.35)',
@@ -131,10 +143,10 @@ export default function DoctorHomePage() {
       </button>
 
       {/* Manage section */}
-      <div className="mt-6 px-6 text-[13px] font-black text-ink-soft uppercase tracking-wide">
+      <div className="mt-6 px-6 text-[13px] font-black text-ink-soft uppercase tracking-wide app-reveal app-delay-2">
         Manage
       </div>
-      <div className="mt-2.5 px-6 grid grid-cols-2 gap-3.5">
+      <div className="mt-2.5 px-6 grid grid-cols-2 gap-3.5 app-reveal app-delay-3">
         <button
           onClick={() => navigate('/doctor/patients')}
           aria-label="Patients List"

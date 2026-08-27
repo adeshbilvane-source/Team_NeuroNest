@@ -13,7 +13,7 @@ i18n.use(initReactI18next).init({
     en: { translation: en },
     hi: { translation: hi },
   },
-  lng: 'en',
+  lng: localStorage.getItem('sahayak_language') || 'en',
   fallbackLng: 'en',
   interpolation: { escapeValue: false },
 })
