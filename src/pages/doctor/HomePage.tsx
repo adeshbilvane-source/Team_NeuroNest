@@ -8,6 +8,7 @@ import {
   Users,
   MessageCircle,
   LineChart,
+  PhoneCall,
 } from 'lucide-react'
 
 // Placeholder data — replace with real Firebase/store data once wired.
@@ -133,7 +134,7 @@ export default function DoctorHomePage() {
       <div className="mt-6 px-6 text-[13px] font-black text-ink-soft uppercase tracking-wide">
         Manage
       </div>
-      <div className="mt-2.5 px-6 grid grid-cols-2 gap-3.5 pb-8">
+      <div className="mt-2.5 px-6 grid grid-cols-2 gap-3.5">
         <button
           onClick={() => navigate('/doctor/patients')}
           aria-label="Patients List"
@@ -156,9 +157,7 @@ export default function DoctorHomePage() {
           <div className="font-extrabold text-[15px] text-ink">Appointments</div>
         </button>
 
-        {/* NEW: Analytics tile — was previously an orphaned route with no
-            entry point on Home. Opens the flagged-first analytics hub
-            across all patients. */}
+        {/* Analytics tile — opens the flagged-first analytics hub across all patients. */}
         <button
           onClick={() => navigate('/doctor/analytics')}
           aria-label="Patient Analytics"
@@ -170,22 +169,49 @@ export default function DoctorHomePage() {
           <div className="font-extrabold text-[15px] text-ink">Analytics</div>
         </button>
 
+        {/* Patient Chat — now a regular 4th grid tile, with its own unread badge
+            instead of a full-width row. Badge mirrors the notification bell pattern. */}
         <button
           onClick={() => navigate('/doctor/chat')}
           aria-label="Chat with patients"
-          className="col-span-2 bg-brand-green-tint rounded-2xl p-4 flex flex-row items-center gap-3.5 text-left active:scale-[0.97] transition-transform"
+          className="relative bg-brand-green-tint rounded-2xl px-3.5 py-4 flex flex-col items-start gap-5 min-h-[100px] text-left active:scale-[0.97] transition-transform"
         >
-          <div className="w-11 h-11 rounded-xl bg-white flex items-center justify-center flex-shrink-0">
+          <div className="relative w-11 h-11 rounded-xl bg-white flex items-center justify-center flex-shrink-0">
             <MessageCircle size={22} className="text-brand-green" strokeWidth={2.2} />
+            {STATS.unreadMessages > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 w-[18px] h-[18px] rounded-full bg-alert-red text-white text-[9.5px] font-black flex items-center justify-center border-2 border-brand-green-tint">
+                {STATS.unreadMessages}
+              </span>
+            )}
           </div>
-          <div>
-            <div className="font-extrabold text-[15px] text-ink">Patient Chat</div>
-            <div className="text-[11.5px] font-bold text-ink-soft mt-0.5">
-              {STATS.unreadMessages} unread messages waiting
-            </div>
-          </div>
+          <div className="font-extrabold text-[15px] text-ink">Patient Chat</div>
         </button>
       </div>
+
+      {/* Quick Connect banner — same visual language as Next Appointment,
+          for reaching a patient directly by call or video call without
+          going through chat first. Patient picker lives at the destination route. */}
+      <button
+        onClick={() => navigate('/doctor/call')}
+        className="mx-6 mt-4 mb-8 rounded-[20px] px-4.5 py-4 flex items-center gap-3.5 text-left shadow-lg"
+        style={{
+          background: 'linear-gradient(135deg, #D98A2B 0%, #B36F1E 100%)',
+          boxShadow: '0 10px 22px rgba(217,138,43,0.35)',
+        }}
+      >
+        <div className="w-[46px] h-[46px] rounded-2xl bg-white/[0.18] flex items-center justify-center flex-shrink-0">
+          <PhoneCall size={24} className="text-white" strokeWidth={2.3} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-[11px] font-extrabold tracking-wide text-[#FBEEDA] uppercase">
+            Quick Connect
+          </div>
+          <div className="text-[15.5px] font-extrabold text-white mt-0.5 truncate">
+            Call or video call a patient
+          </div>
+        </div>
+        <ChevronRight size={18} className="text-white flex-shrink-0" strokeWidth={2.6} />
+      </button>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, AlertTriangle, Zap, Target, Clock, Eye } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { jsPDF } from 'jspdf'
+import { ArrowLeft, AlertTriangle, Zap, Target, Clock, Eye, Download, FileJson, FileSpreadsheet, FileText } from 'lucide-react'
 
 // Placeholder data — replace with real Firebase/store data once wired.
 // This entire file renders ONE patient's analytics, keyed by :patientId
@@ -16,9 +17,34 @@ const RANGE_LABELS: Record<Range, string> = {
   '90d': '90 Days',
 }
 
+const SESSION_DATA = [
+  { game: 'Identify the Picture', date: 'Today, 9:10 AM', rounds: 12, reactionTime: 640, missedTargets: 5 },
+  { game: 'Memory Match', date: 'Yesterday, 6:40 PM', rounds: 8, reactionTime: 580, missedTargets: 3 },
+  { game: 'Button Sorting', date: 'Yesterday, 11:15 AM', rounds: 15, reactionTime: 560, missedTargets: 2 },
+]
+
+const METRICS = [
+  { name: 'Reaction Time', definition: 'Time from prompt shown to first correct tap', current: '612 ms', baseline: '502 ms', best: '470 ms' },
+  { name: 'Missed Target', definition: 'Prompts shown with no response, or wrong tap', current: '5', baseline: '2.4', best: '21%' },
+  { name: 'Current Response Time', definition: 'Reaction time from the most recent session only', current: '640 ms', baseline: '580 ms', best: '+60 ms' },
+  { name: 'Attention Score', definition: 'Composite of reaction consistency + miss rate, 0-100', current: '58 / 100', baseline: '76 / 100', best: '54 / 100' },
+]
+
+function downloadFile(content: string, fileName: string, type: string) {
+  const url = URL.createObjectURL(new Blob([content], { type }))
+  const link = document.createElement('a')
+  link.href = url
+  link.download = fileName
+  link.click()
+  URL.revokeObjectURL(url)
+}
+
+function csvValue(value: string | number) {
+  return `"${String(value).replaceAll('"', '""')}"`
+}
+
 export default function AnalyticsDetailPage() {
   const navigate = useNavigate()
-  const { patientId } = useParams<{ patientId: string }>()
   const [range, setRange] = useState<Range>('30d')
 
   // MOCK — does not yet vary by patientId or range
@@ -26,6 +52,77 @@ export default function AnalyticsDetailPage() {
     name: 'Sunita Rao',
     age: 68,
     flagged: true,
+  }
+
+  const exportBaseName = `${patient.name.toLowerCase().replaceAll(' ', '-')}-analytics-${range}`
+
+  const downloadCsv = () => {
+    const rows = [
+      ['Patient', patient.name],
+      ['Age', patient.age],
+      ['Period', RANGE_LABELS[range]],
+      [],
+      ['Metric', 'Definition', 'Current', 'Baseline / Average', 'Best / Low'],
+      ...METRICS.map((metric) => [metric.name, metric.definition, metric.current, metric.baseline, metric.best]),
+      [],
+      ['Game', 'Session', 'Rounds', 'Average reaction time (ms)', 'Missed targets'],
+      ...SESSION_DATA.map((session) => [session.game, session.date, session.rounds, session.reactionTime, session.missedTargets]),
+    ]
+    downloadFile(rows.map((row) => row.map((value) => csvValue(value ?? '')).join(',')).join('\n'), `${exportBaseName}.csv`, 'text/csv;charset=utf-8')
+  }
+
+  const downloadFhir = () => {
+    const report = {
+      resourceType: 'DiagnosticReport',
+      id: `${exportBaseName}-report`,
+      status: 'final',
+      code: { coding: [{ system: 'http://loinc.org', code: '8684-3', display: 'Cognitive function assessment' }] },
+      subject: { reference: `Patient/${patient.name.toLowerCase().replaceAll(' ', '-')}`, display: patient.name },
+      effectiveDateTime: new Date().toISOString(),
+      conclusion: patient.flagged ? 'Attention flag: reaction time and missed targets have increased.' : 'No attention flag recorded.',
+      contained: METRICS.map((metric, index) => ({
+        resourceType: 'Observation',
+        id: `${exportBaseName}-observation-${index + 1}`,
+        status: 'final',
+        code: { text: metric.name },
+        subject: { reference: `Patient/${patient.name.toLowerCase().replaceAll(' ', '-')}` },
+        valueString: metric.current,
+        note: [{ text: metric.definition }],
+      })),
+      result: METRICS.map((_, index) => ({ reference: `#${exportBaseName}-observation-${index + 1}` })),
+      extension: [{ url: 'https://neuronest.example/fhir/analytics-period', valueCode: range }],
+    }
+    downloadFile(JSON.stringify(report, null, 2), `${exportBaseName}.fhir.json`, 'application/fhir+json;charset=utf-8')
+  }
+
+  const downloadPdf = () => {
+    const pdf = new jsPDF()
+    pdf.setFontSize(20)
+    pdf.text(`${patient.name} - Analytics`, 20, 20)
+    pdf.setFontSize(10)
+    pdf.setTextColor(91, 106, 97)
+    pdf.text(`Age ${patient.age} | Reporting period: ${RANGE_LABELS[range]}`, 20, 30)
+    pdf.setTextColor(36, 50, 42)
+    pdf.setFontSize(13)
+    pdf.text('Metric breakdown', 20, 45)
+    pdf.setFontSize(10)
+    METRICS.forEach((metric, index) => {
+      const y = 55 + index * 18
+      pdf.text(metric.name, 20, y)
+      pdf.setTextColor(91, 106, 97)
+      pdf.text(`${metric.definition} | Current: ${metric.current} | Baseline: ${metric.baseline} | Best/Low: ${metric.best}`, 20, y + 6)
+      pdf.setTextColor(36, 50, 42)
+    })
+    pdf.setFontSize(13)
+    pdf.text('Recent sessions', 20, 138)
+    pdf.setFontSize(10)
+    SESSION_DATA.forEach((session, index) => {
+      pdf.text(`${session.game}: ${session.date}, ${session.rounds} rounds, ${session.reactionTime} ms avg, ${session.missedTargets} missed`, 20, 148 + index * 8)
+    })
+    pdf.setFontSize(9)
+    pdf.setTextColor(91, 106, 97)
+    pdf.text('Gameplay patterns are not a medical assessment.', 20, 180)
+    pdf.save(`${exportBaseName}.pdf`)
   }
 
   return (
@@ -66,6 +163,18 @@ export default function AnalyticsDetailPage() {
               {RANGE_LABELS[r]}
             </button>
           ))}
+        </div>
+
+        <div className="bg-white rounded-2xl px-3.5 py-3 shadow-sm mb-4">
+          <div className="flex items-center gap-2 mb-2.5">
+            <Download size={16} className="text-brand-green" />
+            <span className="text-[12px] font-black text-ink-soft uppercase tracking-wide">Export analytics</span>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            <ExportButton icon={<FileText size={15} />} label="PDF" onClick={downloadPdf} />
+            <ExportButton icon={<FileSpreadsheet size={15} />} label="CSV" onClick={downloadCsv} />
+            <ExportButton icon={<FileJson size={15} />} label="FHIR JSON" onClick={downloadFhir} />
+          </div>
         </div>
 
         {/* Attention banner */}
@@ -255,6 +364,19 @@ export default function AnalyticsDetailPage() {
         </p>
       </div>
     </div>
+  )
+}
+
+function ExportButton({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex items-center justify-center gap-1.5 rounded-xl bg-brand-green-tint py-2.5 text-[11px] font-black text-brand-green transition-colors hover:bg-brand-green hover:text-white"
+    >
+      {icon}
+      {label}
+    </button>
   )
 }
 
