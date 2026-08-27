@@ -87,3 +87,30 @@
   color: var(--green);
   font-weight: 900;
 }
+@import "tailwindcss";
+@theme {
+  /* Design tokens — carried over from the approved mockups */
+  --color-canvas: #F3F6F0;
+  --color-ink: #24322A;
+  --color-ink-soft: #5B6A61;
+  --color-brand-green: #3F6B4F;
+  --color-brand-green-tint: #E3EDE5;
+  --color-marigold: #D98A2B;
+  --color-marigold-tint: #FBEEDA;
+  --color-alert-red: #B33F33;
+
+  /* Added for the doctor/caregiver-side pages (Analytics, Patient Profile,
+     Appointments). Not present in the original theme block — these
+     colors appeared in the mockups but were never registered here. */
+  --color-red-tint: #F4DEDA;
+  --color-blue: #3E7FB8;
+  --color-blue-tint: #E1EDF6;
+
+  --font-display: "Fraunces", serif;
+  --font-ui: "Nunito", sans-serif;
+}
+body {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-ui);
+}
