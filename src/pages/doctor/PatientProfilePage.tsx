@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, MessageCircle, Calendar, LineChart } from 'lucide-react'
+import PatientAvatar from '../../components/PatientAvatar'
 
 // Placeholder data — replace with real Firebase/store data once wired.
 // Does not yet vary by patientId.
@@ -7,7 +8,24 @@ export default function PatientProfilePage() {
   const navigate = useNavigate()
   const { patientId } = useParams<{ patientId: string }>()
 
-  const patient = {
+  const patient = patientId === 'sunita-rao' ? {
+    initials: 'SR',
+    name: 'Sunita Rao',
+    meta: 'Female · Dizziness, hypertension',
+    age: '68 yrs',
+    birthdate: '9 Jul 1958',
+    bloodType: 'B+',
+    contact: '+91 98xxxxx103',
+    vitals: [
+      { label: '🩸 Blood glucose (avg)', value: '118 mg/dL', warn: false },
+      { label: '❤️ Blood pressure (avg)', value: '146/92', warn: true },
+      { label: '🚶 Mobility check-ins', value: '4 / 7 days', warn: true },
+    ],
+    note: {
+      text: 'Sunita reported chest tightness and dizziness today. Check her blood pressure and call her daughter if symptoms return.',
+      date: 'Added 26 Aug',
+    },
+  } : {
     initials: 'RK',
     name: 'Ramesh Kulkarni',
     meta: 'Male · Diabetic, Osteoarthritis',
@@ -43,9 +61,7 @@ export default function PatientProfilePage() {
       <div className="flex-1 overflow-y-auto px-4.5 py-4.5 pb-8">
         {/* Profile hero */}
         <div className="bg-white rounded-[22px] px-5.5 py-5.5 text-center shadow-sm mb-4">
-          <div className="w-16 h-16 rounded-full bg-brand-green text-white flex items-center justify-center font-extrabold text-[22px] mx-auto mb-2.5">
-            {patient.initials}
-          </div>
+          <PatientAvatar patientId={patientId || 'ramesh-kulkarni'} initials={patient.initials} name={patient.name} className="w-16 h-16 rounded-full bg-brand-green text-white flex items-center justify-center font-extrabold text-[22px] mx-auto mb-2.5" />
           <h2 className="font-display italic font-semibold text-[19px] text-ink m-0">{patient.name}</h2>
           <p className="text-[12.5px] font-bold text-ink-soft mt-1">{patient.meta}</p>
         </div>
@@ -108,7 +124,7 @@ export default function PatientProfilePage() {
         {/* Actions */}
         <div className="flex gap-2.5">
           <button
-            onClick={() => navigate('/doctor/chat')}
+            onClick={() => navigate(`/doctor/chat/${patientId ?? 'ramesh-kulkarni'}`)}
             className="flex-1 bg-brand-green text-white rounded-2xl py-3.5 font-extrabold text-[13.5px] flex items-center justify-center gap-1.5"
           >
             <MessageCircle size={16} strokeWidth={2.4} /> Message

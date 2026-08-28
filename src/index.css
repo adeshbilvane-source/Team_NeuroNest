@@ -303,6 +303,10 @@ body {
   padding-right: 82px !important;
 }
 
+.doctor-chat-page .chat-header {
+  padding-right: 18px !important;
+}
+
 .doctor-mobile-screen .doctor-header-top {
   padding-right: 64px;
 }
@@ -335,6 +339,11 @@ body {
   box-sizing: border-box;
   background: var(--color-canvas);
   border-radius: 34px;
+}
+
+.doctor-mobile-screen:has(.doctor-chat-page) {
+  height: min(780px, calc(100vh - 32px));
+  min-height: 0;
 }
 
 .doctor-mobile-notch {

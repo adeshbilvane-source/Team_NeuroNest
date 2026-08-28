@@ -1,6 +1,7 @@
 import { ArrowLeft, CheckCircle2, ExternalLink, Phone, Video } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { showToast } from '../../components/Toast'
+import PatientAvatar from '../../components/PatientAvatar'
 
 const CONTACTS = [
   { name: 'Ramesh Kulkarni', role: 'Family caregiver', initials: 'RK', phone: '+919800002101', status: 'Available now' },
@@ -49,7 +50,7 @@ export default function QuickConnectPage() {
           <div key={contact.phone} className="bg-white rounded-2xl p-3.5 mb-2.5 shadow-sm">
             <div className="flex items-center gap-3 mb-3.5">
               <div className="w-11 h-11 rounded-full bg-brand-green text-white flex items-center justify-center font-extrabold text-sm flex-shrink-0">
-                {contact.initials}
+                <PatientAvatar patientId={contact.name.toLowerCase().replaceAll(' ', '-')} initials={contact.initials} name={contact.name} className="w-11 h-11 rounded-full object-cover" />
               </div>
               <div className="min-w-0">
                 <h2 className="m-0 text-[14.5px] font-extrabold text-ink truncate">{contact.name}</h2>

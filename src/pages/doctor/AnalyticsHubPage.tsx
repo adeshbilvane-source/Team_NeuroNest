@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Search, AlertTriangle } from 'lucide-react'
+import PatientAvatar from '../../components/PatientAvatar'
 
 // Placeholder data — replace with real Firebase/store data once wired.
 // "Attention" flags and trend sparklines are computed server-side once
@@ -119,7 +120,7 @@ function PatientCard({ patient, onClick }: { patient: PatientTrend; onClick: () 
           flagged ? 'bg-alert-red' : 'bg-[#9AA69C]'
         }`}
       >
-        {patient.initials}
+        <PatientAvatar patientId={patient.id} initials={patient.initials} name={patient.name} className="w-full h-full rounded-full object-cover" />
       </div>
       <div className="flex-1 min-w-0">
         <h4 className="font-extrabold text-[14.5px] text-ink mb-0.5">{patient.name}</h4>

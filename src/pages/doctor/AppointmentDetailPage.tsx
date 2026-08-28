@@ -1,9 +1,16 @@
-import { ArrowLeft, MessageCircle, Phone } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
-import { showToast } from '../../components/Toast'
+import { ArrowLeft, MessageCircle, Phone, X } from 'lucide-react'
+import { useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import PatientAvatar from '../../components/PatientAvatar'
 
 export default function AppointmentDetailPage() {
   const navigate = useNavigate()
+  const { appointmentId } = useParams()
+  const [showReschedule, setShowReschedule] = useState(false)
+  const [date, setDate] = useState('')
+  const [time, setTime] = useState('10:00')
+  const isRamesh = appointmentId === 'ramesh-kulkarni'
+  const patient = isRamesh ? { name: 'Ramesh Kulkarni', initials: 'RK', phone: '+919800002101', details: 'Age 74 · Diabetes, osteoarthritis' } : { name: 'Anjali Deshmukh', initials: 'AD', phone: '+919800002102', details: 'Age 61 · Memory care follow-up' }
 
   return (
     <div className="min-h-screen bg-canvas font-ui flex flex-col">
@@ -16,9 +23,9 @@ export default function AppointmentDetailPage() {
 
       <div className="flex-1 overflow-y-auto px-4.5 py-4.5 pb-8">
         <section className="bg-gradient-to-br from-brand-green to-[#345943] rounded-[22px] p-5.5 text-center shadow-lg mb-4.5">
-          <div className="w-16 h-16 rounded-full bg-white/20 text-white flex items-center justify-center font-extrabold text-[22px] mx-auto mb-2.5">RK</div>
-          <h2 className="font-display italic font-semibold text-[19px] text-white m-0">Ramesh Kulkarni</h2>
-          <p className="text-[12.5px] font-bold text-[#CFE3D6] mt-1">Age 74 · Diabetic, Osteoarthritis</p>
+          <PatientAvatar patientId={isRamesh ? 'ramesh-kulkarni' : 'anjali-deshmukh'} initials={patient.initials} name={patient.name} className="w-16 h-16 rounded-full bg-white/20 text-white flex items-center justify-center font-extrabold text-[22px] mx-auto mb-2.5" />
+          <h2 className="font-display italic font-semibold text-[19px] text-white m-0">{patient.name}</h2>
+          <p className="text-[12.5px] font-bold text-[#CFE3D6] mt-1">{patient.details}</p>
           <div className="inline-block bg-white/20 text-white font-extrabold text-[12.5px] px-3.5 py-1.5 rounded-full mt-3">Today · 11:00 AM</div>
         </section>
 
@@ -36,15 +43,12 @@ export default function AppointmentDetailPage() {
         </div>
 
         <div className="flex gap-2.5 mb-2.5">
-          <button onClick={() => showToast('Message composer is ready.', 'info')} className="flex-1 bg-brand-green text-white rounded-[15px] py-3.5 font-extrabold text-[13.5px] flex items-center justify-center gap-1.5"><MessageCircle size={17} /> Message</button>
-          <button onClick={() => showToast('Calling Ramesh Kulkarni.', 'info')} className="flex-1 bg-white text-ink rounded-[15px] py-3.5 font-extrabold text-[13.5px] flex items-center justify-center gap-1.5 shadow-sm"><Phone size={17} /> Call</button>
+          <button onClick={() => navigate(`/doctor/chat/${isRamesh ? 'ramesh-kulkarni' : 'anjali-deshmukh'}`)} className="flex-1 bg-brand-green text-white rounded-[15px] py-3.5 font-extrabold text-[13.5px] flex items-center justify-center gap-1.5"><MessageCircle size={17} /> Message</button>
+          <a href={`tel:${patient.phone}`} className="flex-1 bg-white text-ink rounded-[15px] py-3.5 font-extrabold text-[13.5px] flex items-center justify-center gap-1.5 shadow-sm"><Phone size={17} /> Call</a>
         </div>
-        <button onClick={() => showToast('Reschedule options are ready.', 'info')} className="w-full bg-marigold-tint text-[#8A5A1C] rounded-[15px] py-3 font-extrabold text-[13px]">Reschedule this visit</button>
-
-        <div className="bg-marigold-tint border-l-4 border-marigold rounded-xl px-3.5 py-2.75 text-xs text-[#7A5015] font-bold leading-relaxed mt-4">
-          This is the same detail screen whether opened from the home banner or today&apos;s appointment list.
-        </div>
+        <button onClick={() => setShowReschedule(true)} className="w-full bg-marigold-tint text-[#8A5015] rounded-[15px] py-3 font-extrabold text-[13px]">Reschedule this visit</button>
       </div>
+      {showReschedule && <div className="fixed inset-0 bg-ink/40 flex items-end justify-center z-50"><form onSubmit={(event) => { event.preventDefault(); setShowReschedule(false) }} className="w-full max-w-[430px] bg-white rounded-t-[24px] p-5 space-y-3"><div className="flex justify-between items-center"><h2 className="font-display italic text-lg font-semibold">Choose a new time</h2><button type="button" onClick={() => setShowReschedule(false)} aria-label="Close"><X size={19} /></button></div><label className="block text-xs font-extrabold text-ink-soft">Date<input required type="date" value={date} onChange={(event) => setDate(event.target.value)} className="mt-1 w-full bg-canvas rounded-xl px-3 py-3 font-bold" /></label><label className="block text-xs font-extrabold text-ink-soft">Time<input required type="time" value={time} onChange={(event) => setTime(event.target.value)} className="mt-1 w-full bg-canvas rounded-xl px-3 py-3 font-bold" /></label><button className="w-full bg-brand-green text-white rounded-xl py-3 font-extrabold">Send new time</button></form></div>}
     </div>
   )
 }

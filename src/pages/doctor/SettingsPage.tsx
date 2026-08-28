@@ -33,10 +33,14 @@ export default function SettingsPage() {
   const [phone, setPhone] = useState(profile.phone || '')
   const [notifications, setNotifications] = useState(true)
   const [appointmentReminders, setAppointmentReminders] = useState(true)
+  const [largeText, setLargeText] = useState(false)
+  const [highContrast, setHighContrast] = useState(false)
 
   useEffect(() => {
     setNotifications(localStorage.getItem('sahayak_notifications') !== 'off')
     setAppointmentReminders(localStorage.getItem('sahayak_appointment_reminders') !== 'off')
+    setLargeText(localStorage.getItem('sahayak_large_text') === 'on')
+    setHighContrast(localStorage.getItem('sahayak_high_contrast') === 'on')
   }, [])
 
   const saveProfile = () => {
@@ -69,7 +73,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-canvas font-ui flex flex-col">
+    <div className={`min-h-screen bg-canvas font-ui flex flex-col ${largeText ? 'text-[17px]' : ''} ${highContrast ? 'contrast-125' : ''}`}>
       <div className="page-header px-4.5 pt-11 pb-3.5 bg-white shadow-sm flex items-center gap-3">
         <button onClick={() => navigate('/doctor')} aria-label="Back" className="w-[38px] h-[38px] rounded-xl bg-brand-green-tint flex items-center justify-center flex-shrink-0">
           <ArrowLeft size={19} className="text-brand-green" strokeWidth={2.6} />
@@ -119,7 +123,8 @@ export default function SettingsPage() {
 
         <div className="text-[12px] font-black text-ink-soft uppercase tracking-wide mb-2.5">Accessibility</div>
         <section className="bg-white rounded-2xl shadow-sm mb-4 overflow-hidden">
-          <SettingLink icon={<Accessibility size={18} />} label="Accessibility options" onClick={() => showToast('Accessibility options are ready to configure.', 'info')} last />
+          <SettingToggle icon={<Accessibility size={18} />} label="Larger text" value={largeText} onChange={(value) => { setLargeText(value); localStorage.setItem('sahayak_large_text', value ? 'on' : 'off') }} />
+          <SettingToggle icon={<ShieldCheck size={18} />} label="Stronger contrast" value={highContrast} onChange={(value) => { setHighContrast(value); localStorage.setItem('sahayak_high_contrast', value ? 'on' : 'off') }} last />
         </section>
 
         <button onClick={logout} className="w-full bg-red-tint text-alert-red rounded-2xl py-3.5 font-extrabold text-[13px] flex items-center justify-center gap-2">

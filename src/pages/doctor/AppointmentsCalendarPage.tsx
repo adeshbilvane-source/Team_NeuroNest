@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react'
+import PatientAvatar from '../../components/PatientAvatar'
 
 // Placeholder data — replace with real Firebase/store data once wired.
 // Appointment dates are hardcoded against August 2026 specifically;
@@ -157,9 +158,7 @@ export default function AppointmentsCalendarPage() {
               <br />
               {appt.time.split(' ')[1]}
             </div>
-            <div className="w-9 h-9 rounded-full bg-[#9AA69C] text-white flex items-center justify-center font-extrabold text-xs flex-shrink-0">
-              {appt.patientInitials}
-            </div>
+            <PatientAvatar patientId={appt.id === 'a1' ? 'ramesh-kulkarni' : appt.id === 'a2' ? 'vikram-patil' : appt.id === 'a3' ? 'anjali-deshmukh' : 'manoj-joshi'} initials={appt.patientInitials} name={appt.patientName} className="w-9 h-9 rounded-full bg-[#9AA69C] text-white flex items-center justify-center font-extrabold text-xs flex-shrink-0" />
             <div>
               <h4 className="m-0 mb-0.5 text-[13.5px] text-ink font-extrabold">{appt.patientName}</h4>
               <p className="m-0 text-ink-soft text-[10.5px] font-bold">{appt.reason}</p>

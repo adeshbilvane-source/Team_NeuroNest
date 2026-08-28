@@ -1,5 +1,6 @@
 import { ArrowLeft, CalendarDays, ChevronRight } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import PatientAvatar from '../../components/PatientAvatar'
 
 type Appointment = {
   id: string
@@ -11,7 +12,7 @@ type Appointment = {
   status: 'Confirmed' | 'Done'
 }
 
-const appointments: Appointment[] = [
+const baseAppointments: Appointment[] = [
   { id: 'ramesh-kulkarni', time: '11:00', period: 'AM', initials: 'RK', name: 'Ramesh Kulkarni', detail: 'Routine checkup · Home visit', status: 'Confirmed' },
   { id: 'vikram-patil', time: '3:00', period: 'PM', initials: 'VP', name: 'Vikram Patil', detail: 'Follow-up · Clinic', status: 'Confirmed' },
   { id: 'anjali-deshmukh', time: '5:30', period: 'PM', initials: 'AD', name: 'Anjali Deshmukh', detail: 'Medication review · Video call', status: 'Confirmed' },
@@ -29,6 +30,9 @@ const completedAppointment: Appointment = {
 
 export default function AppointmentsTodayPage() {
   const navigate = useNavigate()
+  const storedAppointments = JSON.parse(localStorage.getItem('sahayak_appointments') || '[]') as Array<{ id: string; doctorName: string; patientName?: string; time: string; reason: string; status: string }>
+  const acceptedAppointments: Appointment[] = storedAppointments.filter((item) => item.status === 'Confirmed' && item.patientName).map((item) => ({ id: item.id, time: item.time?.split(' ')[0] || '10:00', period: item.time?.split(' ')[1] || 'AM', initials: item.patientName!.split(' ').map((part) => part[0]).join('').slice(0, 2), name: item.patientName!, detail: `${item.reason} · Clinic`, status: 'Confirmed' }))
+  const appointments = [...baseAppointments, ...acceptedAppointments.filter((item) => !baseAppointments.some((base) => base.id === item.id))]
 
   const openAppointment = (id: string) => navigate(`/doctor/appointments/${id}`)
 
@@ -67,9 +71,6 @@ export default function AppointmentsTodayPage() {
         <div className="mt-5.5 mb-2.5 text-xs font-black text-ink-soft uppercase tracking-wide">Completed earlier</div>
         <AppointmentCard appointment={completedAppointment} onClick={() => openAppointment(completedAppointment.id)} completed />
 
-        <div className="bg-marigold-tint border-l-4 border-marigold rounded-xl px-3.5 py-2.75 text-xs text-[#7A5015] font-bold leading-relaxed mt-4">
-          Tapping any appointment opens the visit&apos;s full detail: patient notes, reason, and a way to message or call before you arrive.
-        </div>
       </div>
     </div>
   )
@@ -81,9 +82,7 @@ function AppointmentCard({ appointment, onClick, completed = false }: { appointm
       <div className={`font-extrabold text-[13px] min-w-[56px] text-center rounded-xl px-1 py-2 leading-tight ${completed ? 'bg-[#E5E7E1] text-ink-soft' : 'bg-brand-green-tint text-brand-green'}`}>
         {appointment.time}<br />{appointment.period}
       </div>
-      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-extrabold text-[13px] flex-shrink-0 ${completed ? 'bg-[#C7CFC5]' : 'bg-[#9AA69C]'} text-white`}>
-        {appointment.initials}
-      </div>
+      <PatientAvatar patientId={appointment.id} initials={appointment.initials} name={appointment.name} className={`w-10 h-10 rounded-full flex items-center justify-center font-extrabold text-[13px] flex-shrink-0 ${completed ? 'bg-[#C7CFC5]' : 'bg-[#9AA69C]'} text-white`} />
       <div className="min-w-0 flex-1">
         <h2 className="m-0 mb-0.5 text-sm text-ink font-extrabold truncate">{appointment.name}</h2>
         <p className="m-0 text-[11px] text-ink-soft font-bold truncate">{appointment.detail}</p>

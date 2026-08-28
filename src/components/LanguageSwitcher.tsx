@@ -9,6 +9,7 @@ export default function LanguageSwitcher() {
   const location = useLocation()
   const [screen, setScreen] = useState<HTMLElement | null>(null)
   const language = (i18n.language || 'en').startsWith('hi') ? 'hi' : 'en'
+  const isDoctorChat = location.pathname.startsWith('/doctor/chat/')
 
   const hasExistingLanguageControl = Boolean(
     document.querySelector('[aria-label="Change Language"]'),
@@ -45,5 +46,5 @@ export default function LanguageSwitcher() {
     </button>
   )
 
-  return screen && !hasExistingLanguageControl ? createPortal(button, screen) : null
+  return screen && !isDoctorChat && !hasExistingLanguageControl ? createPortal(button, screen) : null
 }

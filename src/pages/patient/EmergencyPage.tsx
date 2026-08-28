@@ -29,7 +29,7 @@ export default function EmergencyPage() {
     return localStorage.getItem('sahayak_primary_doctor_id') || '';
   });
 
-  const [familyList, setFamilyList] = useState<FamilyContact[]>(() => {
+  const [familyList] = useState<FamilyContact[]>(() => {
     const raw = localStorage.getItem('sahayak_family_contacts');
     return raw ? JSON.parse(raw) : [];
   });

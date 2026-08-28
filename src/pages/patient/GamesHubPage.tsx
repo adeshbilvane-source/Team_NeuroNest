@@ -65,23 +65,23 @@ export default function GamesHubPage() {
           </div>
 
           <div className="content">
-            <p className="lede">Short, gentle games you can stop anytime.</p>
+            <p className="lede">Pick one to play.</p>
             <div className="grid2">
               <button className="card" onClick={() => navigate('/patient/games/identify-picture')}>
                 <div className="icon-wrap">🖼️</div>
-                <div><div className="label">Identify Picture</div><div className="sub">Name what you see</div></div>
+                <div><div className="label">Picture game</div><div className="sub">Name what you see</div></div>
               </button>
               <button className="card" onClick={() => navigate('/patient/games/memory-match')}>
                 <div className="icon-wrap">🃏</div>
-                <div><div className="label">Memory Match</div><div className="sub">Find the matching pair</div></div>
+                <div><div className="label">Memory cards</div><div className="sub">Find two alike</div></div>
               </button>
               <button className="card" onClick={() => navigate('/patient/games/jigsaw')}>
                 <div className="icon-wrap">🧩</div>
-                <div><div className="label">Jigsaw Puzzle</div><div className="sub">Piece it back together</div></div>
+                <div><div className="label">Jigsaw</div><div className="sub">Put the picture together</div></div>
               </button>
               <button className="card" onClick={() => navigate('/patient/games/button-sorting')}>
                 <div className="icon-wrap">🔘</div>
-                <div><div className="label">Button Sorting</div><div className="sub">Sort by shape, size, colour</div></div>
+                <div><div className="label">Sort buttons</div><div className="sub">Match shape and colour</div></div>
               </button>
             </div>
           </div>
