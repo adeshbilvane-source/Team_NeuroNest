@@ -33,6 +33,7 @@ import DoctorChatListPage from './pages/doctor/ChatListPage';
 import DoctorChatThreadPage from './pages/doctor/ChatThreadPage';
 import NotificationsPage from './pages/doctor/NotificationsPage';
 import SettingsPage from './pages/doctor/SettingsPage';
+import QuickConnectPage from './pages/doctor/QuickConnectPage';
 
 function DoctorMobileFrame() {
   return (
@@ -84,6 +85,7 @@ export default function App() {
           <Route path="/doctor" element={<DoctorHomePage />} />
           <Route path="/doctor/notifications" element={<NotificationsPage />} />
           <Route path="/doctor/settings" element={<SettingsPage />} />
+          <Route path="/doctor/call" element={<QuickConnectPage />} />
           <Route path="/doctor/search" element={<DoctorSearchPage />} />
           <Route path="/doctor/patients" element={<PatientsListPage />} />
           <Route path="/doctor/patients/:patientId" element={<PatientProfilePage />} />
