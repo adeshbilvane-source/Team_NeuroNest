@@ -133,13 +133,13 @@ export default function PatientHomePage() {
       <style>{`
         :root {
           --canvas: #F3F6F0; --ink: #24322A; --ink-soft: #5B6A61;
-          --green: #3F6B4F; --green-tint: #E3EDE5; --marigold: #D98A2B;
+          --green: #3F6B4F; --green-tint: #E3EDE5; --marigold: #8A5A1C;
           --red: #B33F33; --white: #FFFFFF; --shadow: 0 6px 16px rgba(36,50,42,0.08);
           --blue: #3E7FB8; --blue-dark: #2C5F8A;
         }
         .home-root-container {
           display: flex; align-items: center; justify-content: center; min-height: 100vh;
-          width: 100%; background: #DCE3D6; padding: 16px; box-sizing: border-box; font-family: 'Nunito', sans-serif;
+          width: 100%; background: #DCE3D6; padding: 24px; box-sizing: border-box; font-family: 'Nunito', sans-serif;
         }
         .phone-wrapper {
           width: 100%; max-width: 390px; background: #111614; border-radius: 46px;
@@ -153,30 +153,33 @@ export default function PatientHomePage() {
           position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
           width: 120px; height: 24px; background: #111614; border-radius: 20px; z-index: 10;
         }
-        .header { padding: 44px 20px 10px 20px; }
+        .header { padding: 48px 24px 16px 24px; }
         .top-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
         .orient { font-weight: 800; color: var(--ink-soft); font-size: 13.5px; letter-spacing: 0.2px; }
         .orient .time { color: var(--green); font-size: 13.5px; margin-left: 4px; }
         
-        .icon-row { display: flex; align-items: center; gap: 8px; }
+        .icon-row { display: flex; align-items: center; gap: 16px; }
         .lang-pill {
-          height: 36px; padding: 0 12px; border-radius: 12px; background: var(--white);
+          min-height: 56px; padding: 0 16px; border-radius: 16px; background: var(--white);
           box-shadow: var(--shadow); display: flex; align-items: center; gap: 5px;
           font-weight: 800; font-size: 12.5px; color: var(--green); cursor: pointer; border: none;
         }
         .icon-btn {
-          width: 36px; height: 36px; border-radius: 12px; background: var(--white);
+          width: 56px; height: 56px; border-radius: 16px; background: var(--white);
           display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow); border: none; cursor: pointer; flex-shrink: 0;
         }
 
-        .greeting { font-family: 'Fraunces', serif; font-weight: 600; font-style: italic; color: var(--ink); font-size: 28px; line-height: 1.15; margin: 14px 0 0 0; }
+        .greeting { font-family: 'Fraunces', serif; font-weight: 600; font-style: italic; color: var(--ink); font-size: 30px; line-height: 1.2; margin: 24px 0 0 0; }
         .greeting .name { color: var(--green); font-style: normal; }
         .voice-row {
-          display: flex; align-items: center; gap: 14px; margin-top: 14px; background: var(--white);
-          border-radius: 20px; padding: 12px 16px; box-shadow: var(--shadow); cursor: pointer;
+          display: flex; align-items: center; gap: 16px; margin-top: 24px; width: 100%; background: var(--white);
+          border: 2px solid transparent; border-radius: 24px; padding: 16px; box-shadow: var(--shadow); cursor: pointer;
+          text-align: left; transition: transform 180ms ease, border-color 180ms ease;
         }
+        .voice-row:focus-visible { outline: 4px solid #7A4D00; outline-offset: 3px; border-color: var(--marigold); }
+        .voice-row:active, .card:active, .banner-slide:active, .sos-btn:active { transform: scale(0.98); }
         .mic-btn {
-          width: 52px; height: 52px; min-width: 52px; border-radius: 50%; background: var(--marigold);
+          width: 56px; height: 56px; min-width: 56px; border-radius: 50%; background: var(--marigold);
           display: flex; align-items: center; justify-content: center; position: relative; border: none; cursor: pointer;
         }
         .mic-ring {
@@ -191,7 +194,7 @@ export default function PatientHomePage() {
         .voice-text .t2 { font-weight: 600; font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
 
         .banner-carousel-wrapper {
-          margin: 12px 20px 0 20px;
+          margin: 16px 24px 0 24px;
           position: relative;
           overflow: hidden;
           border-radius: 20px;
@@ -204,7 +207,7 @@ export default function PatientHomePage() {
         .banner-slide {
           width: 50%;
           border-radius: 20px;
-          padding: 16px 18px;
+          min-height: 88px; padding: 16px 20px;
           display: flex;
           align-items: center;
           gap: 14px;
@@ -232,30 +235,30 @@ export default function PatientHomePage() {
         .banner-chevron { margin-left: auto; display: flex; align-items: center; }
 
         .carousel-dots {
-          display: flex; justify-content: center; gap: 6px; margin-top: 8px; margin-bottom: 2px;
+          display: flex; justify-content: center; gap: 16px; margin-top: 16px; margin-bottom: 8px;
         }
         .dot {
-          width: 7px; height: 7px; border-radius: 50%; background: #C7D3C9; transition: all 0.2s ease; cursor: pointer;
+          width: 56px; height: 12px; border: 0; border-radius: 10px; background: #C7D3C9; transition: all 0.2s ease; cursor: pointer;
         }
-        .dot.active { width: 18px; border-radius: 10px; background: var(--green); }
+        .dot.active { background: var(--green); }
 
-        .grid { margin: 12px 20px 0 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .grid { margin: 16px 24px 0 24px; display: flex; flex-direction: column; gap: 16px; }
         .card {
           background: var(--green-tint); border-radius: 20px; padding: 14px; display: flex;
-          flex-direction: column; align-items: flex-start; gap: 18px; min-height: 106px; border: none;
+          flex-direction: row; align-items: center; gap: 16px; min-height: 72px; border: none;
           cursor: pointer; text-align: left; transition: transform 0.15s ease; box-sizing: border-box;
         }
-        .card:active { transform: scale(0.97); }
-        .card .icon-wrap { width: 44px; height: 44px; border-radius: 13px; background: var(--white); display: flex; align-items: center; justify-content: center; }
-        .card .label { font-weight: 800; font-size: 15px; color: var(--ink); }
+        .card:focus-visible, .sos-btn:focus-visible, .banner-slide:focus-visible, .icon-btn:focus-visible { outline: 4px solid #7A4D00; outline-offset: 3px; }
+        .card .icon-wrap { width: 56px; height: 56px; border-radius: 16px; background: var(--white); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .card .label { font-weight: 800; font-size: 17px; color: var(--ink); }
 
-        .sos-wrap { margin-top: auto; padding: 14px 20px 24px 20px; }
+        .sos-wrap { margin-top: auto; padding: 24px; }
         .sos-btn {
-          width: 100%; background: var(--red); border: none; border-radius: 20px; padding: 14px 18px;
+          width: 100%; min-height: 80px; background: var(--red); border: none; border-radius: 20px; padding: 16px 20px;
           display: flex; align-items: center; gap: 14px; box-shadow: 0 10px 22px rgba(179,63,51,0.4); cursor: pointer; box-sizing: border-box;
         }
         .sos-icon {
-          width: 42px; height: 42px; border-radius: 50%; background: rgba(255,255,255,0.2);
+          width: 56px; height: 56px; border-radius: 50%; background: rgba(255,255,255,0.2);
           display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
         .sos-copy { text-align: left; }
@@ -288,19 +291,19 @@ export default function PatientHomePage() {
               {t(greeting)},<br /><span className="name">{userName}</span> 🌻
             </div>
 
-            <div className={`voice-row ${isListening ? 'listening' : ''}`} onClick={startVoiceAssistant}>
-              <button className="mic-btn" aria-label="Talk to assistant">
+            <button className={`voice-row ${isListening ? 'listening' : ''}`} onClick={startVoiceAssistant} aria-label={isListening ? 'Listening for your request' : 'Talk to Sahayak'}>
+              <span className="mic-btn" aria-hidden="true">
                 <div className="mic-ring"></div>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 15a3.5 3.5 0 0 0 3.5-3.5V6a3.5 3.5 0 0 0-7 0v5.5A3.5 3.5 0 0 0 12 15Z"/>
                   <path d="M6.5 11.5a5.5 5.5 0 0 0 11 0M12 18.5V21"/>
                 </svg>
-              </button>
+              </span>
               <div className="voice-text">
                 <div className="t1">{isListening ? t('home.listening') : t('home.tapAndSpeak')}</div>
                 <div className="t2">{voiceFeedback}</div>
               </div>
-            </div>
+            </button>
           </div>
 
           {/* SWIPEABLE DUAL BANNER (Reminder <-> Analytics) */}
@@ -318,7 +321,7 @@ export default function PatientHomePage() {
                 className="banner-slide banner-reminder"
                 onClick={() => navigate('/patient/reminders')}
               >
-                <div className="banner-icon">
+                <div className="banner-icon" aria-hidden="true">
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12 2v2M8 4.5a3 3 0 0 1 6 0v1.8c0 2.6 1 4 2 5.2H6c1-1.2 2-2.6 2-5.2Z"/>
                     <path d="M4.5 13.5h13M10 16.5a2 2 0 0 0 3 0"/>
@@ -328,7 +331,7 @@ export default function PatientHomePage() {
                   <div className="label">{t('home.reminderSlide')}</div>
                   <div className="main">{t('home.takeMedicine')}</div>
                 </div>
-                <div className="banner-chevron">
+                <div className="banner-chevron" aria-hidden="true">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M9 6l6 6-6 6"/>
                   </svg>
@@ -340,12 +343,12 @@ export default function PatientHomePage() {
                 className="banner-slide banner-analytics"
                 onClick={() => navigate('/patient/analytics')}
               >
-                <div className="banner-icon">📊</div>
+                <div className="banner-icon" aria-hidden="true">📊</div>
                 <div className="banner-copy">
-                  <div className="label">{t('home.playtimeAnalytics')} ‹ Slide ›</div>
+                  <div className="label">{t('home.playtimeAnalytics')}</div>
                   <div className="main">{t('home.activityInsights')}</div>
                 </div>
-                <div className="banner-chevron">
+                <div className="banner-chevron" aria-hidden="true">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M9 6l6 6-6 6"/>
                   </svg>
@@ -356,14 +359,14 @@ export default function PatientHomePage() {
 
           {/* Dots Indicator */}
           <div className="carousel-dots">
-            <div className={`dot ${currentSlide === 0 ? 'active' : ''}`} onClick={() => setCurrentSlide(0)} />
-            <div className={`dot ${currentSlide === 1 ? 'active' : ''}`} onClick={() => setCurrentSlide(1)} />
+            <button className={`dot ${currentSlide === 0 ? 'active' : ''}`} onClick={() => setCurrentSlide(0)} aria-label="Show your next reminder" aria-pressed={currentSlide === 0} />
+            <button className={`dot ${currentSlide === 1 ? 'active' : ''}`} onClick={() => setCurrentSlide(1)} aria-label="Show your activity summary" aria-pressed={currentSlide === 1} />
           </div>
 
           {/* Grid Menu */}
           <div className="grid">
             <button className="card" onClick={() => navigate('/patient/games')} aria-label="Games">
-              <div className="icon-wrap">
+              <div className="icon-wrap" aria-hidden="true">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="2.5" y="7.5" width="19" height="10.5" rx="4"/>
                   <path d="M7 10.2v4.1M5 12.25h4M15.3 11.5h.01M17.8 13.6h.01"/>
@@ -373,7 +376,7 @@ export default function PatientHomePage() {
             </button>
 
             <button className="card" onClick={() => navigate('/patient/reminders')} aria-label="Reminders">
-              <div className="icon-wrap">
+              <div className="icon-wrap" aria-hidden="true">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 2v2M8 4.5a3 3 0 0 1 6 0v1.8c0 2.6 1 4 2 5.2H6c1-1.2 2-2.6 2-5.2Z"/>
                   <path d="M4.5 13.5h13M10 16.5a2 2 0 0 0 3 0"/>
@@ -383,7 +386,7 @@ export default function PatientHomePage() {
             </button>
 
             <button className="card" onClick={() => navigate('/patient/yoga')} aria-label="Yoga">
-              <div className="icon-wrap">
+              <div className="icon-wrap" aria-hidden="true">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="5" r="1.8"/>
                   <path d="M12 9v4M12 13c-2.2 0-4 1-5.5 3.2M12 13c2.2 0 4 1 5.5 3.2M8 21l1.8-3.6M16 21l-1.8-3.6"/>
@@ -393,7 +396,7 @@ export default function PatientHomePage() {
             </button>
 
             <button className="card" onClick={() => navigate('/patient/videos-library')} aria-label="Videos">
-              <div className="icon-wrap">
+              <div className="icon-wrap" aria-hidden="true">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="2.5" y="5" width="19" height="14" rx="3.5"/>
                   <path d="M10.5 9.3v5.4l4.5-2.7Z" fill="currentColor" stroke="none"/>
@@ -403,7 +406,7 @@ export default function PatientHomePage() {
             </button>
 
             <button className="card" onClick={() => navigate('/patient/family')} aria-label="Family">
-              <div className="icon-wrap">
+              <div className="icon-wrap" aria-hidden="true">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="8.5" cy="8" r="2.7"/><circle cx="16" cy="9" r="2.2"/>
                   <path d="M3.5 19c0-3 2.2-5 5-5s5 2 5 5M14.3 19c0-2.2 1.5-3.8 3.4-3.8s3.3 1.6 3.3 3.8"/>
@@ -413,7 +416,7 @@ export default function PatientHomePage() {
             </button>
 
             <button className="card" onClick={() => navigate('/patient/chat')} aria-label="Need Help">
-              <div className="icon-wrap">
+              <div className="icon-wrap" aria-hidden="true">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M4 12a8 8 0 1 1 3.5 6.6L4 19.5l1-3.3A7.96 7.96 0 0 1 4 12Z"/>
                   <path d="M12 15v.01M12 13c0-1.8 2-1.6 2-3.3 0-1.1-.9-2-2-2s-2 .9-2 2"/>
@@ -430,7 +433,7 @@ export default function PatientHomePage() {
               onClick={() => navigate('/patient/emergency')}
               aria-label="Emergency SOS"
             >
-              <div className="sos-icon">
+              <div className="sos-icon" aria-hidden="true">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M22 16.9v2.6a2 2 0 0 1-2.2 2 19.7 19.7 0 0 1-8.6-3.1 19.4 19.4 0 0 1-6-6 19.7 19.7 0 0 1-3.1-8.6A2 2 0 0 1 4.1 1.9h2.6a2 2 0 0 1 2 1.7c.1 1 .3 2 .7 3a2 2 0 0 1-.5 2.1L7.6 10a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c1 .4 2 .6 3 .7a2 2 0 0 1 1.7 2Z"/>
                 </svg>
