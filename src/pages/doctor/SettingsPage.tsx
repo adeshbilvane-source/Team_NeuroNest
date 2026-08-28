@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ArrowLeft, Bell, Camera, ChevronRight, LockKeyhole, LogOut, ShieldCheck, UserRound } from 'lucide-react'
+import { Accessibility, ArrowLeft, Bell, Camera, ChevronRight, LockKeyhole, LogOut, ShieldCheck, UserRound } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { showToast } from '../../components/Toast'
 
@@ -115,6 +115,11 @@ export default function SettingsPage() {
           <SettingLink icon={<LockKeyhole size={18} />} label="Change password" onClick={() => showToast('Password reset instructions are ready to send.', 'info')} />
           <SettingLink icon={<ShieldCheck size={18} />} label="Privacy and data" onClick={() => showToast('Your care data is protected and shared only with your care team.', 'info')} />
           <SettingLink icon={<UserRound size={18} />} label="Care team access" onClick={() => showToast('Care team access settings are ready to connect.', 'info')} last />
+        </section>
+
+        <div className="text-[12px] font-black text-ink-soft uppercase tracking-wide mb-2.5">Accessibility</div>
+        <section className="bg-white rounded-2xl shadow-sm mb-4 overflow-hidden">
+          <SettingLink icon={<Accessibility size={18} />} label="Accessibility options" onClick={() => showToast('Accessibility options are ready to configure.', 'info')} last />
         </section>
 
         <button onClick={logout} className="w-full bg-red-tint text-alert-red rounded-2xl py-3.5 font-extrabold text-[13px] flex items-center justify-center gap-2">

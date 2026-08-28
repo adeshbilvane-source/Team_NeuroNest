@@ -1,5 +1,6 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import LoginPage from './pages/auth/LoginPage';
+import LanguageSwitcher from './components/LanguageSwitcher';
 
 // Patient stack
 import PatientHomePage from './pages/patient/HomePage';
@@ -30,10 +31,26 @@ import PendingRequestsPage from './pages/doctor/PendingRequestsPage';
 import AppointmentDetailPage from './pages/doctor/AppointmentDetailPage';
 import DoctorChatListPage from './pages/doctor/ChatListPage';
 import DoctorChatThreadPage from './pages/doctor/ChatThreadPage';
+import NotificationsPage from './pages/doctor/NotificationsPage';
+import SettingsPage from './pages/doctor/SettingsPage';
+
+function DoctorMobileFrame() {
+  return (
+    <div className="doctor-mobile-root">
+      <div className="doctor-mobile-phone">
+        <div className="doctor-mobile-screen">
+          <div className="doctor-mobile-notch" />
+          <Outlet />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function App() {
   return (
     <BrowserRouter>
+      <LanguageSwitcher />
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<LoginPage />} />
@@ -63,21 +80,25 @@ export default function App() {
         <Route path="/patient/appointments" element={<PatientAppointmentsPage />} />
 
         {/* ---------------- DOCTOR STACK ---------------- */}
-        <Route path="/doctor" element={<DoctorHomePage />} />
-        <Route path="/doctor/search" element={<DoctorSearchPage />} />
-        <Route path="/doctor/patients" element={<PatientsListPage />} />
-        <Route path="/doctor/patients/:patientId" element={<PatientProfilePage />} />
+        <Route element={<DoctorMobileFrame />}>
+          <Route path="/doctor" element={<DoctorHomePage />} />
+          <Route path="/doctor/notifications" element={<NotificationsPage />} />
+          <Route path="/doctor/settings" element={<SettingsPage />} />
+          <Route path="/doctor/search" element={<DoctorSearchPage />} />
+          <Route path="/doctor/patients" element={<PatientsListPage />} />
+          <Route path="/doctor/patients/:patientId" element={<PatientProfilePage />} />
 
-        <Route path="/doctor/analytics" element={<AnalyticsHubPage />} />
-        <Route path="/doctor/analytics/:patientId" element={<AnalyticsDetailPage />} />
+          <Route path="/doctor/analytics" element={<AnalyticsHubPage />} />
+          <Route path="/doctor/analytics/:patientId" element={<AnalyticsDetailPage />} />
 
-        <Route path="/doctor/appointments" element={<AppointmentsCalendarPage />} />
-        <Route path="/doctor/appointments/today" element={<AppointmentsTodayPage />} />
-        <Route path="/doctor/appointments/pending" element={<PendingRequestsPage />} />
-        <Route path="/doctor/appointments/:appointmentId" element={<AppointmentDetailPage />} />
+          <Route path="/doctor/appointments" element={<AppointmentsCalendarPage />} />
+          <Route path="/doctor/appointments/today" element={<AppointmentsTodayPage />} />
+          <Route path="/doctor/appointments/pending" element={<PendingRequestsPage />} />
+          <Route path="/doctor/appointments/:appointmentId" element={<AppointmentDetailPage />} />
 
-        <Route path="/doctor/chat" element={<DoctorChatListPage />} />
-        <Route path="/doctor/chat/:threadId" element={<DoctorChatThreadPage />} />
+          <Route path="/doctor/chat" element={<DoctorChatListPage />} />
+          <Route path="/doctor/chat/:threadId" element={<DoctorChatThreadPage />} />
+        </Route>
 
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>

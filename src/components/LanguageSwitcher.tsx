@@ -10,9 +10,13 @@ export default function LanguageSwitcher() {
   const [screen, setScreen] = useState<HTMLElement | null>(null)
   const language = (i18n.language || 'en').startsWith('hi') ? 'hi' : 'en'
 
+  const hasExistingLanguageControl = Boolean(
+    document.querySelector('[aria-label="Change Language"]'),
+  )
+
   useEffect(() => {
     const target = document.querySelector<HTMLElement>(
-      '.doctor-mobile-screen .doctor-page-header .icon-row, .phone-screen .header .icon-row, .phone-screen .page-header, .phone-screen .chat-header, .phone-screen .header, .phone-screen .header-top, .doctor-mobile-screen .doctor-page-header, .doctor-mobile-screen .page-header, .doctor-mobile-screen .chat-header, .doctor-mobile-screen .header, .doctor-mobile-screen .header-top, .login-root-container .auth-header-card, .login-root-container .brand, .phone-screen, .doctor-mobile-screen',
+      '.login-root-container .phone-screen, .doctor-mobile-screen, .phone-screen',
     )
     setScreen(target)
   }, [location.pathname])
@@ -36,10 +40,10 @@ export default function LanguageSwitcher() {
       aria-label={`Switch language to ${language === 'en' ? 'Hindi' : 'English'}`}
       title={`Switch to ${language === 'en' ? 'Hindi' : 'English'}`}
     >
-      <Languages size={18} strokeWidth={2.3} />
+      <Languages size={17} strokeWidth={2.2} />
       <span>{language.toUpperCase()}</span>
     </button>
   )
 
-  return screen ? createPortal(button, screen) : null
+  return screen && !hasExistingLanguageControl ? createPortal(button, screen) : null
 }

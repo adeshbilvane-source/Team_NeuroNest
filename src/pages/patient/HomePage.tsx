@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export default function PatientHomePage() {
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
   const [userName, setUserName] = useState<string>('adii');
   const [currentTime, setCurrentTime] = useState<string>('');
   const [currentDate, setCurrentDate] = useState<string>('');
@@ -49,6 +51,13 @@ export default function PatientHomePage() {
   const handleLogout = () => {
     localStorage.removeItem('sahayak_current_user');
     navigate('/login');
+  };
+
+  const language = (i18n.language || 'en').startsWith('hi') ? 'hi' : 'en';
+  const toggleLanguage = () => {
+    const nextLanguage = language === 'en' ? 'hi' : 'en';
+    localStorage.setItem('sahayak_language', nextLanguage);
+    void i18n.changeLanguage(nextLanguage);
   };
 
   // Touch Swipe Handlers for Banner Carousel
@@ -266,11 +275,15 @@ export default function PatientHomePage() {
                 {currentDate}<span className="time">· {currentTime}</span>
               </div>
               <div className="icon-row">
-                <button className="lang-pill" aria-label="Change Language">
+                <button
+                  className="lang-pill"
+                  aria-label="Change Language"
+                  onClick={toggleLanguage}
+                >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
                     <path d="M4 5h11M9.5 3v2.2M6 5c0 4 2.5 6.5 6 8M13 5c-.6 3-2 5.5-4.5 7.5M14 21l4-9 4 9M15.6 18h4.8"/>
                   </svg>
-                  EN
+                  {language.toUpperCase()}
                 </button>
                 <button className="icon-btn" onClick={handleLogout} aria-label="Logout" title="Logout">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">

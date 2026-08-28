@@ -259,19 +259,19 @@ body {
 .global-language-switcher {
   position: absolute;
   top: 44px;
-  right: 18px;
+  right: 16px;
   z-index: 1000;
   display: flex;
   align-items: center;
-  gap: 6px;
-  min-height: 40px;
-  padding: 0 12px;
+  gap: 5px;
+  min-height: 36px;
+  padding: 0 10px;
   color: var(--color-brand-green);
   background: #FFFFFF;
-  border: 0;
-  border-radius: 13px;
+  border: 1px solid #D9E4DA;
+  border-radius: 8px;
   box-shadow: 0 6px 16px rgba(36, 50, 42, 0.12);
-  font: 800 12px var(--font-ui);
+  font: 800 11px var(--font-ui);
   cursor: pointer;
   animation: translator-enter 420ms cubic-bezier(.22, 1, .36, 1) both,
     translator-breathe 4.5s ease-in-out 650ms infinite;
@@ -300,12 +300,11 @@ body {
 .phone-screen .chat-header,
 .doctor-mobile-screen .page-header,
 .doctor-mobile-screen .chat-header {
-  padding-right: 92px !important;
+  padding-right: 82px !important;
 }
 
-.doctor-mobile-screen .doctor-header-top,
-.phone-screen .home-header-top {
-  padding-right: 66px;
+.doctor-mobile-screen .doctor-header-top {
+  padding-right: 64px;
 }
 
 .doctor-mobile-root {

@@ -9,6 +9,15 @@ interface User {
   role?: 'patient' | 'caregiver';
 }
 
+function loadUsers(): User[] {
+  try {
+    const storedUsers: unknown = JSON.parse(localStorage.getItem('sahayak_users') || '[]');
+    return Array.isArray(storedUsers) ? storedUsers as User[] : [];
+  } catch {
+    return [];
+  }
+}
+
 export default function LoginPage() {
   const navigate = useNavigate();
   const [subView, setSubView] = useState<'roles' | 'auth_form'>('roles');
@@ -27,8 +36,9 @@ export default function LoginPage() {
         return;
       }
 
-      const existingUsers: User[] = JSON.parse(localStorage.getItem('sahayak_users') || '[]');
-      const userExists = existingUsers.some((u: User) => u.email.toLowerCase() === email.trim().toLowerCase());
+      const existingUsers = loadUsers();
+      const normalizedEmail = email.trim().toLowerCase();
+      const userExists = existingUsers.some((u: User) => String(u.email || '').trim().toLowerCase() === normalizedEmail);
 
       if (userExists) {
         alert("An account with this email already exists! Please login instead.");
@@ -58,11 +68,15 @@ export default function LoginPage() {
       return;
     }
 
-    const registeredUsers: User[] = JSON.parse(localStorage.getItem('sahayak_users') || '[]');
+    const registeredUsers = loadUsers();
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedPassword = password.trim();
     const matchedUser = registeredUsers.find(
-      (u: User) => u.email === email.trim().toLowerCase()
-        && u.password === password.trim()
-        && (role === 'caregiver' ? u.role === 'caregiver' : u.role !== 'caregiver')
+      (u: User) => String(u.email || '').trim().toLowerCase() === normalizedEmail
+        && String(u.password || '') === normalizedPassword
+        && (role === 'caregiver'
+          ? String(u.role || '').toLowerCase() === 'caregiver'
+          : String(u.role || '').toLowerCase() !== 'caregiver')
     );
 
     if (matchedUser) {
