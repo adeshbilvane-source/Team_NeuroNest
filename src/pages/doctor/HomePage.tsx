@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   Bell,
   Settings,
@@ -14,7 +15,6 @@ import {
 
 // Placeholder data — replace with real Firebase/store data once wired.
 // Flagging explicitly: none of these numbers are real yet.
-const TODAY_LABEL = 'Wednesday, 26 Aug'
 const STATS = {
   appointmentsToday: 3,
   pendingRequests: 2,
@@ -28,7 +28,8 @@ const NOTIFICATION_COUNT = 3
 
 export default function DoctorHomePage() {
   const navigate = useNavigate()
-  const [caregiverName, setCaregiverName] = useState('[Caregiver Name]')
+  const { t, i18n } = useTranslation()
+  const [caregiverName, setCaregiverName] = useState(t('doctor.caregiverName'))
 
   useEffect(() => {
     try {
@@ -44,10 +45,10 @@ export default function DoctorHomePage() {
       {/* Header */}
       <div className="doctor-page-header px-6 pt-11 pb-0 app-reveal">
         <div className="doctor-header-top flex items-start justify-between">
-          <div className="font-bold text-ink-soft text-[13.5px]">{TODAY_LABEL}</div>
+          <div className="font-bold text-ink-soft text-[13.5px]">{new Date('2026-08-26T12:00:00').toLocaleDateString(i18n.language === 'as' ? 'as-IN' : i18n.language === 'hi' ? 'hi-IN' : 'en-IN', { weekday: 'long', day: 'numeric', month: 'short' })}</div>
           <div className="icon-row flex gap-2.5">
             <button
-              aria-label="Notifications"
+              aria-label={t('doctor.notifications')}
               onClick={() => navigate('/doctor/notifications')}
               className="relative w-[42px] h-[42px] rounded-[13px] bg-white shadow-sm flex items-center justify-center"
             >
@@ -59,7 +60,7 @@ export default function DoctorHomePage() {
               )}
             </button>
             <button
-              aria-label="Settings"
+              aria-label={t('doctor.settings')}
               onClick={() => navigate('/doctor/settings')}
               className="w-[42px] h-[42px] rounded-[13px] bg-white shadow-sm flex items-center justify-center"
             >
@@ -69,7 +70,7 @@ export default function DoctorHomePage() {
         </div>
 
         <h1 className="font-display italic font-semibold text-[24px] text-ink mt-4 leading-tight">
-          Good Morning,
+          {t('doctor.goodMorning')},
           <br />
           <span className="not-italic text-brand-green">{caregiverName}</span>
         </h1>
@@ -79,7 +80,7 @@ export default function DoctorHomePage() {
           className="mt-3.5 w-full bg-white rounded-2xl px-4 py-3 flex items-center gap-2.5 shadow-sm text-left"
         >
           <Search size={19} className="text-ink-soft" strokeWidth={2.3} />
-          <span className="text-[13.5px] font-bold text-ink-soft">Search patients...</span>
+          <span className="text-[13.5px] font-bold text-ink-soft">{t('doctor.searchPatients')}</span>
         </button>
 
         <div className="flex gap-2.5 mt-4">
@@ -89,9 +90,9 @@ export default function DoctorHomePage() {
           >
             <div className="text-[21px] font-black text-brand-green">{STATS.appointmentsToday}</div>
             <div className="text-[10.5px] font-extrabold text-ink-soft mt-0.5 leading-tight">
-              Appointments
+              {t('doctor.appointments')}
               <br />
-              Today
+              {t('doctor.today')}
             </div>
           </button>
           <button
@@ -100,9 +101,9 @@ export default function DoctorHomePage() {
           >
             <div className="text-[21px] font-black text-marigold">{STATS.pendingRequests}</div>
             <div className="text-[10.5px] font-extrabold text-ink-soft mt-0.5 leading-tight">
-              Pending
+              {t('doctor.pending')}
               <br />
-              Requests
+              {t('doctor.requests')}
             </div>
           </button>
           <button
@@ -111,9 +112,9 @@ export default function DoctorHomePage() {
           >
             <div className="text-[21px] font-black text-brand-green">{STATS.unreadMessages}</div>
             <div className="text-[10.5px] font-extrabold text-ink-soft mt-0.5 leading-tight">
-              Unread
+              {t('doctor.unread')}
               <br />
-              Messages
+              {t('doctor.messages')}
             </div>
           </button>
         </div>
@@ -133,7 +134,7 @@ export default function DoctorHomePage() {
         </div>
         <div className="flex-1 min-w-0">
           <div className="text-[11px] font-extrabold tracking-wide text-[#CFE3D6] uppercase">
-            Next Appointment
+            {t('doctor.nextAppointment')}
           </div>
           <div className="text-[15.5px] font-extrabold text-white mt-0.5 truncate">
             {NEXT_APPOINTMENT.patientName} — {NEXT_APPOINTMENT.time}
@@ -144,48 +145,48 @@ export default function DoctorHomePage() {
 
       {/* Manage section */}
       <div className="mt-6 px-6 text-[13px] font-black text-ink-soft uppercase tracking-wide app-reveal app-delay-2">
-        Manage
+        {t('doctor.manage')}
       </div>
       <div className="mt-2.5 px-6 grid grid-cols-2 gap-3.5 app-reveal app-delay-3">
         <button
           onClick={() => navigate('/doctor/patients')}
-          aria-label="Patients List"
+          aria-label={t('doctor.patientsList')}
           className="bg-brand-green-tint rounded-2xl px-3.5 py-4 flex flex-col items-start gap-5 min-h-[100px] text-left active:scale-[0.97] transition-transform"
         >
           <div className="w-11 h-11 rounded-xl bg-white flex items-center justify-center flex-shrink-0">
             <Users size={22} className="text-brand-green" strokeWidth={2.2} />
           </div>
-          <div className="font-extrabold text-[15px] text-ink">Patients</div>
+          <div className="font-extrabold text-[15px] text-ink">{t('doctor.patients')}</div>
         </button>
 
         <button
           onClick={() => navigate('/doctor/appointments')}
-          aria-label="Appointments"
+          aria-label={t('doctor.appointments')}
           className="bg-brand-green-tint rounded-2xl px-3.5 py-4 flex flex-col items-start gap-5 min-h-[100px] text-left active:scale-[0.97] transition-transform"
         >
           <div className="w-11 h-11 rounded-xl bg-white flex items-center justify-center flex-shrink-0">
             <Calendar size={22} className="text-brand-green" strokeWidth={2.2} />
           </div>
-          <div className="font-extrabold text-[15px] text-ink">Appointments</div>
+          <div className="font-extrabold text-[15px] text-ink">{t('doctor.appointments')}</div>
         </button>
 
         {/* Analytics tile — opens the flagged-first analytics hub across all patients. */}
         <button
           onClick={() => navigate('/doctor/analytics')}
-          aria-label="Patient Analytics"
+          aria-label={t('doctor.patientAnalytics')}
           className="bg-brand-green-tint rounded-2xl px-3.5 py-4 flex flex-col items-start gap-5 min-h-[100px] text-left active:scale-[0.97] transition-transform"
         >
           <div className="w-11 h-11 rounded-xl bg-white flex items-center justify-center flex-shrink-0">
             <LineChart size={22} className="text-brand-green" strokeWidth={2.2} />
           </div>
-          <div className="font-extrabold text-[15px] text-ink">Analytics</div>
+          <div className="font-extrabold text-[15px] text-ink">{t('doctor.analytics')}</div>
         </button>
 
         {/* Patient Chat — now a regular 4th grid tile, with its own unread badge
             instead of a full-width row. Badge mirrors the notification bell pattern. */}
         <button
           onClick={() => navigate('/doctor/chat')}
-          aria-label="Chat with patients"
+          aria-label={t('doctor.chatWithPatients')}
           className="relative bg-brand-green-tint rounded-2xl px-3.5 py-4 flex flex-col items-start gap-5 min-h-[100px] text-left active:scale-[0.97] transition-transform"
         >
           <div className="relative w-11 h-11 rounded-xl bg-white flex items-center justify-center flex-shrink-0">
@@ -196,7 +197,7 @@ export default function DoctorHomePage() {
               </span>
             )}
           </div>
-          <div className="font-extrabold text-[15px] text-ink">Patient Chat</div>
+          <div className="font-extrabold text-[15px] text-ink">{t('doctor.patientChat')}</div>
         </button>
       </div>
 
@@ -216,10 +217,10 @@ export default function DoctorHomePage() {
         </div>
         <div className="flex-1 min-w-0">
           <div className="text-[11px] font-extrabold tracking-wide text-[#FBEEDA] uppercase">
-            Quick Connect
+            {t('doctor.quickConnect')}
           </div>
           <div className="text-[15.5px] font-extrabold text-white mt-0.5 truncate">
-            Call or video call a patient
+            {t('doctor.callPatient')}
           </div>
         </div>
         <ChevronRight size={18} className="text-white flex-shrink-0" strokeWidth={2.6} />

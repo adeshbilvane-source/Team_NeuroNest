@@ -1,8 +1,86 @@
 {
   "_note": "Placeholder only — these are NOT verified translations. Replace with a real Hindi speaker's review before shipping.",
+  "auth": {
+    "tagline": "संज्ञानात्मक देखभाल, आसान तरीके से",
+    "loginPatient": "मरीज़ के रूप में लॉगिन करें",
+    "patientDescription": "गेम, रिमाइंडर और देखभाल एक ही जगह",
+    "loginCaregiver": "देखभालकर्ता के रूप में लॉगिन करें",
+    "patient": "मरीज़",
+    "caregiver": "देखभालकर्ता",
+    "caregiverDescription": "मरीज़ों की निगरानी और अपॉइंटमेंट प्रबंधित करें",
+    "loginFamily": "परिवार के सदस्य के रूप में लॉगिन करें",
+    "familyDescription": "अपने प्रियजन की देखभाल की जानकारी पाते रहें",
+    "comingSoon": "जल्द आ रहा है",
+    "voiceHint": "या बस कहें \"मैं मरीज़ हूँ\"",
+    "helpLogin": "लॉगिन में मदद चाहिए?",
+    "helpLoginDescription": "किसी परिवार के सदस्य या देखभालकर्ता से सहायता लें।",
+    "createAccount": "खाता बनाएँ",
+    "loginTitle": "{{role}} लॉगिन",
+    "joinAs": "सहायक में {{role}} के रूप में जुड़ें",
+    "welcomeBack": "वापसी पर स्वागत है",
+    "signUpDescription": "अपनी देखभाल यात्रा शुरू करने के लिए साइन अप करें",
+    "loginDescription": "जारी रखने के लिए अपनी जानकारी दर्ज करें",
+    "fullName": "पूरा नाम",
+    "email": "ईमेल पता",
+    "password": "पासवर्ड",
+    "logIn": "लॉगिन",
+    "alreadyAccount": "क्या आपका खाता पहले से है?",
+    "login": "लॉगिन",
+    "noAccount": "क्या आपका खाता नहीं है?",
+    "createNew": "नया बनाएँ",
+    "fillRequired": "कृपया सभी आवश्यक फ़ील्ड भरें!",
+    "accountExists": "इस ईमेल से खाता पहले से मौजूद है! कृपया लॉगिन करें।",
+    "accountCreated": "खाता सफलतापूर्वक बन गया! अपनी जानकारी से लॉगिन करें।",
+    "enterCredentials": "कृपया ईमेल और पासवर्ड दोनों दर्ज करें।",
+    "invalidCredentials": "ईमेल या पासवर्ड गलत है! खाता नहीं है तो 'नया बनाएँ' चुनें।"
+  },
+  "doctor": {
+    "caregiverName": "[देखभालकर्ता का नाम]",
+    "notifications": "सूचनाएँ",
+    "settings": "सेटिंग्स",
+    "goodMorning": "सुप्रभात",
+    "searchPatients": "मरीज़ खोजें...",
+    "appointments": "अपॉइंटमेंट",
+    "today": "आज",
+    "pending": "लंबित",
+    "requests": "अनुरोध",
+    "unread": "अपठित",
+    "messages": "संदेश",
+    "nextAppointment": "अगला अपॉइंटमेंट",
+    "manage": "प्रबंधन",
+    "patientsList": "मरीज़ों की सूची",
+    "patients": "मरीज़",
+    "patientAnalytics": "मरीज़ विश्लेषण",
+    "analytics": "विश्लेषण",
+    "chatWithPatients": "मरीज़ों से चैट करें",
+    "patientChat": "मरीज़ चैट",
+    "quickConnect": "त्वरित संपर्क",
+    "callPatient": "मरीज़ को कॉल या वीडियो कॉल करें",
+    "patientsCount": "मरीज़ ({{count}})",
+    "allPatients": "सभी मरीज़",
+    "urgent": "ज़रूरी",
+    "rosterHint": "त्वरित स्थिति टैग के साथ पूरी मरीज़ सूची। किसी मरीज़ की प्रोफ़ाइल खोलने के लिए टैप करें।",
+    "patientDetails": {
+      "ramesh": "उम्र 74 · मधुमेह",
+      "sunita": "उम्र 68 · उच्च रक्तचाप",
+      "vikram": "उम्र 52 · सर्जरी के बाद की देखभाल",
+      "anjali": "उम्र 61 · गठिया",
+      "manoj": "उम्र 70 · नया मरीज़"
+    }
+  },
   "home": {
-    "greeting": "शुभ प्रभात",
-    "nextReminder": "अगला रिमाइंडर"
+    "greetingMorning": "शुभ प्रभात",
+    "greetingAfternoon": "शुभ दोपहर",
+    "greetingEvening": "शुभ संध्या",
+    "nextReminder": "अगला रिमाइंडर",
+    "takeMedicine": "ब्लड प्रेशर की दवा लें — दोपहर 2:00 बजे",
+    "playtimeAnalytics": "खेलने का विश्लेषण",
+    "activityInsights": "गतिविधि की जानकारी · ग्राफ देखने के लिए टैप करें",
+    "reminderSlide": "अगला रिमाइंडर ‹ आँकड़ों के लिए स्लाइड करें ›",
+    "tapAndSpeak": "टैप करें और बोलें",
+    "listening": "सुन रहे हैं...",
+    "voiceExamples": "“गेम खेलें” · “परिवार को फोन करें” · “आगे क्या है?”",
+    "familyLocationAlert": "आपके स्थान के साथ परिवार को तुरंत सूचित करता है"
   },
   "nav": {
     "games": "खेल",
@@ -11,5 +89,27 @@
     "videos": "वीडियो",
     "family": "परिवार",
     "needHelp": "मदद चाहिए"
+  },
+  "actions": {
+    "callFamily": "परिवार को फोन करें",
+    "relaxingMusic": "सुकून भरा संगीत"
+  },
+  "emergency": {
+    "callNow": "आपातकाल — अभी कॉल करें"
+  },
+  "language": {
+    "change": "भाषा बदलें",
+    "select": "भाषा चुनें"
+  },
+  "voice": {
+    "helpPrompt": "मैं क्या कर सकता हूँ, सुनने के लिए “मदद” कहें।",
+    "title": "सहायक वॉइस असिस्टेंट",
+    "close": "वॉइस असिस्टेंट बंद करें",
+    "unsupported": "वॉइस पहचान के लिए Chrome या Edge माइक्रोफ़ोन सपोर्ट चाहिए।",
+    "start": "वॉइस असिस्टेंट शुरू करें",
+    "speakToSahayak": "सहायक से बोलें",
+    "listening": "सुन रहे हैं। धीरे बोलें।",
+    "listeningShort": "सुन रहे हैं",
+    "speak": "बोलें"
   }
 }

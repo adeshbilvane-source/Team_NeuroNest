@@ -273,9 +273,55 @@ body {
   box-shadow: 0 6px 16px rgba(36, 50, 42, 0.12);
   font: 800 11px var(--font-ui);
   cursor: pointer;
-  animation: translator-enter 420ms cubic-bezier(.22, 1, .36, 1) both,
-    translator-breathe 4.5s ease-in-out 650ms infinite;
+  animation: translator-enter 420ms cubic-bezier(.22, 1, .36, 1) both;
   transform-origin: top right;
+}
+
+.global-language-control {
+  position: absolute;
+  top: 44px;
+  right: 16px;
+  z-index: 1000;
+}
+
+.global-language-control .global-language-switcher {
+  position: relative;
+  top: auto;
+  right: auto;
+}
+
+.global-language-menu {
+  position: absolute;
+  top: calc(100% + 7px);
+  right: 0;
+  min-width: 142px;
+  padding: 5px;
+  background: #FFFFFF;
+  border: 1px solid #D9E4DA;
+  border-radius: 10px;
+  box-shadow: 0 10px 24px rgba(36, 50, 42, 0.16);
+  animation: translator-enter 180ms ease-out both;
+}
+
+.global-language-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 9px 10px;
+  color: var(--color-ink);
+  background: transparent;
+  border: 0;
+  border-radius: 7px;
+  font: 800 12px var(--font-ui);
+  text-align: left;
+  cursor: pointer;
+}
+
+.global-language-option:hover,
+.global-language-option[aria-checked="true"] {
+  color: var(--color-brand-green);
+  background: var(--color-brand-green-tint);
 }
 
 .phone-screen .page-header,

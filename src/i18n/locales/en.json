@@ -1,7 +1,85 @@
 {
+  "auth": {
+    "tagline": "Cognitive care, made simple",
+    "loginPatient": "Login as Patient",
+    "patientDescription": "Games, reminders & care in one place",
+    "loginCaregiver": "Login as Caregiver",
+    "patient": "Patient",
+    "caregiver": "Caregiver",
+    "caregiverDescription": "Monitor patients & manage appointments",
+    "loginFamily": "Login as Family Member",
+    "familyDescription": "Stay updated on a loved one's care",
+    "comingSoon": "Coming soon",
+    "voiceHint": "Or just say \"I'm a patient\"",
+    "helpLogin": "Need help logging in?",
+    "helpLoginDescription": "Ask a family member or your caregiver to assist.",
+    "createAccount": "Create Account",
+    "loginTitle": "{{role}} Login",
+    "joinAs": "Join Sahayak as a {{role}}",
+    "welcomeBack": "Welcome Back",
+    "signUpDescription": "Sign up to start your care journey",
+    "loginDescription": "Enter your credentials to continue",
+    "fullName": "Full Name (e.g. Adesh Bilvane)",
+    "email": "Email Address",
+    "password": "Password",
+    "logIn": "Log In",
+    "alreadyAccount": "Already have an account?",
+    "login": "Login",
+    "noAccount": "Don't have an account?",
+    "createNew": "Create New",
+    "fillRequired": "Please fill all required fields!",
+    "accountExists": "An account with this email already exists! Please login instead.",
+    "accountCreated": "Account created successfully! Please login with your credentials.",
+    "enterCredentials": "Please enter both email and password.",
+    "invalidCredentials": "Invalid Email or Password! If you don't have an account, click 'Create New'."
+  },
+  "doctor": {
+    "caregiverName": "[Caregiver Name]",
+    "notifications": "Notifications",
+    "settings": "Settings",
+    "goodMorning": "Good Morning",
+    "searchPatients": "Search patients...",
+    "appointments": "Appointments",
+    "today": "Today",
+    "pending": "Pending",
+    "requests": "Requests",
+    "unread": "Unread",
+    "messages": "Messages",
+    "nextAppointment": "Next Appointment",
+    "manage": "Manage",
+    "patientsList": "Patients List",
+    "patients": "Patients",
+    "patientAnalytics": "Patient Analytics",
+    "analytics": "Analytics",
+    "chatWithPatients": "Chat with patients",
+    "patientChat": "Patient Chat",
+    "quickConnect": "Quick Connect",
+    "callPatient": "Call or video call a patient",
+    "patientsCount": "Patients ({{count}})",
+    "allPatients": "All patients",
+    "urgent": "Urgent",
+    "rosterHint": "Full patient roster with a quick condition tag for context. Tapping any patient opens their profile.",
+    "patientDetails": {
+      "ramesh": "Age 74 · Diabetic",
+      "sunita": "Age 68 · Hypertension",
+      "vikram": "Age 52 · Post-surgery care",
+      "anjali": "Age 61 · Arthritis",
+      "manoj": "Age 70 · New patient"
+    }
+  },
   "home": {
-    "greeting": "Good Morning",
-    "nextReminder": "Next Reminder"
+    "greetingMorning": "Good Morning",
+    "greetingAfternoon": "Good Afternoon",
+    "greetingEvening": "Good Evening",
+    "nextReminder": "Next Reminder",
+    "takeMedicine": "Take Blood Pressure Medicine — 2:00 PM",
+    "playtimeAnalytics": "Playtime Analytics",
+    "activityInsights": "Activity Insights · Tap to View Graph",
+    "reminderSlide": "Next Reminder ‹ Slide for Stats ›",
+    "tapAndSpeak": "Tap and speak",
+    "listening": "Listening...",
+    "voiceExamples": "“Play a game” · “Call my son” · “What’s next?”",
+    "familyLocationAlert": "Alerts family instantly with your location"
   },
   "nav": {
     "games": "Games",
@@ -10,5 +88,27 @@
     "videos": "Videos",
     "family": "Family",
     "needHelp": "Need Help"
+  },
+  "actions": {
+    "callFamily": "Call Family",
+    "relaxingMusic": "Relaxing Music"
+  },
+  "emergency": {
+    "callNow": "Emergency — Call Now"
+  },
+  "language": {
+    "change": "Change language",
+    "select": "Select language"
+  },
+  "voice": {
+    "helpPrompt": "Say “help” to hear what I can do.",
+    "title": "Sahayak voice assistant",
+    "close": "Close voice assistant",
+    "unsupported": "Voice recognition needs Chrome or Edge microphone support.",
+    "start": "Start voice assistant",
+    "speakToSahayak": "Speak to Sahayak",
+    "listening": "Listening. Take your time.",
+    "listeningShort": "Listening",
+    "speak": "Speak"
   }
 }

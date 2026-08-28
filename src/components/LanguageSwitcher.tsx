@@ -1,19 +1,16 @@
-import { Languages } from 'lucide-react'
+import { Check, ChevronDown, Languages } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { createPortal } from 'react-dom'
 import { useLocation } from 'react-router-dom'
+import { changeLanguage, getSupportedLanguage, languageNames, SUPPORTED_LANGUAGES } from '../i18n'
 
 export default function LanguageSwitcher() {
-  const { i18n } = useTranslation()
+  const { i18n, t } = useTranslation()
   const location = useLocation()
   const [screen, setScreen] = useState<HTMLElement | null>(null)
-  const language = (i18n.language || 'en').startsWith('hi') ? 'hi' : 'en'
-  const isDoctorChat = location.pathname.startsWith('/doctor/chat/')
-
-  const hasExistingLanguageControl = Boolean(
-    document.querySelector('[aria-label="Change Language"]'),
-  )
+  const [open, setOpen] = useState(false)
+  const language = getSupportedLanguage(i18n.resolvedLanguage || i18n.language)
 
   useEffect(() => {
     const target = document.querySelector<HTMLElement>(
@@ -26,25 +23,45 @@ export default function LanguageSwitcher() {
     document.documentElement.lang = language
   }, [language])
 
-  const toggleLanguage = () => {
-    const nextLanguage = language === 'en' ? 'hi' : 'en'
-    localStorage.setItem('sahayak_language', nextLanguage)
-    void i18n.changeLanguage(nextLanguage)
+  const selectLanguage = (nextLanguage: typeof language) => {
+    void changeLanguage(nextLanguage)
+    setOpen(false)
   }
 
-  const button = (
-    <button
-      key={location.pathname}
-      type="button"
-      className="global-language-switcher"
-      onClick={toggleLanguage}
-      aria-label={`Switch language to ${language === 'en' ? 'Hindi' : 'English'}`}
-      title={`Switch to ${language === 'en' ? 'Hindi' : 'English'}`}
-    >
-      <Languages size={17} strokeWidth={2.2} />
-      <span>{language.toUpperCase()}</span>
-    </button>
+  const control = (
+    <div className="global-language-control">
+      <button
+        type="button"
+        className="global-language-switcher"
+        onClick={() => setOpen((isOpen) => !isOpen)}
+        aria-label={t('language.change')}
+        aria-expanded={open}
+        aria-haspopup="menu"
+        title={t('language.change')}
+      >
+        <Languages size={17} strokeWidth={2.2} />
+        <span>{language.toUpperCase()}</span>
+        <ChevronDown size={14} strokeWidth={2.4} />
+      </button>
+      {open && (
+        <div className="global-language-menu" role="menu" aria-label={t('language.select')}>
+          {SUPPORTED_LANGUAGES.map((option) => (
+            <button
+              key={option}
+              type="button"
+              role="menuitemradio"
+              aria-checked={language === option}
+              className="global-language-option"
+              onClick={() => selectLanguage(option)}
+            >
+              <span>{languageNames[option]}</span>
+              {language === option && <Check size={15} aria-hidden="true" />}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   )
 
-  return screen && !isDoctorChat && !hasExistingLanguageControl ? createPortal(button, screen) : null
+  return screen ? createPortal(control, screen) : null
 }

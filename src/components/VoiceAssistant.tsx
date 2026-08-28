@@ -1,6 +1,9 @@
 import { Mic, Volume2, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { getSupportedLanguage } from '../i18n'
+import { getVoiceLocale } from '../i18n/voiceLocale'
 
 type RecognitionEvent = { results: ArrayLike<ArrayLike<{ transcript: string }>> }
 type Recognition = {
@@ -41,11 +44,11 @@ function getRecognition(): RecognitionConstructor | null {
   return browserWindow.SpeechRecognition || browserWindow.webkitSpeechRecognition || null
 }
 
-function speak(message: string) {
+export function speakWithActiveLocale(message: string, language: string) {
   if (!('speechSynthesis' in window)) return
   window.speechSynthesis.cancel()
   const utterance = new SpeechSynthesisUtterance(message)
-  utterance.lang = (localStorage.getItem('sahayak_language') || 'en') === 'hi' ? 'hi-IN' : 'en-IN'
+  utterance.lang = getVoiceLocale(getSupportedLanguage(language))
   utterance.rate = 0.92
   utterance.pitch = 1.02
   window.speechSynthesis.speak(utterance)
@@ -58,10 +61,11 @@ function cleanText(value: string) {
 export default function VoiceAssistant() {
   const navigate = useNavigate()
   const location = useLocation()
+  const { i18n, t } = useTranslation()
   const recognitionRef = useRef<Recognition | null>(null)
   const [listening, setListening] = useState(false)
   const [supported, setSupported] = useState(true)
-  const [message, setMessage] = useState('Say “help” to hear what I can do.')
+  const [message, setMessage] = useState(() => t('voice.helpPrompt', 'Say “help” to hear what I can do.'))
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
@@ -79,10 +83,10 @@ export default function VoiceAssistant() {
         : 'Welcome to Sahayak. You can say: open patients, show analytics, open appointments, quick connect, notifications, settings, or help. Tap the microphone whenever you want to speak.'
       setOpen(true)
       setMessage(tutorial)
-      speak(tutorial)
+      speakWithActiveLocale(tutorial, i18n.language)
     }
     return undefined
-  }, [location.pathname])
+  }, [i18n.language, location.pathname])
 
   useEffect(() => () => {
     recognitionRef.current?.stop()
@@ -91,7 +95,7 @@ export default function VoiceAssistant() {
 
   const respond = (text: string) => {
     setMessage(text)
-    speak(text)
+    speakWithActiveLocale(text, i18n.language)
   }
 
   const readCurrentPage = () => {
@@ -185,10 +189,10 @@ export default function VoiceAssistant() {
     }
     recognitionRef.current?.stop()
     const recognition = new Recognition()
-    recognition.lang = (localStorage.getItem('sahayak_language') || 'en') === 'hi' ? 'hi-IN' : 'en-IN'
+    recognition.lang = getVoiceLocale(getSupportedLanguage(i18n.language))
     recognition.interimResults = false
     recognition.continuous = false
-    recognition.onstart = () => { setListening(true); setOpen(true); setMessage('Listening. Take your time.') }
+    recognition.onstart = () => { setListening(true); setOpen(true); setMessage(t('voice.listening', 'Listening. Take your time.')) }
     recognition.onresult = (event) => handleCommand(event.results[0][0].transcript)
     recognition.onerror = () => { setListening(false); respond('I could not hear that. Please try again when you are ready.') }
     recognition.onend = () => setListening(false)
@@ -200,14 +204,14 @@ export default function VoiceAssistant() {
     <div className="voice-assistant">
       {open && (
         <div className="voice-assistant-card" role="status" aria-live="polite">
-          <div className="voice-assistant-card-top"><Volume2 size={16} /><strong>Sahayak voice assistant</strong><button type="button" onClick={() => setOpen(false)} aria-label="Close voice assistant"><X size={15} /></button></div>
+          <div className="voice-assistant-card-top"><Volume2 size={16} /><strong>{t('voice.title', 'Sahayak voice assistant')}</strong><button type="button" onClick={() => setOpen(false)} aria-label={t('voice.close', 'Close voice assistant')}><X size={15} /></button></div>
           <p>{message}</p>
-          {!supported && <small>Voice recognition needs Chrome or Edge microphone support.</small>}
+          {!supported && <small>{t('voice.unsupported', 'Voice recognition needs Chrome or Edge microphone support.')}</small>}
         </div>
       )}
-      <button type="button" className={`voice-assistant-button ${listening ? 'is-listening' : ''}`} onClick={startListening} aria-label={listening ? 'Listening' : 'Start voice assistant'} title="Speak to Sahayak">
+      <button type="button" className={`voice-assistant-button ${listening ? 'is-listening' : ''}`} onClick={startListening} aria-label={listening ? t('voice.listening', 'Listening') : t('voice.start', 'Start voice assistant')} title={t('voice.speakToSahayak', 'Speak to Sahayak')}>
         <Mic size={22} />
-        <span>{listening ? 'Listening' : 'Speak'}</span>
+        <span>{listening ? t('voice.listeningShort', 'Listening') : t('voice.speak', 'Speak')}</span>
       </button>
     </div>
   )

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface User {
   name: string;
@@ -20,6 +21,7 @@ function loadUsers(): User[] {
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [subView, setSubView] = useState<'roles' | 'auth_form'>('roles');
   const [isRegistering, setIsRegistering] = useState<boolean>(false);
   const [fullName, setFullName] = useState<string>('');
@@ -32,7 +34,7 @@ export default function LoginPage() {
 
     if (isRegistering) {
       if (!fullName.trim() || !email.trim() || !password.trim()) {
-        alert("Please fill all required fields!");
+        alert(t('auth.fillRequired'));
         return;
       }
 
@@ -41,7 +43,7 @@ export default function LoginPage() {
       const userExists = existingUsers.some((u: User) => String(u.email || '').trim().toLowerCase() === normalizedEmail);
 
       if (userExists) {
-        alert("An account with this email already exists! Please login instead.");
+        alert(t('auth.accountExists'));
         setIsRegistering(false);
         return;
       }
@@ -57,14 +59,14 @@ export default function LoginPage() {
       localStorage.setItem('sahayak_users', JSON.stringify(existingUsers));
       localStorage.setItem('sahayak_current_user', JSON.stringify(newUser));
 
-      alert("Account created successfully! Please login with your credentials.");
+      alert(t('auth.accountCreated'));
       setIsRegistering(false);
       setPassword('');
       return;
     }
 
     if (!email.trim() || !password.trim()) {
-      alert("Please enter both email and password.");
+      alert(t('auth.enterCredentials'));
       return;
     }
 
@@ -83,7 +85,7 @@ export default function LoginPage() {
       localStorage.setItem('sahayak_current_user', JSON.stringify(matchedUser));
       navigate(matchedUser.role === 'caregiver' ? '/doctor' : '/patient');
     } else {
-      alert("Invalid Email or Password! If you don't have an account, click 'Create New'.");
+      alert(t('auth.invalidCredentials'));
     }
   };
 
@@ -231,17 +233,17 @@ export default function LoginPage() {
                   </svg>
                 </div>
                 <h1>Sahayak</h1>
-                <p>Cognitive care, made simple</p>
+                <p>{t('auth.tagline')}</p>
               </div>
 
               <div className="role-list">
                 <button className="role-btn app-reveal app-delay-1" onClick={() => { setRole('patient'); setIsRegistering(false); setSubView('auth_form'); }}>
                   <div className="role-icon">
-                    <img src="/patient.jpg" alt="Patient" />
+                    <img src="/patient.jpg" alt={t('auth.loginPatient')} />
                   </div>
                   <div className="role-copy">
-                    <div className="t1">Login as Patient</div>
-                    <div className="t2">Games, reminders &amp; care in one place</div>
+                    <div className="t1">{t('auth.loginPatient')}</div>
+                    <div className="t2">{t('auth.patientDescription')}</div>
                   </div>
                   <div className="role-chevron">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink-soft)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
@@ -252,11 +254,11 @@ export default function LoginPage() {
 
                 <button className="role-btn app-reveal app-delay-2" onClick={() => { setRole('caregiver'); setIsRegistering(false); setSubView('auth_form'); }}>
                   <div className="role-icon">
-                    <img src="/doctor.jpg" alt="Doctor" />
+                    <img src="/doctor.jpg" alt={t('auth.loginCaregiver')} />
                   </div>
                   <div className="role-copy">
-                    <div className="t1">Login as Caregiver</div>
-                    <div className="t2">Monitor patients &amp; manage appointments</div>
+                    <div className="t1">{t('auth.loginCaregiver')}</div>
+                    <div className="t2">{t('auth.caregiverDescription')}</div>
                   </div>
                   <div className="role-chevron">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink-soft)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
@@ -274,10 +276,10 @@ export default function LoginPage() {
                     </svg>
                   </div>
                   <div className="role-copy">
-                    <div className="t1">Login as Family Member</div>
-                    <div className="t2">Stay updated on a loved one's care</div>
+                    <div className="t1">{t('auth.loginFamily')}</div>
+                    <div className="t2">{t('auth.familyDescription')}</div>
                   </div>
-                  <div className="soon-pill">Coming soon</div>
+                  <div className="soon-pill">{t('auth.comingSoon')}</div>
                 </button>
               </div>
 
@@ -286,11 +288,11 @@ export default function LoginPage() {
                   <path d="M12 15a3.5 3.5 0 0 0 3.5-3.5V6a3.5 3.5 0 0 0-7 0v5.5A3.5 3.5 0 0 0 12 15Z" />
                   <path d="M6.5 11.5a5.5 5.5 0 0 0 11 0M12 18.5V21" />
                 </svg>
-                <span>Or just say "I'm a patient"</span>
+                <span>{t('auth.voiceHint')}</span>
               </div>
 
               <div className="footer-note">
-                <p>Need help logging in?<br />Ask a family member or your caregiver to assist.</p>
+                <p>{t('auth.helpLogin')}<br />{t('auth.helpLoginDescription')}</p>
               </div>
             </>
           ) : (
@@ -301,7 +303,7 @@ export default function LoginPage() {
                     <path d="M15 6l-6 6 6 6" />
                   </svg>
                 </button>
-                <h1>{isRegistering ? 'Create Account' : `${role === 'caregiver' ? 'Caregiver' : 'Patient'} Login`}</h1>
+                <h1>{isRegistering ? t('auth.createAccount') : t('auth.loginTitle', { role: role === 'caregiver' ? t('auth.caregiver') : t('auth.patient') })}</h1>
               </div>
 
               <div className="brand app-reveal" style={{ marginTop: '0', marginBottom: '20px', padding: 0 }}>
@@ -311,15 +313,15 @@ export default function LoginPage() {
                     <path d="M4.5 20c0-3.6 3-6 7.5-6s7.5 2.4 7.5 6" />
                   </svg>
                 </div>
-                <h1>{isRegistering ? `Join Sahayak as a ${role === 'caregiver' ? 'caregiver' : 'patient'}` : 'Welcome Back'}</h1>
-                <p>{isRegistering ? 'Sign up to start your care journey' : 'Enter your credentials to continue'}</p>
+                <h1>{isRegistering ? t('auth.joinAs', { role: role === 'caregiver' ? t('auth.caregiver') : t('auth.patient') }) : t('auth.welcomeBack')}</h1>
+                <p>{isRegistering ? t('auth.signUpDescription') : t('auth.loginDescription')}</p>
               </div>
 
               <form className="auth-form" onSubmit={handleAuthSubmit}>
                 {isRegistering && (
                   <input
                     type="text"
-                    placeholder="Full Name (e.g. Adesh Bilvane )"
+                    placeholder={t('auth.fullName')}
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     required
@@ -327,21 +329,21 @@ export default function LoginPage() {
                 )}
                 <input
                   type="email"
-                  placeholder="Email Address"
+                  placeholder={t('auth.email')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
                 <input
                   type="password"
-                  placeholder="Password"
+                  placeholder={t('auth.password')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
 
                 <button type="submit" className="auth-btn">
-                  {isRegistering ? 'Create Account' : 'Log In'}
+                  {isRegistering ? t('auth.createAccount') : t('auth.logIn')}
                 </button>
 
                 <div
@@ -352,9 +354,9 @@ export default function LoginPage() {
                   }}
                 >
                   {isRegistering ? (
-                    <>Already have an account? <span>Login</span></>
+                    <>{t('auth.alreadyAccount')} <span>{t('auth.login')}</span></>
                   ) : (
-                    <>Don't have an account? <span>Create New</span></>
+                    <>{t('auth.noAccount')} <span>{t('auth.createNew')}</span></>
                   )}
                 </div>
               </form>

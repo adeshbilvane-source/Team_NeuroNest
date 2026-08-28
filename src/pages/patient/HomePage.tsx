@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { getSupportedLanguage } from '../../i18n';
+import { getVoiceLocale } from '../../i18n/voiceLocale';
 
 export default function PatientHomePage() {
   const navigate = useNavigate();
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const [userName, setUserName] = useState<string>('adii');
   const [currentTime, setCurrentTime] = useState<string>('');
   const [currentDate, setCurrentDate] = useState<string>('');
-  const [greeting, setGreeting] = useState<string>('Good Morning');
+  const [greeting, setGreeting] = useState<string>('home.greetingMorning');
   const [isListening, setIsListening] = useState<boolean>(false);
-  const [voiceFeedback, setVoiceFeedback] = useState<string>('"Play a game" · "Call my son" · "What\'s next?"');
+  const [voiceFeedback, setVoiceFeedback] = useState<string>(() => t('home.voiceExamples'));
 
   // Carousel Slide State (0 = Reminder, 1 = Analytics)
   const [currentSlide, setCurrentSlide] = useState<number>(0);
@@ -36,28 +38,25 @@ export default function PatientHomePage() {
       setCurrentTime(`${formattedHours}:${minutes} ${ampm}`);
 
       const options: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'short' };
-      setCurrentDate(now.toLocaleDateString('en-US', options));
+      setCurrentDate(now.toLocaleDateString(i18n.language === 'as' ? 'as-IN' : i18n.language === 'hi' ? 'hi-IN' : 'en-IN', options));
 
-      if (hours < 12) setGreeting('Good Morning');
-      else if (hours < 17) setGreeting('Good Afternoon');
-      else setGreeting('Good Evening');
+      if (hours < 12) setGreeting('home.greetingMorning');
+      else if (hours < 17) setGreeting('home.greetingAfternoon');
+      else setGreeting('home.greetingEvening');
     };
 
     updateTimeAndGreeting();
     const interval = setInterval(updateTimeAndGreeting, 10000);
     return () => clearInterval(interval);
-  }, []);
+  }, [i18n.language]);
+
+  useEffect(() => {
+    if (!isListening) setVoiceFeedback(t('home.voiceExamples'));
+  }, [i18n.language, isListening, t]);
 
   const handleLogout = () => {
     localStorage.removeItem('sahayak_current_user');
     navigate('/login');
-  };
-
-  const language = (i18n.language || 'en').startsWith('hi') ? 'hi' : 'en';
-  const toggleLanguage = () => {
-    const nextLanguage = language === 'en' ? 'hi' : 'en';
-    localStorage.setItem('sahayak_language', nextLanguage);
-    void i18n.changeLanguage(nextLanguage);
   };
 
   // Touch Swipe Handlers for Banner Carousel
@@ -86,12 +85,12 @@ export default function PatientHomePage() {
     }
 
     const recognition = new SpeechRecognition();
-    recognition.lang = 'en-US';
+    recognition.lang = getVoiceLocale(getSupportedLanguage(i18n.language));
     recognition.interimResults = false;
 
     recognition.onstart = () => {
       setIsListening(true);
-      setVoiceFeedback("Listening... Speak a command!");
+      setVoiceFeedback(`${t('home.listening')} ${t('home.tapAndSpeak')}`);
     };
 
     recognition.onresult = (event: any) => {
@@ -122,7 +121,7 @@ export default function PatientHomePage() {
 
     recognition.onerror = () => {
       setIsListening(false);
-      setVoiceFeedback('"Play a game" · "Call my son" · "What\'s next?"');
+      setVoiceFeedback(t('home.voiceExamples'));
     };
 
     recognition.onend = () => setIsListening(false);
@@ -275,16 +274,6 @@ export default function PatientHomePage() {
                 {currentDate}<span className="time">· {currentTime}</span>
               </div>
               <div className="icon-row">
-                <button
-                  className="lang-pill"
-                  aria-label="Change Language"
-                  onClick={toggleLanguage}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
-                    <path d="M4 5h11M9.5 3v2.2M6 5c0 4 2.5 6.5 6 8M13 5c-.6 3-2 5.5-4.5 7.5M14 21l4-9 4 9M15.6 18h4.8"/>
-                  </svg>
-                  {language.toUpperCase()}
-                </button>
                 <button className="icon-btn" onClick={handleLogout} aria-label="Logout" title="Logout">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -296,7 +285,7 @@ export default function PatientHomePage() {
             </div>
 
             <div className="greeting">
-              {greeting},<br /><span className="name">{userName}</span> 🌻
+              {t(greeting)},<br /><span className="name">{userName}</span> 🌻
             </div>
 
             <div className={`voice-row ${isListening ? 'listening' : ''}`} onClick={startVoiceAssistant}>
@@ -308,7 +297,7 @@ export default function PatientHomePage() {
                 </svg>
               </button>
               <div className="voice-text">
-                <div className="t1">{isListening ? 'Listening...' : 'Tap and speak'}</div>
+                <div className="t1">{isListening ? t('home.listening') : t('home.tapAndSpeak')}</div>
                 <div className="t2">{voiceFeedback}</div>
               </div>
             </div>
@@ -336,8 +325,8 @@ export default function PatientHomePage() {
                   </svg>
                 </div>
                 <div className="banner-copy">
-                  <div className="label">Next Reminder ‹ Slide for Stats ›</div>
-                  <div className="main">Take Blood Pressure Medicine — 2:00 PM</div>
+                  <div className="label">{t('home.reminderSlide')}</div>
+                  <div className="main">{t('home.takeMedicine')}</div>
                 </div>
                 <div className="banner-chevron">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
@@ -353,8 +342,8 @@ export default function PatientHomePage() {
               >
                 <div className="banner-icon">📊</div>
                 <div className="banner-copy">
-                  <div className="label">Playtime Analytics ‹ Slide ›</div>
-                  <div className="main">Activity Insights · Tap to View Graph</div>
+                  <div className="label">{t('home.playtimeAnalytics')} ‹ Slide ›</div>
+                  <div className="main">{t('home.activityInsights')}</div>
                 </div>
                 <div className="banner-chevron">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
@@ -380,7 +369,7 @@ export default function PatientHomePage() {
                   <path d="M7 10.2v4.1M5 12.25h4M15.3 11.5h.01M17.8 13.6h.01"/>
                 </svg>
               </div>
-              <div className="label">Games</div>
+              <div className="label">{t('nav.games')}</div>
             </button>
 
             <button className="card" onClick={() => navigate('/patient/reminders')} aria-label="Reminders">
@@ -390,7 +379,7 @@ export default function PatientHomePage() {
                   <path d="M4.5 13.5h13M10 16.5a2 2 0 0 0 3 0"/>
                 </svg>
               </div>
-              <div className="label">Reminders or Appointment</div>
+              <div className="label">{t('nav.reminders')}</div>
             </button>
 
             <button className="card" onClick={() => navigate('/patient/yoga')} aria-label="Yoga">
@@ -400,7 +389,7 @@ export default function PatientHomePage() {
                   <path d="M12 9v4M12 13c-2.2 0-4 1-5.5 3.2M12 13c2.2 0 4 1 5.5 3.2M8 21l1.8-3.6M16 21l-1.8-3.6"/>
                 </svg>
               </div>
-              <div className="label">Yoga</div>
+              <div className="label">{t('nav.yoga')}</div>
             </button>
 
             <button className="card" onClick={() => navigate('/patient/videos-library')} aria-label="Videos">
@@ -410,7 +399,7 @@ export default function PatientHomePage() {
                   <path d="M10.5 9.3v5.4l4.5-2.7Z" fill="currentColor" stroke="none"/>
                 </svg>
               </div>
-              <div className="label">Videos</div>
+              <div className="label">{t('nav.videos')}</div>
             </button>
 
             <button className="card" onClick={() => navigate('/patient/family')} aria-label="Family">
@@ -420,7 +409,7 @@ export default function PatientHomePage() {
                   <path d="M3.5 19c0-3 2.2-5 5-5s5 2 5 5M14.3 19c0-2.2 1.5-3.8 3.4-3.8s3.3 1.6 3.3 3.8"/>
                 </svg>
               </div>
-              <div className="label">Family</div>
+              <div className="label">{t('nav.family')}</div>
             </button>
 
             <button className="card" onClick={() => navigate('/patient/chat')} aria-label="Need Help">
@@ -430,7 +419,7 @@ export default function PatientHomePage() {
                   <path d="M12 15v.01M12 13c0-1.8 2-1.6 2-3.3 0-1.1-.9-2-2-2s-2 .9-2 2"/>
                 </svg>
               </div>
-              <div className="label">Need Help</div>
+              <div className="label">{t('nav.needHelp')}</div>
             </button>
           </div>
 
@@ -447,8 +436,8 @@ export default function PatientHomePage() {
                 </svg>
               </div>
               <div className="sos-copy">
-                <div className="t1">Emergency — Call Now</div>
-                <div className="t2">Alerts family instantly with your location</div>
+                <div className="t1">{t('emergency.callNow')}</div>
+                <div className="t2">{t('home.familyLocationAlert')}</div>
               </div>
             </button>
           </div>
