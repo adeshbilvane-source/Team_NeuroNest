@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { changeLanguage, getSupportedLanguage, SUPPORTED_LANGUAGES } from '../../i18n';
-import { getVoiceLocale } from '../../i18n/voiceLocale';
 
 export default function PatientHomePage() {
   const navigate = useNavigate();
@@ -11,8 +10,6 @@ export default function PatientHomePage() {
   const [currentTime, setCurrentTime] = useState<string>('');
   const [currentDate, setCurrentDate] = useState<string>('');
   const [greeting, setGreeting] = useState<string>('home.greetingMorning');
-  const [isListening, setIsListening] = useState<boolean>(false);
-  const [voiceFeedback, setVoiceFeedback] = useState<string>(() => 'Tap and speak');
   const [showAllFeatures, setShowAllFeatures] = useState<boolean>(false);
   const [languageMenuOpen, setLanguageMenuOpen] = useState<boolean>(false);
   const currentLanguage = getSupportedLanguage(i18n.resolvedLanguage || i18n.language);
@@ -53,54 +50,6 @@ export default function PatientHomePage() {
     const interval = setInterval(updateTimeAndGreeting, 10000);
     return () => clearInterval(interval);
   }, [i18n.language]);
-
-  useEffect(() => {
-    if (!isListening) setVoiceFeedback('Tap and speak');
-  }, [i18n.language, isListening]);
-
-  const handleLogout = () => {
-    localStorage.removeItem('sahayak_current_user');
-    navigate('/login');
-  };
-
-  const startVoiceAssistant = () => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      alert("Voice recognition is not supported in this browser. Please use Chrome/Edge.");
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.lang = getVoiceLocale(getSupportedLanguage(i18n.language));
-    recognition.interimResults = false;
-
-    recognition.onstart = () => {
-      setIsListening(true);
-      setVoiceFeedback(`${t('home.listening')}...`);
-    };
-
-    recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript.toLowerCase();
-      setVoiceFeedback(`Heard: "${transcript}"`);
-      setIsListening(false);
-
-      if (transcript.includes('game') || transcript.includes('play') || transcript.includes('yoga') || transcript.includes('exercise')) navigate('/patient/activities');
-      else if (transcript.includes('analytics') || transcript.includes('graph')) navigate('/patient/analytics');
-      else if (transcript.includes('reminder') || transcript.includes('medicine')) navigate('/patient/reminders');
-      else if (transcript.includes('family') || transcript.includes('call')) navigate('/patient/family');
-      else if (transcript.includes('video') || transcript.includes('music')) navigate('/patient/videos-library');
-      else if (transcript.includes('help') || transcript.includes('chat')) navigate('/patient/chat');
-      else if (transcript.includes('emergency') || transcript.includes('sos')) navigate('/patient/emergency');
-      else if (transcript.includes('logout')) handleLogout();
-    };
-
-    recognition.onerror = () => {
-      setIsListening(false);
-      setVoiceFeedback('Tap and speak');
-    };
-    recognition.onend = () => setIsListening(false);
-    recognition.start();
-  };
 
   return (
     <div className="home-root-container">
@@ -169,31 +118,6 @@ export default function PatientHomePage() {
         .greeting { font-family: 'Fraunces', serif; font-style: italic; font-weight: 600; font-size: 32px; color: var(--ink); margin: 20px 0 0 0; line-height: 1.15; }
         .greeting .name { color: var(--green); font-style: normal; }
 
-        .voice-row {
-          display: flex; align-items: center; gap: 16px; margin-top: 24px; background: var(--white);
-          border-radius: 24px; padding: 14px 18px; box-shadow: var(--shadow); cursor: pointer; border: none; text-align: left; transition: transform 0.15s ease;
-        }
-        .voice-row:active, .action-card:active, .grid-card:active, .sos-btn:active, .help-fab:active { transform: scale(0.97); }
-        
-        .mic-btn {
-          width: 60px; height: 60px; min-width: 60px; border-radius: 50%;
-          background: linear-gradient(135deg, #E6A85C 0%, #D98A2B 100%);
-          display: flex; align-items: center; justify-content: center; position: relative; border: none;
-        }
-        .mic-btn svg { width: 28px; height: 28px; stroke: #fff; z-index: 2; position: relative; }
-        .mic-ring {
-          position: absolute; inset: -4px; border-radius: 50%; border: 2px dashed rgba(217, 138, 43, 0.4);
-          animation: spin 8s linear infinite;
-        }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        .listening .mic-btn { background: var(--red); }
-        .listening .mic-ring { border: 2px solid var(--red); animation: pulse 1s ease-out infinite; }
-        @keyframes pulse { 0% { transform: scale(0.9); opacity: 0.55; } 70% { transform: scale(1.35); opacity: 0; } 100% { opacity: 0; } }
-        
-        .voice-text { flex: 1; }
-        .voice-text .t1 { font-weight: 900; font-size: 16px; color: var(--ink); }
-        .voice-text .t2 { font-weight: 600; font-size: 12.5px; color: var(--ink-soft); margin-top: 2px; line-height: 1.3; }
-
         .main-actions { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
         
         .action-card {
@@ -247,13 +171,6 @@ export default function PatientHomePage() {
           display: flex; flex-direction: column; align-items: flex-end; z-index: 10; pointer-events: none;
         }
         
-        .help-fab {
-          width: 54px; height: 54px; border-radius: 50%; background: var(--green-dark);
-          display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 20px rgba(46,81,64,0.3);
-          border: none; cursor: pointer; pointer-events: auto; margin-bottom: 16px; color: white;
-        }
-        .help-fab svg { width: 26px; height: 26px; stroke: #fff; }
-
         .sos-btn {
           width: 100%; background: var(--red); border: none; border-radius: 24px; padding: 18px 20px;
           display: flex; align-items: center; gap: 16px; box-shadow: 0 12px 24px rgba(179,63,51,0.35); pointer-events: auto; cursor: pointer;
@@ -311,18 +228,6 @@ export default function PatientHomePage() {
 
               <div className="greeting">{t(greeting)},<br /><span className="name">{userName}</span> 🌻</div>
 
-              <button className={`voice-row ${isListening ? 'listening' : ''}`} onClick={startVoiceAssistant}>
-                <div className="mic-btn">
-                  <div className="mic-ring"></div>
-                  <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 15a3.5 3.5 0 0 0 3.5-3.5V6a3.5 3.5 0 0 0-7 0v5.5A3.5 3.5 0 0 0 12 15Z"/><path d="M6.5 11.5a5.5 5.5 0 0 0 11 0M12 18.5V21"/>
-                  </svg>
-                </div>
-                <div className="voice-text">
-                  <div className="t1">{isListening ? t('home.listening') : voiceFeedback}</div>
-                  <div className="t2">"Play a game" · "Call my son" · "What's next?"</div>
-                </div>
-              </button>
             </div>
 
             <div className="main-actions">
@@ -366,14 +271,6 @@ export default function PatientHomePage() {
           </div>
 
           <div className="fixed-bottom">
-            <button className="help-fab" onClick={() => navigate('/patient/chat')} aria-label="Help">
-              <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-                <line x1="12" y1="17" x2="12.01" y2="17" />
-              </svg>
-            </button>
-
             <button className="sos-btn" onClick={() => navigate('/patient/emergency')}>
               <div className="sos-icon">
                 <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">

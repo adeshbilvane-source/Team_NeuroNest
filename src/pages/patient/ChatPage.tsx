@@ -16,6 +16,33 @@ export default function PatientChatThreadPage() {
     { text: "Okay doctor, I will. Thank you.", mine: true, time: "9:07 AM" }
   ]);
   const [inputText, setInputText] = useState<string>("");
+  const [isListening, setIsListening] = useState<boolean>(false);
+
+  const startVoiceAssistant = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('Voice recognition is not supported in this browser. Please use Chrome or Edge.');
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.continuous = false;
+
+    recognition.onstart = () => setIsListening(true);
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript.trim();
+      if (transcript) {
+        setInputText(transcript);
+        handleSendMessage(transcript);
+      }
+      setIsListening(false);
+    };
+    recognition.onerror = () => setIsListening(false);
+    recognition.onend = () => setIsListening(false);
+    recognition.start();
+  };
 
   const handleSendMessage = (textToSend?: string) => {
     const text = textToSend || inputText;
@@ -162,8 +189,13 @@ export default function PatientChatThreadPage() {
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
             />
-            <button className="round-btn mic" onClick={() => alert("Voice transcription started...")} aria-label="Speak message">
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--marigold)" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 15a3.5 3.5 0 0 0 3.5-3.5V6a3.5 3.5 0 0 0-7 0v5.5A3.5 3.5 0 0 0 12 15Z"/><path d="M6.5 11.5a5.5 5.5 0 0 0 11 0M12 18.5V21"/></svg>
+            <button
+              className="round-btn mic"
+              onClick={startVoiceAssistant}
+              aria-label="Speak message"
+              style={{ background: isListening ? 'var(--green)' : 'var(--marigold-tint)', boxShadow: isListening ? '0 0 0 4px rgba(63,107,79,0.18)' : 'none' }}
+            >
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke={isListening ? '#fff' : 'var(--marigold)'} strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 15a3.5 3.5 0 0 0 3.5-3.5V6a3.5 3.5 0 0 0-7 0v5.5A3.5 3.5 0 0 0 12 15Z"/><path d="M6.5 11.5a5.5 5.5 0 0 0 11 0M12 18.5V21"/></svg>
             </button>
             <button className="round-btn send" onClick={() => handleSendMessage()} aria-label="Send message">
               <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12l16-8-6 16-3-6-7-2Z"/></svg>
