@@ -149,15 +149,19 @@ export default function LoginPage() {
           box-shadow: var(--shadow); display: flex; align-items: center; gap: 6px;
           font-weight: 800; font-size: 13px; color: var(--green); cursor: pointer;
         }
-        .brand { text-align: center; margin-top: 20px; padding: 0 26px; }
+        .brand { text-align: center; margin-top: 36px; padding: 0 26px; }
         .brand .mark {
           width: 74px; height: 74px; margin: 0 auto 12px auto; border-radius: 22px;
           background: var(--green); display: flex; align-items: center; justify-content: center;
+          overflow: hidden; box-shadow: var(--shadow);
+        }
+        .brand .mark img {
+          width: 100%; height: 100%; object-fit: cover; display: block;
         }
         .brand h1 { font-family: 'Fraunces', serif; font-style: italic; font-weight: 600; font-size: 30px; color: var(--ink); margin: 0; }
         .brand p { font-size: 13.5px; color: var(--ink-soft); font-weight: 700; margin: 6px 0 0 0; }
 
-        .role-list { padding: 30px 22px 0 22px; display: flex; flex-direction: column; gap: 14px; }
+        .role-list { padding: 34px 22px 0 22px; display: flex; flex-direction: column; gap: 14px; }
         .role-btn {
           display: flex; align-items: center; gap: 16px; width: 100%;
           background: var(--white); border: none; border-radius: 20px; padding: 18px;
@@ -193,7 +197,7 @@ export default function LoginPage() {
         .footer-note { margin-top: auto; padding: 20px 30px 30px 30px; text-align: center; }
         .footer-note p { font-size: 12px; font-weight: 700; color: var(--ink-soft); line-height: 1.5; margin: 0; }
 
-        .auth-container { padding: 44px 22px 30px 22px; display: flex; flex-direction: column; flex: 1; box-sizing: border-box; }
+        .auth-container { padding: 52px 22px 30px 22px; display: flex; flex-direction: column; flex: 1; box-sizing: border-box; }
         .auth-header-card {
           background: var(--white); border-radius: 20px; padding: 14px 18px;
           box-shadow: var(--shadow); display: flex; align-items: center; gap: 14px; margin-bottom: 20px;
@@ -227,10 +231,7 @@ export default function LoginPage() {
             <>
               <div className="brand app-reveal">
                 <div className="mark">
-                  <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 3.5c-4 2-7 3-7 8 0 5 4 8.5 7 9 3-.5 7-4 7-9 0-5-3-6-7-8Z" />
-                    <path d="M9.2 12.3l1.9 1.9 3.7-3.9" />
-                  </svg>
+                  <img src="/favicon.png" alt="Sahayak logo" />
                 </div>
                 <h1>Sahayak</h1>
                 <p>{t('auth.tagline')}</p>
@@ -308,10 +309,7 @@ export default function LoginPage() {
 
               <div className="brand app-reveal" style={{ marginTop: '0', marginBottom: '20px', padding: 0 }}>
                 <div className="mark">
-                  <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="8" r="3.4" />
-                    <path d="M4.5 20c0-3.6 3-6 7.5-6s7.5 2.4 7.5 6" />
-                  </svg>
+                  <img src="/favicon.png" alt="Sahayak logo" />
                 </div>
                 <h1>{isRegistering ? t('auth.joinAs', { role: role === 'caregiver' ? t('auth.caregiver') : t('auth.patient') }) : t('auth.welcomeBack')}</h1>
                 <p>{isRegistering ? t('auth.signUpDescription') : t('auth.loginDescription')}</p>
