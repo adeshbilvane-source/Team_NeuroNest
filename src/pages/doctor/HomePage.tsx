@@ -80,7 +80,7 @@ export default function DoctorHomePage() {
           className="mt-3.5 w-full bg-white rounded-2xl px-4 py-3 flex items-center gap-2.5 shadow-sm text-left"
         >
           <Search size={19} className="text-ink-soft" strokeWidth={2.3} />
-          <span className="text-[13.5px] font-bold text-ink-soft">{t('doctor.searchPatients')}</span>
+          <span className="text-[13.5px] font-bold text-ink-soft">{t('doctor.universalSearch')}</span>
         </button>
 
         <div className="flex gap-2.5 mt-4">
