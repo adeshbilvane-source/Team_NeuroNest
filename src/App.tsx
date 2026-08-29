@@ -34,6 +34,7 @@ import DoctorChatThreadPage from './pages/doctor/ChatThreadPage';
 import NotificationsPage from './pages/doctor/NotificationsPage';
 import SettingsPage from './pages/doctor/SettingsPage';
 import QuickConnectPage from './pages/doctor/QuickConnectPage';
+import PrescriptionManager from './pages/doctor/PrescriptionManager';
 
 function DoctorMobileFrame() {
   return (
@@ -89,6 +90,7 @@ export default function App() {
           <Route path="/doctor/search" element={<DoctorSearchPage />} />
           <Route path="/doctor/patients" element={<PatientsListPage />} />
           <Route path="/doctor/patients/:patientId" element={<PatientProfilePage />} />
+          <Route path="/doctor/patients/:patientId/prescriptions" element={<PrescriptionManager />} />
 
           <Route path="/doctor/analytics" element={<AnalyticsHubPage />} />
           <Route path="/doctor/analytics/:patientId" element={<AnalyticsDetailPage />} />

@@ -39,6 +39,7 @@
     "settings": "Settings",
     "goodMorning": "Good Morning",
     "searchPatients": "Search patients...",
+    "universalSearch": "Search patients, appointments, messages, and analytics...",
     "appointments": "Appointments",
     "today": "Today",
     "pending": "Pending",
