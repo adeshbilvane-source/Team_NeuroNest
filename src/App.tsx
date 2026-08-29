@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import LoginPage from './pages/auth/LoginPage';
 import LanguageSwitcher from './components/LanguageSwitcher';
+import CareProvider from './providers/CareProvider';
+import CheckInOverlay from './components/CheckInOverlay';
 
 // Patient stack
 import PatientHomePage from './pages/patient/HomePage';
@@ -51,61 +53,64 @@ function DoctorMobileFrame() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <LanguageSwitcher />
-      <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/login" element={<LoginPage />} />
+    <CareProvider>
+      <BrowserRouter>
+        <LanguageSwitcher />
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<LoginPage />} />
 
-        {/* ---------------- PATIENT STACK ---------------- */}
-        <Route path="/patient" element={<PatientHomePage />} />
+          {/* ---------------- PATIENT STACK ---------------- */}
+          <Route path="/patient" element={<PatientHomePage />} />
 
-        {/* Cognitive Games */}
-        <Route path="/patient/games" element={<GamesHubPage />} />
-        <Route path="/patient/games/identify-picture" element={<IdentifyPicture />} />
-        <Route path="/patient/games/memory-match" element={<MemoryMatch />} />
-        <Route path="/patient/games/jigsaw" element={<JigsawPuzzle />} />
-        <Route path="/patient/games/button-sorting" element={<ButtonSorting />} />
+          {/* Cognitive Games */}
+          <Route path="/patient/games" element={<GamesHubPage />} />
+          <Route path="/patient/games/identify-picture" element={<IdentifyPicture />} />
+          <Route path="/patient/games/memory-match" element={<MemoryMatch />} />
+          <Route path="/patient/games/jigsaw" element={<JigsawPuzzle />} />
+          <Route path="/patient/games/button-sorting" element={<ButtonSorting />} />
 
-        {/* Routine, Yoga & Media */}
-        <Route path="/patient/reminders" element={<RemindersPage />} />
-        <Route path="/patient/videos-library" element={<VideosLibraryPage />} />
-        <Route path="/patient/yoga" element={<YogaPage />} />
+          {/* Routine, Yoga & Media */}
+          <Route path="/patient/reminders" element={<RemindersPage />} />
+          <Route path="/patient/videos-library" element={<VideosLibraryPage />} />
+          <Route path="/patient/yoga" element={<YogaPage />} />
 
-        {/* Dedicated Family & Emergency Routes */}
-        <Route path="/patient/family" element={<FamilyEmergencyPage />} />
-        <Route path="/patient/emergency" element={<EmergencyPage />} />
-        <Route path="/patient/family-emergency" element={<Navigate to="/patient/family" replace />} />
+          {/* Dedicated Family & Emergency Routes */}
+          <Route path="/patient/family" element={<FamilyEmergencyPage />} />
+          <Route path="/patient/emergency" element={<EmergencyPage />} />
+          <Route path="/patient/family-emergency" element={<Navigate to="/patient/family" replace />} />
 
-        <Route path="/patient/chat" element={<PatientChatThreadPage />} />
-        <Route path="/patient/analytics" element={<PatientAnalyticsPage />} />
-        <Route path="/patient/appointments" element={<PatientAppointmentsPage />} />
+          <Route path="/patient/chat" element={<PatientChatThreadPage />} />
+          <Route path="/patient/analytics" element={<PatientAnalyticsPage />} />
+          <Route path="/patient/appointments" element={<PatientAppointmentsPage />} />
 
-        {/* ---------------- DOCTOR STACK ---------------- */}
-        <Route element={<DoctorMobileFrame />}>
-          <Route path="/doctor" element={<DoctorHomePage />} />
-          <Route path="/doctor/notifications" element={<NotificationsPage />} />
-          <Route path="/doctor/settings" element={<SettingsPage />} />
-          <Route path="/doctor/call" element={<QuickConnectPage />} />
-          <Route path="/doctor/search" element={<DoctorSearchPage />} />
-          <Route path="/doctor/patients" element={<PatientsListPage />} />
-          <Route path="/doctor/patients/:patientId" element={<PatientProfilePage />} />
-          <Route path="/doctor/patients/:patientId/prescriptions" element={<PrescriptionManager />} />
+          {/* ---------------- DOCTOR STACK ---------------- */}
+          <Route element={<DoctorMobileFrame />}>
+            <Route path="/doctor" element={<DoctorHomePage />} />
+            <Route path="/doctor/notifications" element={<NotificationsPage />} />
+            <Route path="/doctor/settings" element={<SettingsPage />} />
+            <Route path="/doctor/call" element={<QuickConnectPage />} />
+            <Route path="/doctor/search" element={<DoctorSearchPage />} />
+            <Route path="/doctor/patients" element={<PatientsListPage />} />
+            <Route path="/doctor/patients/:patientId" element={<PatientProfilePage />} />
+            <Route path="/doctor/patients/:patientId/prescriptions" element={<PrescriptionManager />} />
 
-          <Route path="/doctor/analytics" element={<AnalyticsHubPage />} />
-          <Route path="/doctor/analytics/:patientId" element={<AnalyticsDetailPage />} />
+            <Route path="/doctor/analytics" element={<AnalyticsHubPage />} />
+            <Route path="/doctor/analytics/:patientId" element={<AnalyticsDetailPage />} />
 
-          <Route path="/doctor/appointments" element={<AppointmentsCalendarPage />} />
-          <Route path="/doctor/appointments/today" element={<AppointmentsTodayPage />} />
-          <Route path="/doctor/appointments/pending" element={<PendingRequestsPage />} />
-          <Route path="/doctor/appointments/:appointmentId" element={<AppointmentDetailPage />} />
+            <Route path="/doctor/appointments" element={<AppointmentsCalendarPage />} />
+            <Route path="/doctor/appointments/today" element={<AppointmentsTodayPage />} />
+            <Route path="/doctor/appointments/pending" element={<PendingRequestsPage />} />
+            <Route path="/doctor/appointments/:appointmentId" element={<AppointmentDetailPage />} />
 
-          <Route path="/doctor/chat" element={<DoctorChatListPage />} />
-          <Route path="/doctor/chat/:threadId" element={<DoctorChatThreadPage />} />
-        </Route>
+            <Route path="/doctor/chat" element={<DoctorChatListPage />} />
+            <Route path="/doctor/chat/:threadId" element={<DoctorChatThreadPage />} />
+          </Route>
 
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    </BrowserRouter>
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+        <CheckInOverlay />
+      </BrowserRouter>
+    </CareProvider>
   );
 }
