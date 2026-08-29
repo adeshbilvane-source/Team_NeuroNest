@@ -1,6 +1,7 @@
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, MessageCircle, Calendar, LineChart } from 'lucide-react'
 import PatientAvatar from '../../components/PatientAvatar'
+import PrescriptionSummary from '../../components/PrescriptionSummary'
 
 // Placeholder data — replace with real Firebase/store data once wired.
 // Does not yet vary by patientId.
@@ -73,6 +74,8 @@ export default function PatientProfilePage() {
           <InfoBox k="Blood Type" v={patient.bloodType} />
           <InfoBox k="Contact" v={patient.contact} small />
         </div>
+
+        <PrescriptionSummary patientId={patientId ?? 'ramesh-kulkarni'} />
 
         {/* Analytics entry point — NEW.
             Analytics is patient-owned data reviewed by the caregiver,
