@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface FamilyContact {
   id: string;
@@ -13,8 +14,19 @@ interface FamilyContact {
 export default function FamilyEmergencyPage() {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { t } = useTranslation();
 
-  // Real Contacts State
+  const relationshipOptions = [
+    { value: 'daughter', label: t('familyPage.relationship.daughter') },
+    { value: 'son', label: t('familyPage.relationship.son') },
+    { value: 'spouse', label: t('familyPage.relationship.spouse') },
+    { value: 'brother', label: t('familyPage.relationship.brother') },
+    { value: 'sister', label: t('familyPage.relationship.sister') },
+    { value: 'caregiver', label: t('familyPage.relationship.caregiver') },
+    { value: 'friend', label: t('familyPage.relationship.friend') },
+    { value: 'custom', label: t('familyPage.relationship.custom') },
+  ];
+
   const [contacts, setContacts] = useState<FamilyContact[]>(() => {
     const raw = localStorage.getItem('sahayak_family_contacts');
     return raw ? JSON.parse(raw) : [];
@@ -22,7 +34,8 @@ export default function FamilyEmergencyPage() {
 
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
   const [newName, setNewName] = useState<string>('');
-  const [newRelation, setNewRelation] = useState<string>('Son');
+  const [newRelation, setNewRelation] = useState<string>('son');
+  const [customRelation, setCustomRelation] = useState<string>('');
   const [newPhone, setNewPhone] = useState<string>('');
   const [newAvailability, setNewAvailability] = useState<string>('Usually available');
   const [newAvatar, setNewAvatar] = useState<string | null>(null);
@@ -44,24 +57,31 @@ export default function FamilyEmergencyPage() {
     e.preventDefault();
     if (!newName.trim() || !newPhone.trim()) return;
 
+    const finalRelation = newRelation === 'custom'
+      ? customRelation.trim() || t('familyPage.relationship.custom')
+      : relationshipOptions.find(option => option.value === newRelation)?.label || newRelation;
+
     const newContact: FamilyContact = {
       id: 'fam-' + Date.now(),
       name: newName.trim(),
-      relation: newRelation,
+      relation: finalRelation,
       phone: newPhone.trim(),
-      availability: newAvailability.trim() || 'Available',
+      availability: newAvailability.trim() || t('familyPage.available'),
       avatarUrl: newAvatar || undefined
     };
 
     setContacts(prev => [...prev, newContact]);
     setNewName('');
     setNewPhone('');
+    setNewAvailability('Usually available');
     setNewAvatar(null);
+    setNewRelation('son');
+    setCustomRelation('');
     setShowAddModal(false);
   };
 
   const handleDeleteContact = (id: string) => {
-    if (window.confirm('Remove this family member?')) {
+    if (window.confirm(t('familyPage.confirmDelete'))) {
       setContacts(prev => prev.filter(c => c.id !== id));
     }
   };
@@ -169,17 +189,17 @@ export default function FamilyEmergencyPage() {
                 <path d="M15 6l-6 6 6 6" />
               </svg>
             </button>
-            <h1>Family Members</h1>
+            <h1>{t('familyPage.title')}</h1>
           </div>
 
           <div className="content">
-            <div className="section-label">Your Family Contacts</div>
+            <div className="section-label">{t('familyPage.contacts')}</div>
 
             {contacts.length === 0 ? (
               <div style={{ background: '#fff', borderRadius: '20px', padding: '28px 16px', textAlign: 'center', color: 'var(--ink-soft)', boxShadow: 'var(--shadow)' }}>
                 <div style={{ fontSize: '38px', marginBottom: '8px' }}>👨‍👩‍👧</div>
-                <h4 style={{ margin: '0 0 4px', fontSize: '15px', color: 'var(--ink)' }}>No family members added</h4>
-                <p style={{ margin: 0, fontSize: '12px', fontWeight: 700 }}>Add your loved ones below for direct 1-tap calls.</p>
+                <h4 style={{ margin: '0 0 4px', fontSize: '15px', color: 'var(--ink)' }}>{t('familyPage.emptyTitle')}</h4>
+                <p style={{ margin: 0, fontSize: '12px', fontWeight: 700 }}>{t('familyPage.emptyText')}</p>
               </div>
             ) : (
               contacts.map(c => (
@@ -194,9 +214,9 @@ export default function FamilyEmergencyPage() {
                   </div>
                   <div className="fam-actions">
                     <a href={`tel:${c.phone}`} className="vcall-btn">
-                      📹 Call
+                      {t('familyPage.call')}
                     </a>
-                    <button className="del-contact-btn" onClick={() => handleDeleteContact(c.id)} title="Delete Contact">
+                    <button className="del-contact-btn" onClick={() => handleDeleteContact(c.id)} title={t('familyPage.deleteContact')}>
                       ✕
                     </button>
                   </div>
@@ -205,27 +225,26 @@ export default function FamilyEmergencyPage() {
             )}
 
             <button className="add-contact-btn" onClick={() => setShowAddModal(true)}>
-              + Add Family Contact
+              {t('familyPage.addMember')}
             </button>
 
             <div className="callout">
-              Tap the call button to connect with your family members instantly.
+              {t('familyPage.callout')}
             </div>
           </div>
         </div>
       </div>
 
-      {/* ADD MODAL */}
       {showAddModal && (
         <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
           <div className="sheet" onClick={e => e.stopPropagation()}>
-            <h3>Add Family Member</h3>
+            <h3>{t('familyPage.modalTitle')}</h3>
             <form onSubmit={handleAddContact}>
               <div className="form-group">
-                <label>Member Name</label>
+                <label>{t('familyPage.memberName')}</label>
                 <input
                   type="text"
-                  placeholder="e.g. Priya / Rahul"
+                  placeholder={t('familyPage.memberNamePlaceholder')}
                   value={newName}
                   onChange={e => setNewName(e.target.value)}
                   required
@@ -233,23 +252,32 @@ export default function FamilyEmergencyPage() {
               </div>
 
               <div className="form-group">
-                <label>Relationship</label>
-                <select value={newRelation} onChange={e => setNewRelation(e.target.value)}>
-                  <option value="Daughter">Daughter</option>
-                  <option value="Son">Son</option>
-                  <option value="Spouse">Spouse</option>
-                  <option value="Brother">Brother</option>
-                  <option value="Sister">Sister</option>
-                  <option value="Caregiver">Caregiver</option>
-                  <option value="Friend">Friend</option>
+                <label>{t('familyPage.relationshipLabel')}</label>
+                <select
+                  value={newRelation}
+                  onChange={e => setNewRelation(e.target.value)}
+                >
+                  {relationshipOptions.map(option => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
                 </select>
+                {newRelation === 'custom' && (
+                  <div style={{ marginTop: 8 }}>
+                    <input
+                      type="text"
+                      value={customRelation}
+                      onChange={e => setCustomRelation(e.target.value)}
+                      placeholder={t('familyPage.customRelationshipPlaceholder')}
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="form-group">
-                <label>Phone Number</label>
+                <label>{t('familyPage.phoneNumber')}</label>
                 <input
                   type="tel"
-                  placeholder="e.g. +91 98765 43210"
+                  placeholder={t('familyPage.phonePlaceholder')}
                   value={newPhone}
                   onChange={e => setNewPhone(e.target.value)}
                   required
@@ -257,23 +285,23 @@ export default function FamilyEmergencyPage() {
               </div>
 
               <div className="form-group">
-                <label>Availability / Note</label>
+                <label>{t('familyPage.availability')}</label>
                 <input
                   type="text"
-                  placeholder="e.g. Usually free in the evening"
+                  placeholder={t('familyPage.availabilityPlaceholder')}
                   value={newAvailability}
                   onChange={e => setNewAvailability(e.target.value)}
                 />
               </div>
 
               <div className="form-group">
-                <label>Photo (Optional)</label>
+                <label>{t('familyPage.photoOptional')}</label>
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   style={{ width: '100%', padding: '10px', borderRadius: '12px', border: '1.5px dashed var(--green)', background: 'var(--canvas)', fontWeight: 800, cursor: 'pointer' }}
                 >
-                  {newAvatar ? '✓ Photo Selected' : '📷 Upload Photo'}
+                  {newAvatar ? t('familyPage.photoSelected') : t('familyPage.uploadPhoto')}
                 </button>
                 <input
                   type="file"
@@ -285,8 +313,8 @@ export default function FamilyEmergencyPage() {
               </div>
 
               <div className="form-btns">
-                <button type="submit" className="submit-btn">Save Member</button>
-                <button type="button" className="cancel-btn" onClick={() => setShowAddModal(false)}>Cancel</button>
+                <button type="submit" className="submit-btn">{t('familyPage.saveMember')}</button>
+                <button type="button" className="cancel-btn" onClick={() => setShowAddModal(false)}>{t('familyPage.cancel')}</button>
               </div>
             </form>
           </div>

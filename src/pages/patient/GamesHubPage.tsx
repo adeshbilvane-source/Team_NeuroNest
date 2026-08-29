@@ -12,6 +12,7 @@ export default function GamesHubPage() {
           --canvas: #F3F6F0; --ink: #24322A; --ink-soft: #5B6A61;
           --green: #3F6B4F; --green-tint: #E3EDE5; --green-dark: #2E5140;
           --white: #FFFFFF; --shadow: 0 6px 16px rgba(36,50,42,0.08);
+          --card-overlay: linear-gradient(135deg, rgba(30,40,35,0.44), rgba(30,40,35,0.18));
         }
         .game-root-container {
           display: flex; align-items: center; justify-content: center; min-height: 100vh;
@@ -41,6 +42,7 @@ export default function GamesHubPage() {
         .page-header h1 { font-family: 'Fraunces', serif; font-style: italic; font-weight: 600; font-size: 20px; color: var(--ink); margin: 0; }
         .content { flex: 1; overflow-y: auto; padding: 18px 18px 26px 18px; }
         .lede { font-size: 13px; font-weight: 700; color: var(--ink-soft); margin: 0 0 16px; line-height: 1.5; }
+        
         .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
         .card {
           position: relative; overflow: hidden; border-radius: 20px; padding: 16px 14px;
@@ -48,19 +50,52 @@ export default function GamesHubPage() {
           min-height: 110px; border: none; cursor: pointer; text-align: left; transition: transform .15s ease; width: 100%; box-sizing: border-box;
           background-size: cover; background-position: center; background-repeat: no-repeat;
         }
-        .card::before {
-          content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(30,40,35,0.44), rgba(30,40,35,0.18));
-          z-index: 1;
-        }
+        .card::before { content: ''; position: absolute; inset: 0; background: var(--card-overlay); z-index: 1; }
         .card:active { transform: scale(0.97); }
         .card > * { position: relative; z-index: 2; }
         .card .label { font-weight: 800; font-size: 15px; color: #fff; }
         .card .sub { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.92); margin-top: 2px; }
+        
+        /* Background URLs exactly matching your folder structure */
         .game-card-picture { background-image: url('/background photos/picture_identifier.png'); }
         .game-card-memory { background-image: url('/background photos/memory game.png'); }
-        .game-card-jigsaw { background-image: url('/background photos/jigsaw.png'); }
+        .game-card-jigsaw { background-image: url('/background photos/jigsaw.png'); } 
         .game-card-sort { background-image: url('/background photos/button_sort.png'); }
-        .game-card-yoga { background-image: url('/background photos/yoga.png'); }
+
+        .yoga-card {
+          margin-top: 18px;
+          border-radius: 20px;
+          width: 100%;
+          min-height: 160px; 
+          border: none;
+          cursor: pointer;
+          position: relative;
+          overflow: hidden;
+          background-image: url('/background photos/yoga.png');
+          background-size: cover;
+          background-position: center;
+          background-repeat: no-repeat;
+          text-align: left;
+          transition: transform .15s ease;
+        }
+        .yoga-card:active { transform: scale(0.97); }
+        .yoga-card .overlay {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(0deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.1) 70%, rgba(0,0,0,0) 100%);
+          z-index: 1;
+        }
+        .yoga-card .content-text {
+          position: absolute;
+          bottom: 16px;
+          left: 18px;
+          right: 18px;
+          z-index: 2;
+          color: white;
+        }
+        .yoga-card .label { font-weight: 800; font-size: 18px; }
+        .yoga-card .sub { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.9); margin-top: 4px; }
+
       `}</style>
 
       <div className="phone-wrapper">
@@ -76,6 +111,7 @@ export default function GamesHubPage() {
 
           <div className="content">
             <p className="lede">{t('games.pickOne')}</p>
+            
             <div className="grid2">
               <button className="card game-card-picture" onClick={() => navigate('/patient/games/identify-picture')}>
                 <div className="label">{t('games.pictureGame')}</div>
@@ -95,12 +131,14 @@ export default function GamesHubPage() {
               </button>
             </div>
 
-            <div style={{ marginTop: '18px' }}>
-              <button className="card game-card-yoga" onClick={() => navigate('/patient/yoga')}>
-                <div className="label">Yoga &amp; Rest</div>
-                <div className="sub">Gentle stretching and breathing</div>
-              </button>
-            </div>
+            <button className="yoga-card" onClick={() => navigate('/patient/yoga')}>
+              <div className="overlay"></div>
+              <div className="content-text">
+                <div className="label">Yoga & Rest</div>
+                <div className="sub">Explore guided sessions for strength and peace</div>
+              </div>
+            </button>
+
           </div>
         </div>
       </div>

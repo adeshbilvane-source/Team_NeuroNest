@@ -14,6 +14,7 @@ interface YogaPose {
   name: string;
   sanskrit: string;
   thumbnail: string;
+  videoUrl: string;
   description: string;
   benefits: string;
   steps: YogaStep[];
@@ -25,6 +26,7 @@ const YOGA_POSES: YogaPose[] = [
     name: 'Mountain Pose',
     sanskrit: 'Tadasana',
     thumbnail: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=500&auto=format&fit=crop&q=80',
+    videoUrl: 'https://www.youtube.com/embed/5NxDs-ovJU8?si=fJAkWmnsVI6oRebx&autoplay=1&mute=1&rel=0',
     description: 'A steady, grounding standing posture that improves posture, balance, and quiet focus for seniors.',
     benefits: 'Improves posture, strengthens thighs and ankles, reduces flat feet symptoms.',
     steps: [
@@ -56,6 +58,7 @@ const YOGA_POSES: YogaPose[] = [
     name: 'Supported Tree Pose',
     sanskrit: 'Vrikshasana',
     thumbnail: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=500&auto=format&fit=crop&q=80',
+    videoUrl: 'https://www.youtube.com/embed/QeYhMXJWpJg?si=p9PQH03eFz_f8u2F&autoplay=1&mute=1&rel=0',
     description: 'A gentle balance-building pose practiced with a wall or chair for safe, fall-free stability.',
     benefits: 'Enhances neuromuscular coordination, strengthens calves, and fosters mental calm.',
     steps: [
@@ -87,6 +90,7 @@ const YOGA_POSES: YogaPose[] = [
     name: 'Seated Chair Twist',
     sanskrit: 'Ardha Matsyendrasana',
     thumbnail: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=500&auto=format&fit=crop&q=80',
+    videoUrl: 'https://www.youtube.com/embed/yYy6w8_hLTE?si=WTHNboYvN0kKeDJc&autoplay=1&mute=1&rel=0',
     description: 'A gentle spinal rotation while sitting safely on a chair to release lower back tension and aid digestion.',
     benefits: 'Increases spinal flexibility, relaxes tight shoulders, and stimulates internal organs.',
     steps: [
@@ -118,6 +122,7 @@ const YOGA_POSES: YogaPose[] = [
     name: 'Seated Forward Fold',
     sanskrit: 'Paschimottanasana',
     thumbnail: 'https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?w=500&auto=format&fit=crop&q=80',
+    videoUrl: 'https://www.youtube.com/embed/AD_ztq7IhRU?si=_NQOzJNaHtf44gDJ&autoplay=1&mute=1&rel=0',
     description: 'A soothing seated stretch that calms the nervous system and relaxes tight hamstrings.',
     benefits: 'Calms the mind, relieves mild fatigue, and gently stretches the posterior chain.',
     steps: [
@@ -149,6 +154,7 @@ const YOGA_POSES: YogaPose[] = [
     name: 'Gentle Cat-Cow Flow',
     sanskrit: 'Marjaryasana-Bitilasana',
     thumbnail: 'https://images.unsplash.com/photo-1599447421416-3414500d18a5?w=500&auto=format&fit=crop&q=80',
+    videoUrl: 'https://www.youtube.com/embed/5NxDs-ovJU8?si=fJAkWmnsVI6oRebx&autoplay=1&mute=1&rel=0',
     description: 'A rhythmic flexion and extension of the spine that eases stiffness and restores natural back movement.',
     benefits: 'Improves spinal circulation, relieves lower back stiffness, and synchronizes breath with movement.',
     steps: [
@@ -180,9 +186,12 @@ const YOGA_POSES: YogaPose[] = [
 export default function YogaPage() {
   const navigate = useNavigate();
   const [selectedPose, setSelectedPose] = useState<YogaPose>(YOGA_POSES[0]);
+  const [showDetailView, setShowDetailView] = useState<boolean>(false);
   const [isGuiding, setIsGuiding] = useState<boolean>(false);
   const [currentStepIdx, setCurrentStepIdx] = useState<number>(0);
   const [timerSeconds, setTimerSeconds] = useState<number>(15);
+
+  const activePose = selectedPose ?? YOGA_POSES[0];
 
   const timerRef = useRef<any>(null);
   const sessionStartTimeRef = useRef<number>(Date.now());
@@ -200,17 +209,7 @@ export default function YogaPage() {
     localStorage.setItem('sahayak_yoga_analytics', JSON.stringify(logs));
   };
 
-  // Speak Instruction using Web Speech API
-  const speakInstruction = (text: string) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.88;
-      utterance.pitch = 1.0;
-      utterance.lang = 'en-US';
-      window.speechSynthesis.speak(utterance);
-    }
-  };
+  // Voice guidance intentionally disabled while video is playing.
 
   // Handle Step Countdown
   useEffect(() => {
@@ -219,16 +218,18 @@ export default function YogaPage() {
       return;
     }
 
-    const currentStep = selectedPose.steps[currentStepIdx];
+    const currentStep = activePose.steps[currentStepIdx];
     setTimerSeconds(currentStep.durationSec);
-    speakInstruction(`Step ${currentStep.stepNumber}: ${currentStep.title}. ${currentStep.instruction}`);
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
 
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
       setTimerSeconds((prev) => {
         if (prev <= 1) {
           // Next step or finish
-          if (currentStepIdx < selectedPose.steps.length - 1) {
+          if (currentStepIdx < activePose.steps.length - 1) {
             setCurrentStepIdx(idx => idx + 1);
           } else {
             // Session Completed
@@ -236,7 +237,9 @@ export default function YogaPage() {
             setIsGuiding(false);
             const totalElapsedMins = Math.max(1, Math.round((Date.now() - sessionStartTimeRef.current) / 60000));
             saveYogaSessionToAnalytics(totalElapsedMins);
-            speakInstruction('Wonderful job! You have completed this yoga session. Practice logged to Analytics.');
+            if ('speechSynthesis' in window) {
+              window.speechSynthesis.cancel();
+            }
             alert('🎉 Session complete! Logged to your daily health report.');
           }
           return 0;
@@ -299,14 +302,18 @@ export default function YogaPage() {
 
         .sub-header-msg { font-size: 12.5px; font-weight: 700; color: var(--ink-soft); line-height: 1.4; margin-bottom: 14px; }
 
-        /* Carousel Row */
-        .pose-carousel { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 16px; scrollbar-width: none; }
-        .pose-carousel::-webkit-scrollbar { display: none; }
+        /* Pose Selection Grid */
+        .pose-carousel {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 12px;
+          margin-bottom: 16px;
+        }
         .pose-chip-card {
-          flex-shrink: 0; width: 88px; text-align: center; cursor: pointer;
+          width: 100%; text-align: center; cursor: pointer;
         }
         .pose-thumb-wrap {
-          width: 88px; height: 88px; border-radius: 20px; overflow: hidden;
+          width: 100%; height: 120px; border-radius: 20px; overflow: hidden;
           border: 2.5px solid transparent; box-shadow: var(--shadow); background: var(--white);
           position: relative; transition: all 0.2s ease;
         }
@@ -354,10 +361,17 @@ export default function YogaPage() {
         .timer-badge { font-size: 15px; font-weight: 900; color: var(--purple); background: var(--white); padding: 2px 10px; border-radius: 10px; }
 
         .stage-photo-frame {
-          width: 100%; height: 180px; border-radius: 16px; overflow: hidden;
+          width: 100%; height: 210px; border-radius: 16px; overflow: hidden;
           margin-bottom: 14px; background: #eee;
         }
         .stage-photo-frame img { width: 100%; height: 100%; object-fit: cover; }
+        .stage-photo-frame iframe {
+          width: 100%;
+          height: 100%;
+          border: 0;
+          display: block;
+          background: #000;
+        }
 
         .step-instruction-box {
           background: var(--canvas); border-left: 4px solid var(--purple); border-radius: 14px;
@@ -380,7 +394,11 @@ export default function YogaPage() {
               className="back-btn"
               onClick={() => {
                 handleStopSession();
-                navigate('/patient');
+                if (showDetailView) {
+                  setShowDetailView(false);
+                } else {
+                  navigate('/patient');
+                }
               }}
               aria-label="Back"
             >
@@ -392,80 +410,60 @@ export default function YogaPage() {
           </div>
 
           <div className="content">
-            <div className="sub-header-msg">
-              Simple, gentle poses guided step by step with spoken voice instructions.
-            </div>
-
-            {/* Asana Carousel */}
-            <div className="pose-carousel">
-              {YOGA_POSES.map((pose) => (
-                <div
-                  key={pose.id}
-                  className={`pose-chip-card ${selectedPose.id === pose.id ? 'active' : ''}`}
-                  onClick={() => {
-                    handleStopSession();
-                    setSelectedPose(pose);
-                  }}
-                >
-                  <div className="pose-thumb-wrap">
-                    <img src={pose.thumbnail} alt={pose.name} />
-                  </div>
-                  <div className="pose-chip-name">{pose.name}</div>
-                </div>
-              ))}
-            </div>
-
-            {/* View State 1: Default Overview & Description Mode */}
-            {!isGuiding ? (
-              <div className="main-card">
-                <div className="main-hero-img-wrap">
-                  <img src={selectedPose.thumbnail} alt={selectedPose.name} />
+            {!showDetailView ? (
+              <>
+                <div className="sub-header-msg">
+                  Simple, gentle poses guided step by step with spoken voice instructions.
                 </div>
 
-                <div className="pose-heading">
-                  <h2>{selectedPose.name}</h2>
-                  <span>({selectedPose.sanskrit})</span>
+                <div className="pose-carousel">
+                  {YOGA_POSES.map((pose) => (
+                    <div
+                      key={pose.id}
+                      className={`pose-chip-card ${activePose.id === pose.id ? 'active' : ''}`}
+                      onClick={() => {
+                        handleStopSession();
+                        setSelectedPose(pose);
+                        setShowDetailView(true);
+                      }}
+                    >
+                      <div className="pose-thumb-wrap">
+                        <img src={pose.thumbnail} alt={pose.name} />
+                      </div>
+                      <div className="pose-chip-name">{pose.name}</div>
+                    </div>
+                  ))}
                 </div>
-
-                <div className="desc-block">
-                  {selectedPose.description}
-                </div>
-
-                <div className="benefits-block">
-                  🌿 <b>Key Benefits:</b> {selectedPose.benefits}
-                </div>
-
-                <button className="start-btn" onClick={handleStartSession}>
-                  ▶ Start guided session
-                </button>
-              </div>
-            ) : (
-              /* View State 2: Active Guided Session Mode (Step 1, Step 2 with Stage Photos) */
+              </>
+            ) : isGuiding ? (
               <div className="guided-active-box">
                 <div className="guided-timer-bar">
                   <span className="step-tag">
-                    Step {selectedPose.steps[currentStepIdx].stepNumber} of {selectedPose.steps.length}
+                    Step {activePose.steps[currentStepIdx].stepNumber} of {activePose.steps.length}
                   </span>
                   <span className="timer-badge">⏱ {timerSeconds}s</span>
                 </div>
 
                 <div className="stage-photo-frame">
-                  <img
-                    src={selectedPose.steps[currentStepIdx].stageImage}
-                    alt={selectedPose.steps[currentStepIdx].title}
+                  <iframe
+                    src={activePose.videoUrl}
+                    title={`${activePose.name} demo video`}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerPolicy="strict-origin-when-cross-origin"
+                    allowFullScreen
                   />
                 </div>
 
                 <div className="step-instruction-box">
-                  <h4>{selectedPose.steps[currentStepIdx].title}</h4>
-                  <p>{selectedPose.steps[currentStepIdx].instruction}</p>
+                  <h4>{activePose.steps[currentStepIdx].title}</h4>
+                  <p>{activePose.steps[currentStepIdx].instruction}</p>
                 </div>
 
                 <div className="guided-controls">
                   <button
                     className="guided-btn-next"
                     onClick={() => {
-                      if (currentStepIdx < selectedPose.steps.length - 1) {
+                      if (currentStepIdx < activePose.steps.length - 1) {
                         setCurrentStepIdx(prev => prev + 1);
                       } else {
                         handleStopSession();
@@ -474,13 +472,36 @@ export default function YogaPage() {
                       }
                     }}
                   >
-                    {currentStepIdx < selectedPose.steps.length - 1 ? 'Next Step ➔' : 'Finish Session ✅'}
+                    {currentStepIdx < activePose.steps.length - 1 ? 'Next Step ➔' : 'Finish Session ✅'}
                   </button>
 
                   <button className="guided-btn-stop" onClick={handleStopSession}>
                     End
                   </button>
                 </div>
+              </div>
+            ) : (
+              <div className="main-card">
+                <div className="main-hero-img-wrap">
+                  <img src={activePose.thumbnail} alt={activePose.name} />
+                </div>
+
+                <div className="pose-heading">
+                  <h2>{activePose.name}</h2>
+                  <span>({activePose.sanskrit})</span>
+                </div>
+
+                <div className="desc-block">
+                  {activePose.description}
+                </div>
+
+                <div className="benefits-block">
+                  🌿 <b>Key Benefits:</b> {activePose.benefits}
+                </div>
+
+                <button className="start-btn" onClick={handleStartSession}>
+                  ▶ Start guided session
+                </button>
               </div>
             )}
           </div>

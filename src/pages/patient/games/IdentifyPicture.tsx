@@ -37,10 +37,11 @@ export default function IdentifyPicture() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const familyMemberOptions = t('identifyPicture.familyMembers').split(',').map(value => value.trim()).filter(Boolean);
+  const roomOptions = t('identifyPicture.rooms').split(',').map(value => value.trim()).filter(Boolean);
 
   const [tab, setTab] = useState<CategoryTab>('Random');
 
-  // Individual Level Storage for Each Tab
   const [levels, setLevels] = useState<{ [key in CategoryTab]: number }>(() => ({
     'Random': parseInt(localStorage.getItem('sahayak_level_random') || '1', 10),
     'Family photos': parseInt(localStorage.getItem('sahayak_level_family') || '1', 10),
@@ -130,8 +131,8 @@ export default function IdentifyPicture() {
 
       const target = available[Math.floor(Math.random() * available.length)];
       const defaultPool = tab === 'Family photos'
-        ? ['Father', 'Mother', 'Brother', 'Sister', 'Son', 'Daughter', 'Grandson', 'Friend']
-        : ['Living Room', 'Kitchen', 'Bedroom', 'Balcony', 'Garden', 'Temple Area', 'Main Door'];
+        ? familyMemberOptions.length > 0 ? familyMemberOptions : ['Father', 'Mother', 'Brother', 'Sister', 'Son', 'Daughter', 'Grandson', 'Friend']
+        : roomOptions.length > 0 ? roomOptions : ['Living Room', 'Kitchen', 'Bedroom', 'Balcony', 'Garden', 'Temple Area', 'Main Door'];
 
       const otherLabels = defaultPool
         .filter(l => l.toLowerCase() !== target.label.toLowerCase())
@@ -432,25 +433,17 @@ export default function IdentifyPicture() {
 
             {tab === 'Family photos' ? (
               <select value={photoLabel} onChange={(e) => setPhotoLabel(e.target.value)}>
-                <option value="Father">Father</option>
-                <option value="Mother">Mother</option>
-                <option value="Brother">Brother</option>
-                <option value="Sister">Sister</option>
-                <option value="Son">Son</option>
-                <option value="Daughter">Daughter</option>
-                <option value="Grandson">Grandson</option>
-                <option value="Granddaughter">Granddaughter</option>
-                <option value="Friend">Friend</option>
+                {(familyMemberOptions.length > 0 ? familyMemberOptions : ['Father', 'Mother', 'Brother', 'Sister', 'Son', 'Daughter', 'Grandson', 'Granddaughter', 'Friend']).map(option => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+                <option value="Custom">{t('familyPage.relationship.custom')}</option>
               </select>
             ) : (
               <select value={photoLabel} onChange={(e) => setPhotoLabel(e.target.value)}>
-                <option value="Living Room">Living Room</option>
-                <option value="Kitchen">Kitchen</option>
-                <option value="Bedroom">Bedroom</option>
-                <option value="Garden">Garden</option>
-                <option value="Balcony">Balcony</option>
-                <option value="Temple Area">Temple Area</option>
-                <option value="Main Door">Main Door</option>
+                {(roomOptions.length > 0 ? roomOptions : ['Living Room', 'Kitchen', 'Bedroom', 'Garden', 'Balcony', 'Temple Area', 'Main Door']).map(option => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+                <option value="Custom">{t('familyPage.relationship.custom')}</option>
               </select>
             )}
 

@@ -46,22 +46,67 @@ export default function ActivitiesPage() {
           font-size: 15px; font-weight: 900; letter-spacing: 0.04em; color: var(--green-dark);
           margin: 0 0 12px 4px; text-transform: uppercase;
         }
-        .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .grid2 {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 14px;
+        }
+        .wellness-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 14px;
+        }
         .card {
-          background: var(--green-tint); border-radius: 20px; padding: 16px 14px;
-          display: flex; flex-direction: column; align-items: flex-start; gap: 20px;
-          min-height: 110px; border: none; cursor: pointer; text-align: left; transition: transform .15s ease; width: 100%; box-sizing: border-box;
+          position: relative;
+          overflow: hidden;
+          border-radius: 20px;
+          padding: 16px 14px;
+          min-height: 110px;
+          border: none;
+          cursor: pointer;
+          text-align: left;
+          transition: transform .15s ease;
+          width: 100%;
+          box-sizing: border-box;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          justify-content: flex-end;
+          background-size: cover;
+          background-position: center;
+          background-repeat: no-repeat;
+          box-shadow: 0 8px 20px rgba(24, 38, 31, 0.12);
+        }
+        .card::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(135deg, rgba(17, 22, 20, 0.46), rgba(17, 22, 20, 0.16));
+          z-index: 1;
         }
         .card:active { transform: scale(0.97); }
-        .card .icon-wrap {
-          width: 44px; height: 44px; border-radius: 13px; background: var(--white);
-          display: flex; align-items: center; justify-content: center; font-size: 22px;
+        .card > * {
+          position: relative;
+          z-index: 2;
         }
-        .card .label { font-weight: 800; font-size: 15px; color: var(--ink); }
-        .card .sub { font-size: 11px; font-weight: 700; color: var(--ink-soft); margin-top: 2px; }
-        .yoga-card {
-          background: linear-gradient(135deg, #edf7ee, #e5f0ff);
+        .card .label {
+          font-weight: 800;
+          font-size: 15px;
+          color: #fff;
+          line-height: 1.2;
         }
+        .card .sub {
+          font-size: 11px;
+          font-weight: 700;
+          color: rgba(255,255,255,0.9);
+          margin-top: 4px;
+          line-height: 1.3;
+        }
+        .game-card-picture { background-image: url('/background%20photos/picture_identifier.png'); }
+        .game-card-memory { background-image: url('/background%20photos/memory%20game.png'); }
+        .game-card-jigsaw { background-image: url('/background%20photos/jigsaw.png'); }
+        .game-card-sort { background-image: url('/background%20photos/button_sort.png'); }
+        .game-card-yoga { background-image: url('/background%20photos/yoga.png'); min-height: 135px; padding-top: 20px; }
       `}</style>
 
       <div className="phone-wrapper">
@@ -79,31 +124,44 @@ export default function ActivitiesPage() {
             <div className="section">
               <h2 className="section-title">Games</h2>
               <div className="grid2">
-                <button className="card" onClick={() => navigate('/patient/games/identify-picture')}>
-                  <div className="icon-wrap">🖼️</div>
-                  <div><div className="label">{t('games.pictureGame') || 'Identify Picture'}</div><div className="sub">{t('games.pictureDesc') || 'Spot the right image'}</div></div>
+                <button className="card game-card-picture" onClick={() => navigate('/patient/games/identify-picture')}>
+                  <div>
+                    <div className="label">{t('games.pictureGame') || 'Picture game'}</div>
+                    <div className="sub">{t('games.pictureDesc') || 'Name what you see'}</div>
+                  </div>
                 </button>
-                <button className="card" onClick={() => navigate('/patient/games/memory-match')}>
-                  <div className="icon-wrap">🃏</div>
-                  <div><div className="label">{t('games.memoryCards') || 'Memory Match'}</div><div className="sub">{t('games.memoryDesc') || 'Find matching cards'}</div></div>
+
+                <button className="card game-card-memory" onClick={() => navigate('/patient/games/memory-match')}>
+                  <div>
+                    <div className="label">{t('games.memoryCards') || 'Memory cards'}</div>
+                    <div className="sub">{t('games.memoryDesc') || 'Find two alike'}</div>
+                  </div>
                 </button>
-                <button className="card" onClick={() => navigate('/patient/games/jigsaw')}>
-                  <div className="icon-wrap">🧩</div>
-                  <div><div className="label">{t('games.jigsaw') || 'Jigsaw Puzzle'}</div><div className="sub">{t('games.jigsawDesc') || 'Complete the picture'}</div></div>
+
+                <button className="card game-card-jigsaw" onClick={() => navigate('/patient/games/jigsaw')}>
+                  <div>
+                    <div className="label">{t('games.jigsaw') || 'Jigsaw'}</div>
+                    <div className="sub">{t('games.jigsawDesc') || 'Put the picture together'}</div>
+                  </div>
                 </button>
-                <button className="card" onClick={() => navigate('/patient/games/button-sorting')}>
-                  <div className="icon-wrap">🔘</div>
-                  <div><div className="label">{t('games.sortButtons') || 'Button Sorting'}</div><div className="sub">{t('games.sortDesc') || 'Sort the correct buttons'}</div></div>
+
+                <button className="card game-card-sort" onClick={() => navigate('/patient/games/button-sorting')}>
+                  <div>
+                    <div className="label">{t('games.sortButtons') || 'Sort buttons'}</div>
+                    <div className="sub">{t('games.sortDesc') || 'Match shape and colour'}</div>
+                  </div>
                 </button>
               </div>
             </div>
 
             <div className="section">
               <h2 className="section-title">Wellness</h2>
-              <div className="grid2">
-                <button className="card yoga-card" onClick={() => navigate('/patient/yoga')}>
-                  <div className="icon-wrap">🧘</div>
-                  <div><div className="label">Yoga &amp; Rest</div><div className="sub">Gentle stretching and breathing</div></div>
+              <div className="wellness-grid">
+                <button className="card game-card-yoga" onClick={() => navigate('/patient/yoga')}>
+                  <div>
+                    <div className="label">Yoga &amp; Rest</div>
+                    <div className="sub">Gentle stretching and breathing</div>
+                  </div>
                 </button>
               </div>
             </div>
