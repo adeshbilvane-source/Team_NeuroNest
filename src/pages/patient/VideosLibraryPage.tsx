@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface LibraryPhoto {
   id: string;
@@ -113,6 +114,8 @@ const CALMING_YOUTUBE_VIDEOS: CalmingVideo[] = [
 export default function VideosLibraryPage() {
   const navigate = useNavigate();
   const videoInputRef = useRef<HTMLInputElement>(null);
+  const libraryPhotoInputRef = useRef<HTMLInputElement>(null);
+  const { t } = useTranslation();
 
   const [tab, setTab] = useState<'videos' | 'library'>('videos');
   const [librarySubTab, setLibrarySubTab] = useState<'photos' | 'videos'>('photos');
@@ -128,6 +131,11 @@ export default function VideosLibraryPage() {
   const [tempVideoUrl, setTempVideoUrl] = useState<string | null>(null);
   const [videoTitle, setVideoTitle] = useState<string>('');
   const [videoCategory, setVideoCategory] = useState<string>('Family');
+
+  const [showPhotoModal, setShowPhotoModal] = useState<boolean>(false);
+  const [tempPhotoUrl, setTempPhotoUrl] = useState<string | null>(null);
+  const [photoLabel, setPhotoLabel] = useState<string>('Grandson');
+  const [photoCategory, setPhotoCategory] = useState<'family' | 'surroundings'>('family');
 
   useEffect(() => {
     // 1. Photos
@@ -171,6 +179,37 @@ export default function VideosLibraryPage() {
       setVideoTitle(file.name.replace(/\.[^/.]+$/, ''));
       setShowVideoModal(true);
     }
+  };
+
+  const handlePhotoFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setTempPhotoUrl(reader.result as string);
+      setPhotoLabel(file.name.replace(/\.[^/.]+$/, '') || 'Family Photo');
+      setShowPhotoModal(true);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSaveLibraryPhoto = () => {
+    if (!tempPhotoUrl || !photoLabel.trim()) return;
+
+    const newPhoto: LibraryPhoto = {
+      id: 'photo-' + Date.now(),
+      imageUrl: tempPhotoUrl,
+      label: photoLabel.trim(),
+      category: photoCategory,
+    };
+
+    const updated = [...libraryPhotos, newPhoto];
+    setLibraryPhotos(updated);
+    localStorage.setItem('sahayak_library_photos', JSON.stringify(updated));
+    setTempPhotoUrl(null);
+    setShowPhotoModal(false);
+    setPhotoLabel('Grandson');
   };
 
   const handleSaveVideo = () => {
@@ -324,22 +363,20 @@ export default function VideosLibraryPage() {
                   <path d="M15 6l-6 6 6 6" />
                 </svg>
               </button>
-              <h1>Videos &amp; Library</h1>
+              <h1>{t('videosLibrary.title')}</h1>
             </div>
             <div className="tabbar">
-              <button className={`tab ${tab === 'videos' ? 'active' : ''}`} onClick={() => setTab('videos')}>📺 Videos</button>
-              <button className={`tab ${tab === 'library' ? 'active' : ''}`} onClick={() => setTab('library')}>🗂️ Library</button>
+              <button className={`tab ${tab === 'videos' ? 'active' : ''}`} onClick={() => setTab('videos')}>{t('videosLibrary.videos')}</button>
+              <button className={`tab ${tab === 'library' ? 'active' : ''}`} onClick={() => setTab('library')}>{t('videosLibrary.library')}</button>
             </div>
           </div>
 
           <div className="content">
-            {/* ================= TAB 1: VIDEOS ================= */}
             {tab === 'videos' ? (
               <div>
-                {/* 1. Captured / Uploaded Videos */}
                 <div className="section-label">
-                  <span>Your Uploaded Videos</span>
-                  <span className="add-link" onClick={() => videoInputRef.current?.click()}>+ Upload / Record</span>
+                  <span>{t('videosLibrary.yourVideos')}</span>
+                  <span className="add-link" onClick={() => videoInputRef.current?.click()}>{t('videosLibrary.uploadRecord')}</span>
                 </div>
                 <input
                   type="file"
@@ -352,7 +389,7 @@ export default function VideosLibraryPage() {
 
                 {userVideos.length === 0 ? (
                   <div style={{ background: '#fff', padding: '16px', borderRadius: '16px', textAlign: 'center', color: 'var(--ink-soft)', marginBottom: '16px' }}>
-                    <p style={{ margin: 0, fontSize: '12px', fontWeight: 800 }}>No videos recorded yet. Tap "+ Upload / Record" to add family moments.</p>
+                    <p style={{ margin: 0, fontSize: '12px', fontWeight: 800 }}>{t('videosLibrary.noVideos')}</p>
                   </div>
                 ) : (
                   <div className="vid-grid">
@@ -377,7 +414,7 @@ export default function VideosLibraryPage() {
 
                 {/* 2. Curated 10+ Calming YouTube Videos */}
                 <div className="section-label">
-                  <span>Calming Videos (10+ Therapy)</span>
+                  <span>{t('videosLibrary.calmingVideos')}</span>
                 </div>
                 <div className="vid-grid">
                   {CALMING_YOUTUBE_VIDEOS.map(yt => (
@@ -406,31 +443,47 @@ export default function VideosLibraryPage() {
                     className={`sub-tab ${librarySubTab === 'photos' ? 'active' : ''}`}
                     onClick={() => setLibrarySubTab('photos')}
                   >
-                    📸 Photos ({libraryPhotos.length})
+                    {t('videosLibrary.photos', { count: libraryPhotos.length })}
                   </button>
                   <button
                     className={`sub-tab ${librarySubTab === 'videos' ? 'active' : ''}`}
                     onClick={() => setLibrarySubTab('videos')}
                   >
-                    🎥 Captured Videos ({userVideos.length})
+                    {t('videosLibrary.capturedVideos', { count: userVideos.length })}
                   </button>
                 </div>
 
-                {/* SECTION A: PHOTOS */}
                 {librarySubTab === 'photos' && (
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                       <span style={{ fontSize: '12px', fontWeight: 800, color: 'var(--ink-soft)' }}>
-                        {selectedPhotoIds.length} Selected
+                        {t('videosLibrary.selectedCount', { count: selectedPhotoIds.length })}
                       </span>
                       {selectedPhotoIds.length > 0 && (
                         <button
                           style={{ background: 'var(--red)', color: '#fff', border: 'none', borderRadius: '10px', padding: '6px 12px', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}
                           onClick={handleDeletePhotos}
                         >
-                          🗑 Delete Photos
+                          {t('videosLibrary.deletePhotos')}
                         </button>
                       )}
+                    </div>
+
+                    <div style={{ marginBottom: 12 }}>
+                      <button
+                        style={{ width: '100%', background: 'var(--green)', color: '#fff', border: 'none', borderRadius: '12px', padding: '10px 12px', fontWeight: 800, cursor: 'pointer' }}
+                        onClick={() => libraryPhotoInputRef.current?.click()}
+                      >
+                        {t('videosLibrary.addPhoto')}
+                      </button>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        ref={libraryPhotoInputRef}
+                        style={{ display: 'none' }}
+                        onChange={handlePhotoFile}
+                      />
                     </div>
 
                     <div className="lib-grid">
@@ -461,14 +514,14 @@ export default function VideosLibraryPage() {
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                       <span style={{ fontSize: '12px', fontWeight: 800, color: 'var(--ink-soft)' }}>
-                        {selectedVideoIds.length} Selected
+                        {t('videosLibrary.selectedCount', { count: selectedVideoIds.length })}
                       </span>
                       {selectedVideoIds.length > 0 && (
                         <button
                           style={{ background: 'var(--red)', color: '#fff', border: 'none', borderRadius: '10px', padding: '6px 12px', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}
                           onClick={handleDeleteVideos}
                         >
-                          🗑 Delete Videos
+                          {t('videosLibrary.deleteVideos')}
                         </button>
                       )}
                     </div>
@@ -557,14 +610,13 @@ export default function VideosLibraryPage() {
         </div>
       )}
 
-      {/* UPLOAD VIDEO LABEL MODAL */}
       {showVideoModal && (
         <div className="player-modal-overlay" onClick={() => setShowVideoModal(false)}>
           <div className="player-card" style={{ padding: '20px' }} onClick={e => e.stopPropagation()}>
-            <h3 style={{ margin: '0 0 12px 0' }}>Save Recorded Video</h3>
+            <h3 style={{ margin: '0 0 12px 0' }}>{t('videosLibrary.saveVideo')}</h3>
             <input
               type="text"
-              placeholder="Video Title (e.g. Garden Walk)"
+              placeholder={t('videosLibrary.videoTitlePlaceholder')}
               value={videoTitle}
               onChange={e => setVideoTitle(e.target.value)}
               style={{ width: '100%', padding: '10px 12px', borderRadius: '12px', border: '1.5px solid #ccc', marginBottom: '12px', boxSizing: 'border-box' }}
@@ -574,23 +626,61 @@ export default function VideosLibraryPage() {
               onChange={e => setVideoCategory(e.target.value)}
               style={{ width: '100%', padding: '10px 12px', borderRadius: '12px', border: '1.5px solid #ccc', marginBottom: '16px', boxSizing: 'border-box' }}
             >
-              <option value="Family">Family</option>
-              <option value="Calming">Calming</option>
-              <option value="Daily Routine">Daily Routine</option>
-              <option value="Memories">Memories</option>
+              <option value="Family">{t('videosLibrary.familyCategory')}</option>
+              <option value="Calming">{t('videosLibrary.calmingCategory')}</option>
+              <option value="Daily Routine">{t('videosLibrary.dailyRoutineCategory')}</option>
+              <option value="Memories">{t('videosLibrary.memoriesCategory')}</option>
             </select>
             <div style={{ display: 'flex', gap: '8px' }}>
               <button
                 style={{ flex: 1, background: 'var(--green)', color: '#fff', border: 'none', borderRadius: '12px', padding: '12px', fontWeight: 800, cursor: 'pointer' }}
                 onClick={handleSaveVideo}
               >
-                Save Video
+                {t('videosLibrary.save')}
               </button>
               <button
                 style={{ flex: 1, background: '#eee', border: 'none', borderRadius: '12px', padding: '12px', fontWeight: 800, cursor: 'pointer' }}
                 onClick={() => setShowVideoModal(false)}
               >
-                Cancel
+                {t('videosLibrary.cancel')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPhotoModal && tempPhotoUrl && (
+        <div className="player-modal-overlay" onClick={() => setShowPhotoModal(false)}>
+          <div className="player-card" style={{ padding: '20px' }} onClick={e => e.stopPropagation()}>
+            <h3 style={{ margin: '0 0 12px 0' }}>{t('videosLibrary.savePhoto')}</h3>
+            <img src={tempPhotoUrl} alt="Library" style={{ width: '100%', height: 180, objectFit: 'cover', borderRadius: 12, marginBottom: 12 }} />
+            <input
+              type="text"
+              value={photoLabel}
+              onChange={e => setPhotoLabel(e.target.value)}
+              placeholder={t('familyPage.memberNamePlaceholder')}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: '12px', border: '1.5px solid #ccc', marginBottom: '12px', boxSizing: 'border-box' }}
+            />
+            <select
+              value={photoCategory}
+              onChange={e => setPhotoCategory(e.target.value as 'family' | 'surroundings')}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: '12px', border: '1.5px solid #ccc', marginBottom: '16px', boxSizing: 'border-box' }}
+            >
+              <option value="family">{t('identifyPicture.familyPhotos')}</option>
+              <option value="surroundings">{t('identifyPicture.surroundings')}</option>
+            </select>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                style={{ flex: 1, background: 'var(--green)', color: '#fff', border: 'none', borderRadius: '12px', padding: '12px', fontWeight: 800, cursor: 'pointer' }}
+                onClick={handleSaveLibraryPhoto}
+              >
+                {t('videosLibrary.savePhoto')}
+              </button>
+              <button
+                style={{ flex: 1, background: '#eee', border: 'none', borderRadius: '12px', padding: '12px', fontWeight: 800, cursor: 'pointer' }}
+                onClick={() => setShowPhotoModal(false)}
+              >
+                {t('videosLibrary.cancel')}
               </button>
             </div>
           </div>

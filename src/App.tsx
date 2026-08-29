@@ -6,6 +6,7 @@ import CheckInOverlay from './components/CheckInOverlay';
 
 // Patient stack
 import PatientHomePage from './pages/patient/HomePage';
+import ActivitiesPage from './pages/patient/ActivitiesPage';
 import GamesHubPage from './pages/patient/GamesHubPage';
 import IdentifyPicture from './pages/patient/games/IdentifyPicture';
 import MemoryMatch from './pages/patient/games/MemoryMatch';
@@ -19,6 +20,7 @@ import EmergencyPage from './pages/patient/EmergencyPage' ;
 import PatientChatThreadPage from './pages/patient/ChatPage';
 import PatientAnalyticsPage from './pages/patient/AnalyticsPage';
 import PatientAppointmentsPage from './pages/patient/AppointmentsPage';
+import PatientSettingsPage from './pages/patient/SettingsPage';
 
 // Doctor stack
 import DoctorHomePage from './pages/doctor/HomePage';
@@ -60,8 +62,8 @@ export default function App() {
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<LoginPage />} />
 
-          {/* ---------------- PATIENT STACK ---------------- */}
-          <Route path="/patient" element={<PatientHomePage />} />
+        {/* ---------------- PATIENT STACK ---------------- */}
+        <Route path="/patient" element={<PatientHomePage />} />
 
           {/* Cognitive Games */}
           <Route path="/patient/games" element={<GamesHubPage />} />
@@ -80,9 +82,9 @@ export default function App() {
           <Route path="/patient/emergency" element={<EmergencyPage />} />
           <Route path="/patient/family-emergency" element={<Navigate to="/patient/family" replace />} />
 
-          <Route path="/patient/chat" element={<PatientChatThreadPage />} />
-          <Route path="/patient/analytics" element={<PatientAnalyticsPage />} />
-          <Route path="/patient/appointments" element={<PatientAppointmentsPage />} />
+        <Route path="/patient/chat" element={<PatientChatThreadPage />} />
+        <Route path="/patient/analytics" element={<PatientAnalyticsPage />} />
+        <Route path="/patient/appointments" element={<PatientAppointmentsPage />} />
 
           {/* ---------------- DOCTOR STACK ---------------- */}
           <Route element={<DoctorMobileFrame />}>
