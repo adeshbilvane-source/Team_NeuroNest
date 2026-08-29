@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 type CategoryTab = 'Random' | 'Family photos' | 'My surroundings';
 
@@ -33,6 +34,7 @@ const REAL_RANDOM_DATA = [
 ];
 
 export default function IdentifyPicture() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -328,7 +330,7 @@ export default function IdentifyPicture() {
                   <path d="M15 6l-6 6 6 6" />
                 </svg>
               </button>
-              <h1>Identify Picture</h1>
+              <h1>{t('identifyPicture.title')}</h1>
             </div>
             <div className="level-badge">⭐ Level {currentLevel} / 100</div>
           </div>
@@ -351,13 +353,13 @@ export default function IdentifyPicture() {
 
             {tab !== 'Random' && (
               <div className="upload-card">
-                📸 Add {tab === 'Family photos' ? 'Family Member' : 'Room / Home'} Photo
+                {tab === 'Family photos' ? t('identifyPicture.addFamilyPhoto') : t('identifyPicture.addRoomPhoto')}
                 <br />
                 <button
                   className="upload-btn"
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  📷 Take / Upload Photo
+                  {t('identifyPicture.takeUploadPhoto')}
                 </button>
                 <input
                   type="file"
@@ -378,10 +380,10 @@ export default function IdentifyPicture() {
 
                 <div className="question-prompt">
                   {tab === 'Family photos'
-                    ? 'Who is this person?'
+                    ? t('identifyPicture.whoIs')
                     : tab === 'My surroundings'
-                    ? 'Which place is this?'
-                    : 'What is shown in the picture?'}
+                    ? t('identifyPicture.whichPlace')
+                    : t('identifyPicture.whatShown')}
                 </div>
 
                 <div className="mcq-grid">
@@ -408,15 +410,15 @@ export default function IdentifyPicture() {
               </>
             ) : (
               <div style={{ textAlign: 'center', padding: '30px 10px', color: 'var(--ink-soft)' }}>
-                <p style={{ fontWeight: 800, fontSize: '15px' }}>No photos added for {tab} yet!</p>
-                <p style={{ fontSize: '12px' }}>Upload photos here or from the Library to start playing Level {currentLevel}.</p>
+                <p style={{ fontWeight: 800, fontSize: '15px' }}>{t('identifyPicture.noPhotos', { tab })}</p>
+                <p style={{ fontSize: '12px' }}>{t('identifyPicture.uploadPhotosHint', { level: currentLevel })}</p>
               </div>
             )}
 
             <div className="callout">
-              {isCorrect === true && `🎉 Correct! Level ${currentLevel + 1} unlocked for ${tab}!`}
-              {isCorrect === false && '❌ Incorrect. Don\'t worry, here is a simpler one!'}
-              {isCorrect === null && `Playing ${tab} · Level ${currentLevel} of 100`}
+              {isCorrect === true && t('identifyPicture.correct', { level: currentLevel + 1, tab })}
+              {isCorrect === false && t('identifyPicture.incorrect')}
+              {isCorrect === null && t('identifyPicture.playingLevel', { tab, level: currentLevel })}
             </div>
           </div>
         </div>
@@ -425,7 +427,7 @@ export default function IdentifyPicture() {
       {showUploadModal && capturedImage && (
         <div className="modal-overlay">
           <div className="modal-box">
-            <h3 style={{ margin: '0 0 10px 0', fontSize: '16px' }}>Label this photo</h3>
+            <h3 style={{ margin: '0 0 10px 0', fontSize: '16px' }}>{t('identifyPicture.labelPhoto')}</h3>
             <img src={capturedImage} alt="Captured" className="modal-preview" />
 
             {tab === 'Family photos' ? (
@@ -454,10 +456,10 @@ export default function IdentifyPicture() {
 
             <div className="modal-action-btns">
               <button style={{ background: 'var(--green)', color: '#fff' }} onClick={handleSaveCustomPhoto}>
-                Save Photo
+                {t('identifyPicture.savePhoto')}
               </button>
               <button style={{ background: '#ddd', color: '#333' }} onClick={() => setShowUploadModal(false)}>
-                Cancel
+                {t('identifyPicture.cancel')}
               </button>
             </div>
           </div>

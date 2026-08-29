@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 type PuzzleMode = 'photo' | 'numbers';
 
@@ -30,6 +31,7 @@ const PUZZLE_IMAGES: PuzzleImage[] = [
 ];
 
 export default function JigsawPuzzle() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [mode, setMode] = useState<PuzzleMode>('photo');
@@ -245,7 +247,7 @@ export default function JigsawPuzzle() {
                   <path d="M15 6l-6 6 6 6" />
                 </svg>
               </button>
-              <h1>Jigsaw Puzzle</h1>
+              <h1>{t('jigsawPuzzle.title')}</h1>
             </div>
             <div className="level-badge">⭐ Level {level} / 100</div>
           </div>
@@ -256,21 +258,21 @@ export default function JigsawPuzzle() {
                 className={`chip ${mode === 'photo' ? 'active' : ''}`}
                 onClick={() => setMode('photo')}
               >
-                🖼️ Photo Jigsaw
+                {t('jigsawPuzzle.photoJigsaw')}
               </div>
               <div
                 className={`chip ${mode === 'numbers' ? 'active' : ''}`}
                 onClick={() => setMode('numbers')}
               >
-                🔢 Numbers
+                {t('jigsawPuzzle.numbers')}
               </div>
             </div>
 
             <div className="hint-bar">
-              <span>{gridSize}x{gridSize} Slices ({totalTiles} Pieces)</span>
+              <span>{t('jigsawPuzzle.slices', { size: gridSize, pieces: totalTiles })}</span>
               {mode === 'photo' && (
                 <button className="hint-btn" onClick={() => setShowPreview(true)}>
-                  👁️ View Full Photo
+                  {t('jigsawPuzzle.viewFullPhoto')}
                 </button>
               )}
             </div>
@@ -317,7 +319,7 @@ export default function JigsawPuzzle() {
                     }}
                     onClick={() => handlePieceClick(currentSlot)}
                   >
-                    {isSelected && <span className="ptile-tag">Selected</span>}
+                    {isSelected && <span className="ptile-tag">{t('jigsawPuzzle.selected')}</span>}
                   </div>
                 );
               })}
@@ -325,10 +327,10 @@ export default function JigsawPuzzle() {
 
             <div className="callout">
               {isWon
-                ? `🎉 Completed! Level ${level + 1} unlocked with next picture!`
+                ? t('jigsawPuzzle.completed', { level })
                 : selectedIndex !== null
-                ? `👉 Tap another piece to swap them into place.`
-                : `Tap one piece to select, then tap another piece to swap.`}
+                ? t('jigsawPuzzle.tapToSwap')
+                : t('jigsawPuzzle.tapSelectSwap')}
             </div>
           </div>
         </div>
@@ -337,7 +339,7 @@ export default function JigsawPuzzle() {
       {showPreview && (
         <div className="preview-popup" onClick={() => setShowPreview(false)}>
           <div className="preview-card" onClick={e => e.stopPropagation()}>
-            <h3 style={{ margin: '0 0 10px', fontSize: '16px', color: 'var(--ink)' }}>Target Picture</h3>
+            <h3 style={{ margin: '0 0 10px', fontSize: '16px', color: 'var(--ink)' }}>{t('jigsawPuzzle.targetPicture')}</h3>
             <img src={activeImage.url} alt={activeImage.name} className="preview-img" />
             <p style={{ margin: '0 0 14px', fontSize: '13px', fontWeight: 800, color: 'var(--ink-soft)' }}>
               {activeImage.name}
@@ -354,7 +356,7 @@ export default function JigsawPuzzle() {
               }}
               onClick={() => setShowPreview(false)}
             >
-              Back to Puzzle
+              {t('jigsawPuzzle.backToPuzzle')}
             </button>
           </div>
         </div>

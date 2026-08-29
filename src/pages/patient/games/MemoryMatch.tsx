@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 type CategoryType = 'fruits' | 'shapes' | 'household' | 'numbers';
 
@@ -45,6 +46,7 @@ const REAL_DATASETS: Record<CategoryType, CardItem[]> = {
 };
 
 export default function MemoryMatch() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [selectedCat, setSelectedCat] = useState<CategoryType>('fruits');
 
@@ -257,7 +259,7 @@ export default function MemoryMatch() {
                   <path d="M15 6l-6 6 6 6" />
                 </svg>
               </button>
-              <h1>Memory Match</h1>
+              <h1>{t('memoryMatch.title')}</h1>
             </div>
             <div className="level-badge">⭐ Level {currentLevel} / 100</div>
           </div>
@@ -266,10 +268,10 @@ export default function MemoryMatch() {
             <div className="cat-grid">
               {(
                 [
-                  { key: 'fruits', label: '🍇 Fruits & Veg' },
-                  { key: 'shapes', label: '🔷 Shapes' },
-                  { key: 'household', label: '🧺 Household' },
-                  { key: 'numbers', label: '🔢 Numbers' }
+                  { key: 'fruits', label: t('memoryMatch.fruitsVeg') },
+                  { key: 'shapes', label: t('memoryMatch.shapes') },
+                  { key: 'household', label: t('memoryMatch.household') },
+                  { key: 'numbers', label: t('memoryMatch.numbers') }
                 ] as const
               ).map(c => (
                 <div
@@ -306,8 +308,8 @@ export default function MemoryMatch() {
             </div>
 
             <div className="callout">
-              {isWon && `🎉 Superb! Level ${currentLevel + 1} unlocked!`}
-              {!isWon && `Level ${currentLevel}: Find all matching pairs. Starts with large cards and expands as you level up!`}
+              {isWon && t('memoryMatch.superb', { level: currentLevel + 1 })}
+              {!isWon && t('memoryMatch.levelDesc', { level: currentLevel })}
             </div>
           </div>
         </div>
