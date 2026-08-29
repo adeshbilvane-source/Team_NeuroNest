@@ -66,6 +66,7 @@ export default function App() {
         <Route path="/patient" element={<PatientHomePage />} />
 
           {/* Cognitive Games */}
+          <Route path="/patient/activities" element={<ActivitiesPage />} />
           <Route path="/patient/games" element={<GamesHubPage />} />
           <Route path="/patient/games/identify-picture" element={<IdentifyPicture />} />
           <Route path="/patient/games/memory-match" element={<MemoryMatch />} />
@@ -85,6 +86,7 @@ export default function App() {
         <Route path="/patient/chat" element={<PatientChatThreadPage />} />
         <Route path="/patient/analytics" element={<PatientAnalyticsPage />} />
         <Route path="/patient/appointments" element={<PatientAppointmentsPage />} />
+        <Route path="/patient/settings" element={<PatientSettingsPage />} />
 
           {/* ---------------- DOCTOR STACK ---------------- */}
           <Route element={<DoctorMobileFrame />}>
