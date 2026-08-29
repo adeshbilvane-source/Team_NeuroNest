@@ -4,6 +4,7 @@ import LanguageSwitcher from './components/LanguageSwitcher';
 
 // Patient stack
 import PatientHomePage from './pages/patient/HomePage';
+import ActivitiesPage from './pages/patient/ActivitiesPage';
 import GamesHubPage from './pages/patient/GamesHubPage';
 import IdentifyPicture from './pages/patient/games/IdentifyPicture';
 import MemoryMatch from './pages/patient/games/MemoryMatch';
@@ -60,6 +61,8 @@ export default function App() {
 
         {/* ---------------- PATIENT STACK ---------------- */}
         <Route path="/patient" element={<PatientHomePage />} />
+
+        <Route path="/patient/activities" element={<ActivitiesPage />} />
 
         {/* Cognitive Games */}
         <Route path="/patient/games" element={<GamesHubPage />} />

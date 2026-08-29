@@ -22,16 +22,17 @@ export default function GamesHubPage() {
           padding: 14px; box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35); box-sizing: border-box;
         }
         .phone-screen {
-          background: var(--canvas); border-radius: 34px; overflow: hidden;
-          position: relative; min-height: 780px; display: flex; flex-direction: column; box-sizing: border-box;
+          background-image: linear-gradient(rgba(243,246,240,0.78), rgba(243,246,240,0.82)), url('/background photos/activity.jpeg');
+          background-size: cover; background-position: center; background-repeat: no-repeat;
+          border-radius: 34px; overflow: hidden; position: relative; min-height: 780px; display: flex; flex-direction: column; box-sizing: border-box;
         }
         .notch {
           position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
           width: 120px; height: 24px; background: #111614; border-radius: 20px; z-index: 10;
         }
         .page-header {
-          padding: 44px 18px 14px 18px; background: var(--white); box-shadow: var(--shadow);
-          display: flex; align-items: center; gap: 12px; z-index: 2;
+          padding: 44px 18px 14px 18px; background: rgba(255,255,255,0.8); backdrop-filter: blur(4px);
+          box-shadow: var(--shadow); display: flex; align-items: center; gap: 12px; z-index: 2;
         }
         .back-btn {
           width: 38px; height: 38px; border-radius: 12px; background: var(--green-tint);
@@ -42,17 +43,24 @@ export default function GamesHubPage() {
         .lede { font-size: 13px; font-weight: 700; color: var(--ink-soft); margin: 0 0 16px; line-height: 1.5; }
         .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
         .card {
-          background: var(--green-tint); border-radius: 20px; padding: 16px 14px;
+          position: relative; overflow: hidden; border-radius: 20px; padding: 16px 14px;
           display: flex; flex-direction: column; align-items: flex-start; gap: 20px;
           min-height: 110px; border: none; cursor: pointer; text-align: left; transition: transform .15s ease; width: 100%; box-sizing: border-box;
+          background-size: cover; background-position: center; background-repeat: no-repeat;
+        }
+        .card::before {
+          content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(30,40,35,0.44), rgba(30,40,35,0.18));
+          z-index: 1;
         }
         .card:active { transform: scale(0.97); }
-        .card .icon-wrap {
-          width: 44px; height: 44px; border-radius: 13px; background: var(--white);
-          display: flex; align-items: center; justify-content: center; font-size: 22px;
-        }
-        .card .label { font-weight: 800; font-size: 15px; color: var(--ink); }
-        .card .sub { font-size: 11px; font-weight: 700; color: var(--ink-soft); margin-top: 2px; }
+        .card > * { position: relative; z-index: 2; }
+        .card .label { font-weight: 800; font-size: 15px; color: #fff; }
+        .card .sub { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.92); margin-top: 2px; }
+        .game-card-picture { background-image: url('/background photos/picture_identifier.png'); }
+        .game-card-memory { background-image: url('/background photos/memory game.png'); }
+        .game-card-jigsaw { background-image: url('/background photos/jigsaw.png'); }
+        .game-card-sort { background-image: url('/background photos/button_sort.png'); }
+        .game-card-yoga { background-image: url('/background photos/yoga.png'); }
       `}</style>
 
       <div className="phone-wrapper">
@@ -69,21 +77,28 @@ export default function GamesHubPage() {
           <div className="content">
             <p className="lede">{t('games.pickOne')}</p>
             <div className="grid2">
-              <button className="card" onClick={() => navigate('/patient/games/identify-picture')}>
-                <div className="icon-wrap">🖼️</div>
-                <div><div className="label">{t('games.pictureGame')}</div><div className="sub">{t('games.pictureDesc')}</div></div>
+              <button className="card game-card-picture" onClick={() => navigate('/patient/games/identify-picture')}>
+                <div className="label">{t('games.pictureGame')}</div>
+                <div className="sub">{t('games.pictureDesc')}</div>
               </button>
-              <button className="card" onClick={() => navigate('/patient/games/memory-match')}>
-                <div className="icon-wrap">🃏</div>
-                <div><div className="label">{t('games.memoryCards')}</div><div className="sub">{t('games.memoryDesc')}</div></div>
+              <button className="card game-card-memory" onClick={() => navigate('/patient/games/memory-match')}>
+                <div className="label">{t('games.memoryCards')}</div>
+                <div className="sub">{t('games.memoryDesc')}</div>
               </button>
-              <button className="card" onClick={() => navigate('/patient/games/jigsaw')}>
-                <div className="icon-wrap">🧩</div>
-                <div><div className="label">{t('games.jigsaw')}</div><div className="sub">{t('games.jigsawDesc')}</div></div>
+              <button className="card game-card-jigsaw" onClick={() => navigate('/patient/games/jigsaw')}>
+                <div className="label">{t('games.jigsaw')}</div>
+                <div className="sub">{t('games.jigsawDesc')}</div>
               </button>
-              <button className="card" onClick={() => navigate('/patient/games/button-sorting')}>
-                <div className="icon-wrap">🔘</div>
-                <div><div className="label">{t('games.sortButtons')}</div><div className="sub">{t('games.sortDesc')}</div></div>
+              <button className="card game-card-sort" onClick={() => navigate('/patient/games/button-sorting')}>
+                <div className="label">{t('games.sortButtons')}</div>
+                <div className="sub">{t('games.sortDesc')}</div>
+              </button>
+            </div>
+
+            <div style={{ marginTop: '18px' }}>
+              <button className="card game-card-yoga" onClick={() => navigate('/patient/yoga')}>
+                <div className="label">Yoga &amp; Rest</div>
+                <div className="sub">Gentle stretching and breathing</div>
               </button>
             </div>
           </div>
