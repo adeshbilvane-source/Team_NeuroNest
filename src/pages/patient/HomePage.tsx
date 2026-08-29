@@ -13,10 +13,7 @@ export default function PatientHomePage() {
   const [greeting, setGreeting] = useState<string>('home.greetingMorning');
   const [isListening, setIsListening] = useState<boolean>(false);
   const [voiceFeedback, setVoiceFeedback] = useState<string>(() => t('home.voiceExamples'));
-
-  // Carousel Slide State (0 = Reminder, 1 = Analytics)
-  const [currentSlide, setCurrentSlide] = useState<number>(0);
-  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [showAllFeatures, setShowAllFeatures] = useState<boolean>(false);
 
   useEffect(() => {
     const savedUser = localStorage.getItem('sahayak_current_user');
@@ -57,24 +54,6 @@ export default function PatientHomePage() {
   const handleLogout = () => {
     localStorage.removeItem('sahayak_current_user');
     navigate('/login');
-  };
-
-  // Touch Swipe Handlers for Banner Carousel
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStart === null) return;
-    const touchEnd = e.changedTouches[0].clientX;
-    const diff = touchStart - touchEnd;
-
-    if (diff > 40) {
-      setCurrentSlide(1);
-    } else if (diff < -40) {
-      setCurrentSlide(0);
-    }
-    setTouchStart(null);
   };
 
   const startVoiceAssistant = () => {
@@ -135,7 +114,7 @@ export default function PatientHomePage() {
           --canvas: #F3F6F0; --ink: #24322A; --ink-soft: #5B6A61;
           --green: #3F6B4F; --green-tint: #E3EDE5; --marigold: #D98A2B;
           --red: #B33F33; --white: #FFFFFF; --shadow: 0 6px 16px rgba(36,50,42,0.08);
-          --blue: #3E7FB8; --blue-dark: #2C5F8A;
+          --blue: #3E7FB8; --blue-dark: #2C5F8A; --teal: #3F8E82; --slate: #5B7A9E;
         }
         .home-root-container {
           display: flex; align-items: center; justify-content: center; min-height: 100vh;
@@ -190,64 +169,50 @@ export default function PatientHomePage() {
         .voice-text .t1 { font-weight: 800; font-size: 14px; color: var(--ink); }
         .voice-text .t2 { font-weight: 600; font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
 
-        .banner-carousel-wrapper {
-          margin: 12px 20px 0 20px;
-          position: relative;
-          overflow: hidden;
-          border-radius: 20px;
+        .games-banner {
+          margin: 14px 20px 0 20px; width: calc(100% - 40px); border: none; border-radius: 20px; padding: 16px 18px;
+          background: linear-gradient(135deg, var(--green) 0%, #345943 100%); box-shadow: 0 10px 22px rgba(63,107,79,0.35);
+          display: flex; align-items: center; gap: 14px; cursor: pointer; text-align: left; box-sizing: border-box;
         }
-        .banner-track {
-          display: flex;
-          transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
-          width: 200%;
+        .games-banner-icon {
+          width: 46px; height: 46px; min-width: 46px; border-radius: 14px; background: rgba(255,255,255,0.18); overflow: hidden; display: flex; align-items: center; justify-content: center;
         }
-        .banner-slide {
-          width: 50%;
-          border-radius: 20px;
-          padding: 16px 18px;
-          display: flex;
-          align-items: center;
-          gap: 14px;
-          cursor: pointer;
-          border: none;
-          box-sizing: border-box;
-          text-align: left;
-          user-select: none;
-        }
-        .banner-reminder {
-          background: linear-gradient(135deg, var(--green) 0%, #345943 100%);
-          box-shadow: 0 10px 22px rgba(63,107,79,0.35);
-        }
-        .banner-analytics {
-          background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
-          box-shadow: 0 10px 22px rgba(62,127,184,0.35);
-        }
-        .banner-icon {
-          width: 44px; height: 44px; border-radius: 14px; background: rgba(255,255,255,0.18);
-          display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 20px;
-        }
-        .banner-copy .label { font-size: 11px; font-weight: 800; letter-spacing: 0.6px; color: #CFE3D6; text-transform: uppercase; }
-        .banner-copy .main { font-size: 15px; font-weight: 800; color: #fff; margin-top: 2px; }
-        .banner-analytics .label { color: #CFE2F2; }
-        .banner-chevron { margin-left: auto; display: flex; align-items: center; }
+        .games-banner-icon img { width: 100%; height: 100%; object-fit: cover; }
+        .games-banner-copy .label { font-size: 10.5px; font-weight: 800; letter-spacing: 0.4px; color: #CFE3D6; text-transform: uppercase; }
+        .games-banner-copy .main { font-size: 16px; font-weight: 800; color: #fff; margin-top: 2px; line-height: 1.25; }
+        .games-banner-chevron { margin-left: auto; display: flex; align-items: center; }
 
-        .carousel-dots {
-          display: flex; justify-content: center; gap: 6px; margin-top: 8px; margin-bottom: 2px;
+        .priority-actions { margin: 20px 20px 0 20px; display: flex; flex-direction: column; gap: 14px; }
+        .priority-btn {
+          display: flex; align-items: center; gap: 16px; border: none; border-radius: 22px; padding: 18px 20px; cursor: pointer;
+          text-align: left; box-shadow: 0 10px 20px rgba(0,0,0,0.12); width: 100%; box-sizing: border-box;
         }
-        .dot {
-          width: 7px; height: 7px; border-radius: 50%; background: #C7D3C9; transition: all 0.2s ease; cursor: pointer;
+        .priority-btn.games { background: var(--green); }
+        .priority-btn.videos { background: var(--teal); }
+        .priority-btn.emergency { background: var(--slate); }
+        .priority-icon {
+          width: 50px; height: 50px; min-width: 50px; border-radius: 16px; background: rgba(255,255,255,0.2); overflow: hidden;
+          display: flex; align-items: center; justify-content: center;
         }
-        .dot.active { width: 18px; border-radius: 10px; background: var(--green); }
+        .priority-icon img { width: 100%; height: 100%; object-fit: cover; }
+        .priority-copy .t1 { font-size: 17px; font-weight: 800; color: #fff; }
+        .priority-copy .t2 { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.8); margin-top: 2px; }
 
-        .grid { margin: 12px 20px 0 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .card {
-          background: var(--green-tint); border-radius: 20px; padding: 14px; display: flex;
-          flex-direction: column; align-items: flex-start; gap: 18px; min-height: 106px; border: none;
-          cursor: pointer; text-align: left; transition: transform 0.15s ease; box-sizing: border-box;
+        .see-all { text-align: center; margin-top: 16px; }
+        .see-all a { font-size: 12.5px; font-weight: 800; color: var(--ink-soft); text-decoration: underline; cursor: pointer; }
+        .feature-list {
+          display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 20px 0 20px;
         }
-        .card:active { transform: scale(0.97); }
-        .card .icon-wrap { width: 44px; height: 44px; border-radius: 13px; background: var(--white); display: flex; align-items: center; justify-content: center; }
-        .card .label { font-weight: 800; font-size: 15px; color: var(--ink); }
+        .feature-mini-card {
+          background: var(--white); border: none; border-radius: 14px; padding: 12px 10px; box-shadow: var(--shadow);
+          display: flex; flex-direction: column; align-items: center; gap: 8px; font-weight: 800; color: var(--ink); cursor: pointer;
+        }
+        .feature-mini-card img { width: 22px; height: 22px; object-fit: cover; border-radius: 8px; }
+        .feature-mini-card span { font-size: 12px; }
+
+        .help-floating {
+          position: absolute; right: 18px; bottom: 94px; width: 48px; height: 48px; border-radius: 50%; background: var(--green); border: none; box-shadow: 0 12px 20px rgba(63,107,79,0.22); cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 20;
+        }
 
         .sos-wrap { margin-top: auto; padding: 14px 20px 24px 20px; }
         .sos-btn {
@@ -274,11 +239,10 @@ export default function PatientHomePage() {
                 {currentDate}<span className="time">· {currentTime}</span>
               </div>
               <div className="icon-row">
-                <button className="icon-btn" onClick={handleLogout} aria-label="Logout" title="Logout">
+                <button className="icon-btn" onClick={() => navigate('/patient/settings')} aria-label="Settings" title="Settings">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                    <polyline points="16 17 21 12 16 7" />
-                    <line x1="21" y1="12" x2="9" y2="12" />
+                    <circle cx="12" cy="12" r="3" />
+                    <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.86l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6l-.1.14a1.7 1.7 0 0 1-2.9 0l-.1-.14a1.7 1.7 0 0 0-1-.6 1.7 1.7 0 0 0-1.06.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1l-.14-.1a1.7 1.7 0 0 1 0-2.9l.14-.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.34-1.06l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6l.1-.14a1.7 1.7 0 0 1 2.9 0l.1.14a1.7 1.7 0 0 0 1 .6 1.7 1.7 0 0 0 1.06-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9c.25.25.6.4 1 .4h.08a2 2 0 1 1 0 4h-.08a1.7 1.7 0 0 0-1 .4z" />
                   </svg>
                 </button>
               </div>
@@ -303,125 +267,64 @@ export default function PatientHomePage() {
             </div>
           </div>
 
-          {/* SWIPEABLE DUAL BANNER (Reminder <-> Analytics) */}
-          <div
-            className="banner-carousel-wrapper"
-            onTouchStart={handleTouchStart}
-            onTouchEnd={handleTouchEnd}
+          <button
+            className="games-banner"
+            onClick={() => navigate('/patient/games')}
+            aria-label="Activity"
           >
-            <div
-              className="banner-track"
-              style={{ transform: `translateX(${currentSlide === 0 ? '0%' : '-50%'})` }}
-            >
-              {/* SLIDE 1: Reminder */}
-              <button
-                className="banner-slide banner-reminder"
-                onClick={() => navigate('/patient/reminders')}
-              >
-                <div className="banner-icon">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 2v2M8 4.5a3 3 0 0 1 6 0v1.8c0 2.6 1 4 2 5.2H6c1-1.2 2-2.6 2-5.2Z"/>
-                    <path d="M4.5 13.5h13M10 16.5a2 2 0 0 0 3 0"/>
-                  </svg>
-                </div>
-                <div className="banner-copy">
-                  <div className="label">{t('home.reminderSlide')}</div>
-                  <div className="main">{t('home.takeMedicine')}</div>
-                </div>
-                <div className="banner-chevron">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M9 6l6 6-6 6"/>
-                  </svg>
-                </div>
-              </button>
+            <div className="games-banner-icon">
+              <img src="/patients_pp/patient3.jpg" alt="Activity" />
+            </div>
+            <div className="games-banner-copy">
+              <div className="label">Activity</div>
+              <div className="main">Activity</div>
+            </div>
+            <div className="games-banner-chevron">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 6l6 6-6 6"/>
+              </svg>
+            </div>
+          </button>
 
-              {/* SLIDE 2: Analytics */}
-              <button
-                className="banner-slide banner-analytics"
-                onClick={() => navigate('/patient/analytics')}
-              >
-                <div className="banner-icon">📊</div>
-                <div className="banner-copy">
-                  <div className="label">{t('home.playtimeAnalytics')} ‹ Slide ›</div>
-                  <div className="main">{t('home.activityInsights')}</div>
-                </div>
-                <div className="banner-chevron">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M9 6l6 6-6 6"/>
-                  </svg>
-                </div>
+          <div className="priority-actions">
+            <button className="priority-btn emergency" onClick={() => navigate('/patient/family')} aria-label="Family">
+              <div className="priority-icon">
+                <img src="/patients_pp/patient2.jpg" alt="Family" />
+              </div>
+              <div className="priority-copy"><div className="t1">Family</div><div className="t2">Connect with your loved ones</div></div>
+            </button>
+
+            <button className="priority-btn videos" onClick={() => navigate('/patient/videos-library')} aria-label="Videos">
+              <div className="priority-icon">
+                <img src="/patients_pp/patient1.jpg" alt="Videos" />
+              </div>
+              <div className="priority-copy"><div className="t1">Videos</div><div className="t2">Gentle learning and stories</div></div>
+            </button>
+          </div>
+
+          <div className="see-all">
+            <a onClick={() => setShowAllFeatures((prev) => !prev)}>{showAllFeatures ? 'Hide features' : 'See all features'}</a>
+          </div>
+
+          {showAllFeatures && (
+            <div className="feature-list">
+              <button className="feature-mini-card" onClick={() => navigate('/patient/reminders')}>
+                <img src="/patients_pp/patient4.jpg" alt="Reminders" />
+                <span>Reminders</span>
+              </button>
+              <button className="feature-mini-card" onClick={() => navigate('/patient/family')}>
+                <img src="/patients_pp/patient6.jpeg" alt="Family" />
+                <span>Family</span>
               </button>
             </div>
-          </div>
+          )}
 
-          {/* Dots Indicator */}
-          <div className="carousel-dots">
-            <div className={`dot ${currentSlide === 0 ? 'active' : ''}`} onClick={() => setCurrentSlide(0)} />
-            <div className={`dot ${currentSlide === 1 ? 'active' : ''}`} onClick={() => setCurrentSlide(1)} />
-          </div>
-
-          {/* Grid Menu */}
-          <div className="grid">
-            <button className="card" onClick={() => navigate('/patient/games')} aria-label="Games">
-              <div className="icon-wrap">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2.5" y="7.5" width="19" height="10.5" rx="4"/>
-                  <path d="M7 10.2v4.1M5 12.25h4M15.3 11.5h.01M17.8 13.6h.01"/>
-                </svg>
-              </div>
-              <div className="label">{t('nav.games')}</div>
-            </button>
-
-            <button className="card" onClick={() => navigate('/patient/reminders')} aria-label="Reminders">
-              <div className="icon-wrap">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 2v2M8 4.5a3 3 0 0 1 6 0v1.8c0 2.6 1 4 2 5.2H6c1-1.2 2-2.6 2-5.2Z"/>
-                  <path d="M4.5 13.5h13M10 16.5a2 2 0 0 0 3 0"/>
-                </svg>
-              </div>
-              <div className="label">{t('nav.reminders')}</div>
-            </button>
-
-            <button className="card" onClick={() => navigate('/patient/yoga')} aria-label="Yoga">
-              <div className="icon-wrap">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="5" r="1.8"/>
-                  <path d="M12 9v4M12 13c-2.2 0-4 1-5.5 3.2M12 13c2.2 0 4 1 5.5 3.2M8 21l1.8-3.6M16 21l-1.8-3.6"/>
-                </svg>
-              </div>
-              <div className="label">{t('nav.yoga')}</div>
-            </button>
-
-            <button className="card" onClick={() => navigate('/patient/videos-library')} aria-label="Videos">
-              <div className="icon-wrap">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2.5" y="5" width="19" height="14" rx="3.5"/>
-                  <path d="M10.5 9.3v5.4l4.5-2.7Z" fill="currentColor" stroke="none"/>
-                </svg>
-              </div>
-              <div className="label">{t('nav.videos')}</div>
-            </button>
-
-            <button className="card" onClick={() => navigate('/patient/family')} aria-label="Family">
-              <div className="icon-wrap">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="8.5" cy="8" r="2.7"/><circle cx="16" cy="9" r="2.2"/>
-                  <path d="M3.5 19c0-3 2.2-5 5-5s5 2 5 5M14.3 19c0-2.2 1.5-3.8 3.4-3.8s3.3 1.6 3.3 3.8"/>
-                </svg>
-              </div>
-              <div className="label">{t('nav.family')}</div>
-            </button>
-
-            <button className="card" onClick={() => navigate('/patient/chat')} aria-label="Need Help">
-              <div className="icon-wrap">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 12a8 8 0 1 1 3.5 6.6L4 19.5l1-3.3A7.96 7.96 0 0 1 4 12Z"/>
-                  <path d="M12 15v.01M12 13c0-1.8 2-1.6 2-3.3 0-1.1-.9-2-2-2s-2 .9-2 2"/>
-                </svg>
-              </div>
-              <div className="label">{t('nav.needHelp')}</div>
-            </button>
-          </div>
+          <button className="help-floating" onClick={() => navigate('/patient/chat')} aria-label="Need help">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 17h.01M9.09 9a3 3 0 1 1 5.82 1c-.93 1.37-2.59 1.92-2.59 3.5" />
+              <circle cx="12" cy="12" r="9" />
+            </svg>
+          </button>
 
           {/* Emergency SOS Bar */}
           <div className="sos-wrap">

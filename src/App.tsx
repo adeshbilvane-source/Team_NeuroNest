@@ -17,6 +17,7 @@ import EmergencyPage from './pages/patient/EmergencyPage' ;
 import PatientChatThreadPage from './pages/patient/ChatPage';
 import PatientAnalyticsPage from './pages/patient/AnalyticsPage';
 import PatientAppointmentsPage from './pages/patient/AppointmentsPage';
+import PatientSettingsPage from './pages/patient/SettingsPage';
 
 // Doctor stack
 import DoctorHomePage from './pages/doctor/HomePage';
@@ -77,6 +78,7 @@ export default function App() {
         <Route path="/patient/family-emergency" element={<Navigate to="/patient/family" replace />} />
 
         <Route path="/patient/chat" element={<PatientChatThreadPage />} />
+        <Route path="/patient/settings" element={<PatientSettingsPage />} />
         <Route path="/patient/analytics" element={<PatientAnalyticsPage />} />
         <Route path="/patient/appointments" element={<PatientAppointmentsPage />} />
 
