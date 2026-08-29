@@ -68,15 +68,20 @@ export default function PatientHomePage() {
         }
         .phone {
           width: 100%; max-width: 410px; background: #111614; border-radius: 46px;
-          padding: 14px; box-shadow: 0 30px 60px rgba(0,0,0,0.35); position: relative;
+          padding: 14px; box-shadow: 0 30px 60px rgba(0,0,0,0.35); position: relative; overflow: hidden;
         }
         .screen {
-          background: var(--canvas); border-radius: 34px; overflow: hidden;
-          position: relative; height: 860px; display: flex; flex-direction: column;
+          background: var(--canvas); border-radius: 34px;
+          position: relative; height: 100%; overflow: hidden; display: flex; flex-direction: column;
         }
         
         .scroll-area {
-          flex: 1; overflow-y: auto; overflow-x: hidden; scrollbar-width: none;
+          position: relative;
+          height: 100%;
+          overflow-y: auto;
+          overflow-x: hidden;
+          scrollbar-width: none;
+          padding-bottom: 130px;
         }
         .scroll-area::-webkit-scrollbar { display: none; }
         
@@ -163,12 +168,12 @@ export default function PatientHomePage() {
         .grid-card.reminders { background-image: linear-gradient(180deg, rgba(17,22,20,0.12), rgba(17,22,20,0.42)), url('/background photos/reminder.png'); }
         .grid-card.appointments { background-image: linear-gradient(180deg, rgba(17,22,20,0.12), rgba(17,22,20,0.42)), url('/background photos/appointment.png'); }
 
-        .bottom-spacer { height: 160px; flex-shrink: 0; }
+        .bottom-spacer { height: 0; flex-shrink: 0; }
         
         .fixed-bottom {
-          position: absolute; bottom: 0; left: 0; right: 0;
+          position: absolute; bottom: 0; left: 0; width: 100%; z-index: 10;
           padding: 24px; background: linear-gradient(to top, var(--canvas) 60%, rgba(248, 250, 247, 0));
-          display: flex; flex-direction: column; align-items: flex-end; z-index: 10; pointer-events: none;
+          display: flex; flex-direction: column; align-items: flex-end; pointer-events: none;
         }
         
         .sos-btn {

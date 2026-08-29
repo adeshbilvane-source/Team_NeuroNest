@@ -3,6 +3,7 @@ import LoginPage from './pages/auth/LoginPage';
 import LanguageSwitcher from './components/LanguageSwitcher';
 import CareProvider from './providers/CareProvider';
 import CheckInOverlay from './components/CheckInOverlay';
+import PatientMicChat from './pages/patient/mic_chat';
 
 // Patient stack
 import PatientHomePage from './pages/patient/HomePage';
@@ -21,7 +22,6 @@ import PatientChatThreadPage from './pages/patient/ChatPage';
 import PatientAnalyticsPage from './pages/patient/AnalyticsPage';
 import PatientAppointmentsPage from './pages/patient/AppointmentsPage';
 import PatientSettingsPage from './pages/patient/SettingsPage';
-import PatientMicChat from './pages/patient/mic_chat';
 
 // Doctor stack
 import DoctorHomePage from './pages/doctor/HomePage';
@@ -62,27 +62,8 @@ function AppShell() {
     <>
       <LanguageSwitcher />
       {isPatientRoute && (
-        <div
-          className="patient-voice-shell"
-          style={{
-            position: 'fixed',
-            inset: 0,
-            display: 'flex',
-            justifyContent: 'center',
-            pointerEvents: 'none',
-            zIndex: 50,
-          }}
-        >
-          <div
-            style={{
-              position: 'relative',
-              width: 'min(410px, calc(100vw - 24px))',
-              height: 'calc(100vh - 20px)',
-              margin: '10px auto 0',
-            }}
-          >
-            <PatientMicChat />
-          </div>
+        <div className="patient-global-mic-layer">
+          <PatientMicChat />
         </div>
       )}
       <Routes>

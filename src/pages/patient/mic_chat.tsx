@@ -17,23 +17,51 @@ export default function PatientMicChat() {
       return;
     }
 
+    if (isListening) {
+      return;
+    }
+
     const recognition = new SpeechRecognition();
     recognition.lang = getVoiceLocale(getSupportedLanguage(i18n.language));
     recognition.interimResults = false;
+    recognition.continuous = false;
+    recognition.maxAlternatives = 3;
 
     recognition.onstart = () => setIsListening(true);
 
     recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript.toLowerCase();
+      const transcript = Array.from(event.results)
+        .map((result: any) => result[0]?.transcript ?? '')
+        .join(' ')
+        .toLowerCase();
+
       setIsListening(false);
 
-      if (transcript.includes('game') || transcript.includes('play') || transcript.includes('yoga') || transcript.includes('exercise')) navigate('/patient/activities');
-      else if (transcript.includes('analytics') || transcript.includes('graph')) navigate('/patient/analytics');
-      else if (transcript.includes('reminder') || transcript.includes('medicine')) navigate('/patient/reminders');
-      else if (transcript.includes('family') || transcript.includes('call')) navigate('/patient/family');
-      else if (transcript.includes('video') || transcript.includes('music')) navigate('/patient/videos-library');
-      else if (transcript.includes('help') || transcript.includes('chat')) navigate('/patient/chat');
-      else if (transcript.includes('emergency') || transcript.includes('sos')) navigate('/patient/emergency');
+      if (!transcript) {
+        return;
+      }
+
+      if (transcript.includes('home') || transcript.includes('main') || transcript.includes('dashboard')) {
+        navigate('/patient');
+      } else if (transcript.includes('activity') || transcript.includes('activities') || transcript.includes('game') || transcript.includes('games') || transcript.includes('play') || transcript.includes('yoga') || transcript.includes('exercise')) {
+        navigate('/patient/activities');
+      } else if (transcript.includes('video') || transcript.includes('videos') || transcript.includes('library') || transcript.includes('watch')) {
+        navigate('/patient/videos-library');
+      } else if (transcript.includes('reminder') || transcript.includes('medic') || transcript.includes('medicine') || transcript.includes('routine')) {
+        navigate('/patient/reminders');
+      } else if (transcript.includes('family') || transcript.includes('relative') || transcript.includes('caregiver')) {
+        navigate('/patient/family');
+      } else if (transcript.includes('analytics') || transcript.includes('report') || transcript.includes('stats') || transcript.includes('graph')) {
+        navigate('/patient/analytics');
+      } else if (transcript.includes('appointment') || transcript.includes('calendar')) {
+        navigate('/patient/appointments');
+      } else if (transcript.includes('chat') || transcript.includes('message') || transcript.includes('support')) {
+        navigate('/patient/chat');
+      } else if (transcript.includes('settings') || transcript.includes('preferences')) {
+        navigate('/patient/settings');
+      } else if (transcript.includes('emergency') || transcript.includes('sos') || transcript.includes('help me') || transcript.includes('help')) {
+        navigate('/patient/emergency');
+      }
     };
 
     recognition.onerror = () => setIsListening(false);
@@ -44,62 +72,73 @@ export default function PatientMicChat() {
   return (
     <>
       <style>{`
+        .patient-global-mic-layer {
+          position: fixed;
+          left: 50%;
+          bottom: 12px;
+          transform: translateX(-50%);
+          width: min(410px, calc(100vw - 22px));
+          height: calc(100vh - 20px);
+          pointer-events: none;
+          z-index: 999;
+        }
+        .patient-global-mic-layer .global-voice-tray {
+          pointer-events: auto;
+        }
         .global-voice-tray {
           position: absolute;
-          right: 24px;
-          bottom: 110px;
-          z-index: 9999;
-          display: flex; align-items: center; gap: 10px; pointer-events: auto;
-          background: transparent; border-radius: 999px; padding: 0; box-shadow: none; border: none;
+          right: 16px;
+          bottom: 120px;
+          z-index: 999;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          pointer-events: auto;
+          padding: 0;
+          border: none;
+          background: transparent;
+          box-shadow: none;
+          border-radius: 0;
         }
         .voice-mic-btn {
-          width: 48px; height: 48px; border-radius: 50%; border: none; cursor: pointer;
-          background: linear-gradient(180deg, #d73f34 0%, #b12d24 100%);
-          display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 18px rgba(183, 49, 37, 0.38);
-          transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.2s ease;
-          position: relative;
-        }
-        .voice-mic-btn::before,
-        .voice-mic-btn::after {
-          content: '';
-          position: absolute;
-          inset: -10px;
+          width: 60px;
+          min-width: 60px;
+          height: 60px;
+          min-height: 60px;
+          border: none;
           border-radius: 50%;
-          border: 2px solid rgba(255, 94, 94, 0.35);
-          opacity: 0;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+          box-shadow: 0 10px 20px rgba(36, 50, 42, 0.12);
+          transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+          background: linear-gradient(180deg, #dfeee0 0%, #cfe1d0 100%);
+        }
+        .voice-mic-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 14px 22px rgba(36, 50, 42, 0.14);
+        }
+        .voice-mic-btn:active {
+          transform: translateY(0) scale(0.98);
         }
         .global-voice-tray.is-active .voice-mic-btn {
-          background: linear-gradient(180deg, #f05b52 0%, #d93c31 100%);
-          box-shadow: 0 0 0 8px rgba(255, 94, 94, 0.12), 0 12px 22px rgba(209, 67, 47, 0.42);
-          animation: micListeningPulse 1.5s ease-in-out infinite;
-        }
-        .global-voice-tray.is-active .voice-mic-btn::before {
-          opacity: 1;
-          animation: micWave 1.8s ease-out infinite;
-        }
-        .global-voice-tray.is-active .voice-mic-btn::after {
-          opacity: 1;
-          animation: micWave 1.8s ease-out infinite 0.6s;
+          background: linear-gradient(180deg, #eaf4eb 0%, #d8ebdc 100%);
+          box-shadow: 0 0 0 8px rgba(63, 107, 79, 0.06), 0 12px 24px rgba(63, 107, 79, 0.12);
+          animation: micListeningPulse 1.4s ease-in-out infinite;
         }
         @keyframes micListeningPulse {
           0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.08); }
+          50% { transform: scale(1.05); }
         }
-        @keyframes micWave {
-          0% { transform: scale(0.9); opacity: 0.9; }
-          80% { transform: scale(1.35); opacity: 0; }
-          100% { transform: scale(1.42); opacity: 0; }
+        .voice-mic-btn svg {
+          width: 24px;
+          height: 24px;
+          stroke: #24322A;
+          position: relative;
+          z-index: 1;
         }
-        .voice-mic-btn:active { transform: scale(0.96); }
-        .voice-mic-btn svg { width: 24px; height: 24px; stroke: #fff; position: relative; z-index: 1; }
-        .voice-chat-btn {
-          width: 44px; height: 44px; border-radius: 50%; border: none; cursor: pointer;
-          background: linear-gradient(180deg, #2e5a46 0%, #224b3d 100%);
-          display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 16px rgba(24, 57, 48, 0.28);
-          transition: transform 0.18s ease;
-        }
-        .voice-chat-btn:active { transform: scale(0.96); }
-        .voice-chat-btn svg { width: 22px; height: 22px; stroke: #fff; }
       `}</style>
 
       <div className={`global-voice-tray ${isListening ? 'is-active' : ''}`} aria-label="Voice assistant controls">
@@ -112,18 +151,6 @@ export default function PatientMicChat() {
           <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 15a3.5 3.5 0 0 0 3.5-3.5V6a3.5 3.5 0 0 0-7 0v5.5A3.5 3.5 0 0 0 12 15Z"/>
             <path d="M6.5 11.5a5.5 5.5 0 0 0 11 0M12 18.5V21"/>
-          </svg>
-        </button>
-
-        <button
-          className="voice-chat-btn"
-          type="button"
-          onClick={() => navigate('/patient/chat')}
-          aria-label="Open chat"
-        >
-          <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M5 18.5V7.5A2.5 2.5 0 0 1 7.5 5h9A2.5 2.5 0 0 1 19 7.5v6A2.5 2.5 0 0 1 16.5 16H9l-4 2.5Z"/>
-            <path d="M8.5 9h7M8.5 12h5"/>
           </svg>
         </button>
       </div>
