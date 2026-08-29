@@ -20,6 +20,14 @@ export default function LanguageSwitcher() {
   }, [location.pathname])
 
   useEffect(() => {
+    // Also search for screen container on component mount in case initial render needs it
+    const target = document.querySelector<HTMLElement>(
+      '.login-root-container .phone-screen, .doctor-mobile-screen, .phone-screen',
+    )
+    if (target) setScreen(target)
+  }, [])
+
+  useEffect(() => {
     document.documentElement.lang = language
   }, [language])
 

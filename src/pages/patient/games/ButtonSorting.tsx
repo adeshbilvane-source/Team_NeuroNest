@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 type ModeType = 'shape' | 'color';
 
@@ -18,6 +19,7 @@ const COLOR_PALETTE = [
 ];
 
 export default function ButtonSorting() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   // Mode and Level
@@ -41,7 +43,7 @@ export default function ButtonSorting() {
     c1: COLOR_PALETTE[0],
     c2: COLOR_PALETTE[1]
   });
-
+t('buttonSorting.selectButton')
   const [feedback, setFeedback] = useState<string>('Select a button from above, then tap the matching bin below.');
   const [isError, setIsError] = useState<boolean>(false);
 
@@ -79,7 +81,7 @@ export default function ButtonSorting() {
     setColorBin1([]);
     setColorBin2([]);
     setIsError(false);
-    setFeedback('Select a button from above, then tap the matching bin below.');
+    setFeedback(t('buttonSorting.selectButton'));
 
     // Count of buttons increases with level
     let count = 4;
@@ -129,13 +131,13 @@ export default function ButtonSorting() {
   const handleSelectButton = (item: ButtonItem) => {
     setSelectedItem(item);
     setIsError(false);
-    setFeedback(`Selected ${item.shape} (${item.colorName}). Now tap the target bin below.`);
+    setFeedback(t('buttonSorting.selectedItem', { shape: item.shape, color: item.colorName }));
   };
 
   // Step 2: User taps a bin to place the selected button
   const handlePlaceInBin = (binType: 'round' | 'square' | 'c1' | 'c2') => {
     if (!selectedItem) {
-      setFeedback('⚠️ Please select a button from the top box first!');
+      setFeedback(t('buttonSorting.selectFirst'));
       setIsError(true);
       return;
     }
@@ -150,12 +152,12 @@ export default function ButtonSorting() {
         setItems(remaining);
         setSelectedItem(null);
         setIsError(false);
-        setFeedback('✅ Correct! Pick another button.');
+        setFeedback(t('buttonSorting.correct'));
 
         // Level Cleared
         if (remaining.length === 0) {
           saveAnalyticsTime();
-          setFeedback('🎉 Level Complete! Loading next level...');
+          setFeedback(t('buttonSorting.levelComplete'));
           setTimeout(() => {
             if (level < 100) {
               const nextLvl = level + 1;
@@ -169,7 +171,7 @@ export default function ButtonSorting() {
       } else {
         // Wrong Bin Choice
         setIsError(true);
-        setFeedback(`❌ Incorrect bin! This is a ${selectedItem.shape} shape.`);
+        setFeedback(t('buttonSorting.incorrectShape', { shape: selectedItem.shape }));
       }
     } else {
       // Color Mode Check
@@ -182,11 +184,11 @@ export default function ButtonSorting() {
         setItems(remaining);
         setSelectedItem(null);
         setIsError(false);
-        setFeedback('✅ Correct! Pick another button.');
+        setFeedback(t('buttonSorting.correct'));
 
         if (remaining.length === 0) {
           saveAnalyticsTime();
-          setFeedback('🎉 Level Complete! Loading next level...');
+          setFeedback(t('buttonSorting.levelComplete'));
           setTimeout(() => {
             if (level < 100) {
               const nextLvl = level + 1;
@@ -199,7 +201,7 @@ export default function ButtonSorting() {
         }
       } else {
         setIsError(true);
-        setFeedback(`❌ Incorrect color bin! This button is ${selectedItem.colorName}.`);
+        setFeedback(t('buttonSorting.incorrectColor', { color: selectedItem.colorName }));
       }
     }
   };
@@ -307,7 +309,7 @@ export default function ButtonSorting() {
                   <path d="M15 6l-6 6 6 6" />
                 </svg>
               </button>
-              <h1>Button Sorting</h1>
+              <h1>{t('buttonSorting.title')}</h1>
             </div>
             <div className="level-badge">⭐ Level {level} / 100</div>
           </div>
@@ -318,20 +320,20 @@ export default function ButtonSorting() {
                 className={`chip ${mode === 'shape' ? 'active' : ''}`}
                 onClick={() => setMode('shape')}
               >
-                By shape
+                {t('buttonSorting.byShape')}
               </div>
               <div
                 className={`chip ${mode === 'color' ? 'active' : ''}`}
                 onClick={() => setMode('color')}
               >
-                By colour
+                {t('buttonSorting.byColour')}
               </div>
             </div>
 
             {/* Top Selection Box */}
             <div className="sort-pool">
               {items.length === 0 ? (
-                <p style={{ color: 'var(--green)', fontWeight: 900, margin: 0 }}>🎉 Level Completed!</p>
+                <p style={{ color: 'var(--green)', fontWeight: 900, margin: 0 }}>{t('buttonSorting.levelCompleted')}</p>
               ) : (
                 items.map(item => (
                   <div
@@ -348,7 +350,7 @@ export default function ButtonSorting() {
             {mode === 'shape' ? (
               <div className="bin-row">
                 <div className="bin" onClick={() => handlePlaceInBin('round')}>
-                  <h4>◯ Round ({roundBin.length})</h4>
+                  <h4>{t('buttonSorting.round', { count: roundBin.length })}</h4>
                   <div className="bin-contents">
                     {roundBin.map(b => (
                       <div key={b.id} className="btn-obj" style={{ background: b.color, width: 26, height: 26 }} />
@@ -357,7 +359,7 @@ export default function ButtonSorting() {
                 </div>
 
                 <div className="bin" onClick={() => handlePlaceInBin('square')}>
-                  <h4>◻ Square ({squareBin.length})</h4>
+                  <h4>{t('buttonSorting.square', { count: squareBin.length })}</h4>
                   <div className="bin-contents">
                     {squareBin.map(b => (
                       <div key={b.id} className="btn-obj sq" style={{ background: b.color, width: 26, height: 26 }} />

@@ -1,7 +1,9 @@
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export default function GamesHubPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <div className="game-root-container">
@@ -61,27 +63,27 @@ export default function GamesHubPage() {
             <button className="back-btn" onClick={() => navigate('/patient')} aria-label="Back">
               <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
             </button>
-            <h1>Games</h1>
+            <h1>{t('games.title')}</h1>
           </div>
 
           <div className="content">
-            <p className="lede">Pick one to play.</p>
+            <p className="lede">{t('games.pickOne')}</p>
             <div className="grid2">
               <button className="card" onClick={() => navigate('/patient/games/identify-picture')}>
                 <div className="icon-wrap">🖼️</div>
-                <div><div className="label">Picture game</div><div className="sub">Name what you see</div></div>
+                <div><div className="label">{t('games.pictureGame')}</div><div className="sub">{t('games.pictureDesc')}</div></div>
               </button>
               <button className="card" onClick={() => navigate('/patient/games/memory-match')}>
                 <div className="icon-wrap">🃏</div>
-                <div><div className="label">Memory cards</div><div className="sub">Find two alike</div></div>
+                <div><div className="label">{t('games.memoryCards')}</div><div className="sub">{t('games.memoryDesc')}</div></div>
               </button>
               <button className="card" onClick={() => navigate('/patient/games/jigsaw')}>
                 <div className="icon-wrap">🧩</div>
-                <div><div className="label">Jigsaw</div><div className="sub">Put the picture together</div></div>
+                <div><div className="label">{t('games.jigsaw')}</div><div className="sub">{t('games.jigsawDesc')}</div></div>
               </button>
               <button className="card" onClick={() => navigate('/patient/games/button-sorting')}>
                 <div className="icon-wrap">🔘</div>
-                <div><div className="label">Sort buttons</div><div className="sub">Match shape and colour</div></div>
+                <div><div className="label">{t('games.sortButtons')}</div><div className="sub">{t('games.sortDesc')}</div></div>
               </button>
             </div>
           </div>
