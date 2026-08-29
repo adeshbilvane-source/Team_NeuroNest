@@ -170,7 +170,7 @@ export default function PatientSettingsPage() {
               <div className="profile-info">
                 <p className="profile-name">{profile.name}</p>
                 <p className="profile-email">{profile.email}</p>
-                <p className="profile-role">Caregiver account</p>
+                <p className="profile-role">{profile.role === 'patient' ? 'Patient account' : 'Caregiver account'}</p>
               </div>
               <button className="edit-btn" onClick={() => setEditing((v) => !v)}>{editing ? 'Close' : 'Edit'}</button>
             </div>
