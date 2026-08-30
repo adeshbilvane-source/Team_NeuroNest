@@ -35,17 +35,18 @@ export default function CareProvider({ children }) {
   const activeScheduledWalkthrough = state.matches('guidingTask') && Boolean(scheduledTask);
 
   useEffect(() => {
-    if (state.matches('greeting')) {
-      voiceService.speak('Hello! I am Sahayak. Let us begin your care session.');
-    }
+    // Yahan humne check lagaya ki user Login page par toh nahi hai
+    const isLoginPage = window.location.pathname === '/login' || window.location.pathname === '/';
 
-    if (state.matches('announcingTask')) {
-      const taskName = scheduledTask?.taskName || 'your care activity';
-      voiceService.speak(`Today’s activity is ${taskName}. Let’s get started.`);
-    }
+    // Agar login page NAHI hai, tabhi aawaz nikalni hai
+    if (!isLoginPage) {
+      if (state.matches('greeting')) {
+        voiceService.speak('Hello! I am Sahayak. Let us begin your care session.');
+      }
 
-    if (state.matches('checkingIn')) {
-      voiceService.speak('Just checking in. Are you ready to continue?');
+      if (state.matches('checkingIn')) {
+        voiceService.speak('Just checking in. Are you ready to continue?');
+      }
     }
   }, [scheduledTask, state]);
 
@@ -113,11 +114,6 @@ export default function CareProvider({ children }) {
       cancelled = true;
     };
   }, [state, send]);
-
-  // TODO: enforce 1-2hr daily screen time cap — needs a decision on: is this wall-clock
-  // time since first app open today, or only time spent inside active tasks (guidingTask state),
-  // and what happens at the limit (hard lock? gentle wind-down message? does it interrupt a scheduled
-  // task in progress?) — confirm with product owner before implementing.
 
   const value = {
     state,
