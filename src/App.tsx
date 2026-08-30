@@ -1,9 +1,10 @@
-import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import LoginPage from './pages/auth/LoginPage';
 import LanguageSwitcher from './components/LanguageSwitcher';
 import CareProvider from './providers/CareProvider';
 import CheckInOverlay from './components/CheckInOverlay';
 import PatientMicChat from './pages/patient/mic_chat';
+import GuideProvider from './guide/GuideProvider';
 
 // Patient stack
 import PatientHomePage from './pages/patient/HomePage';
@@ -55,17 +56,12 @@ function DoctorMobileFrame() {
 }
 
 function AppShell() {
-  const location = useLocation();
-  const isPatientRoute = location.pathname.startsWith('/patient');
-
   return (
     <>
       <LanguageSwitcher />
-      {isPatientRoute && (
-        <div className="patient-global-mic-layer">
-          <PatientMicChat />
-        </div>
-      )}
+      <div className="patient-global-mic-layer">
+        <PatientMicChat />
+      </div>
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<LoginPage />} />
@@ -130,7 +126,9 @@ export default function App() {
   return (
     <CareProvider>
       <BrowserRouter>
-        <AppShell />
+        <GuideProvider>
+          <AppShell />
+        </GuideProvider>
       </BrowserRouter>
     </CareProvider>
   );

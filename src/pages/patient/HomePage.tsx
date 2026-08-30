@@ -236,19 +236,19 @@ export default function PatientHomePage() {
             </div>
 
             <div className="main-actions">
-              <button className="action-card card-activity" onClick={() => navigate('/patient/activities')}>
+              <button id="home-activity-card" data-guide-id="home-activity-card" className="action-card card-activity" onClick={() => navigate('/patient/activities')}>
                 <div className="card-copy">
                   <div className="title">{t('nav.activity')}</div>
                 </div>
               </button>
 
-              <button className="action-card card-family" onClick={() => navigate('/patient/family')}>
+              <button id="home-family-card" data-guide-id="home-family-card" className="action-card card-family" onClick={() => navigate('/patient/family')}>
                 <div className="card-copy">
                   <div className="title">{t('nav.family')}</div>
                 </div>
               </button>
 
-              <button className="action-card card-videos" onClick={() => navigate('/patient/videos-library')}>
+              <button id="home-videos-card" data-guide-id="home-videos-card" className="action-card card-videos" onClick={() => navigate('/patient/videos-library')}>
                 <div className="card-copy">
                   <div className="title">{t('nav.videos')}</div>
                 </div>
@@ -256,6 +256,7 @@ export default function PatientHomePage() {
             </div>
 
             <div className="toggle-link">
+              {/* TODO: target screen not yet confirmed, ask before scripting. */}
               <a onClick={() => setShowAllFeatures(!showAllFeatures)}>{showAllFeatures ? t('home.hideFeatures') : t('home.allFeatures')}</a>
             </div>
 

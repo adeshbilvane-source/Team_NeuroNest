@@ -6,14 +6,20 @@ export function speak(text) {
     return Promise.resolve();
   }
 
+  const finish = () => Promise.resolve();
+
   if (!apiKey || !voiceId) {
     console.warn('Missing ElevenLabs env vars. Falling back to browser voice.');
     if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.speak(utterance);
+      return new Promise((resolve) => {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.onend = () => resolve();
+        utterance.onerror = () => resolve();
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utterance);
+      });
     }
-    return Promise.resolve();
+    return finish();
   }
 
   return fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
@@ -41,7 +47,18 @@ export function speak(text) {
     .then((audioBlob) => {
       const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
-      return audio.play();
+
+      return new Promise((resolve) => {
+        const onDone = () => {
+          audio.removeEventListener('ended', onDone);
+          audio.removeEventListener('error', onDone);
+          resolve();
+        };
+
+        audio.addEventListener('ended', onDone, { once: true });
+        audio.addEventListener('error', onDone, { once: true });
+        audio.play().catch(() => onDone());
+      });
     })
     .catch((error) => {
       console.warn('Cloud voice failed, falling back to browser voice:', error);
@@ -50,10 +67,13 @@ export function speak(text) {
         return undefined;
       }
 
-      const utterance = new SpeechSynthesisUtterance(text);
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.speak(utterance);
-      return undefined;
+      return new Promise((resolve) => {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.onend = () => resolve();
+        utterance.onerror = () => resolve();
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utterance);
+      });
     });
 }
 

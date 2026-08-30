@@ -275,6 +275,8 @@ export default function MemoryMatch() {
                 ] as const
               ).map(c => (
                 <div
+                  id={`memory-match-${c.key}`}
+                  data-guide-id={`memory-match-${c.key}`}
                   key={c.key}
                   className={`cat-chip ${selectedCat === c.key ? 'active' : ''}`}
                   onClick={() => setSelectedCat(c.key)}

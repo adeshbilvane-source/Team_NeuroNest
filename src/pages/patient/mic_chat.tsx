@@ -45,6 +45,14 @@ export default function PatientMicChat() {
         navigate('/patient');
       } else if (transcript.includes('activity') || transcript.includes('activities') || transcript.includes('game') || transcript.includes('games') || transcript.includes('play') || transcript.includes('yoga') || transcript.includes('exercise')) {
         navigate('/patient/activities');
+      } else if (transcript.includes('identify picture') || transcript.includes('picture game') || transcript.includes('what is shown')) {
+        navigate('/patient/games/identify-picture');
+      } else if (transcript.includes('memory') || transcript.includes('match cards') || transcript.includes('card game')) {
+        navigate('/patient/games/memory-match');
+      } else if (transcript.includes('jigsaw') || transcript.includes('puzzle')) {
+        navigate('/patient/games/jigsaw');
+      } else if (transcript.includes('sort') || transcript.includes('button sorting')) {
+        navigate('/patient/games/button-sorting');
       } else if (transcript.includes('video') || transcript.includes('videos') || transcript.includes('library') || transcript.includes('watch')) {
         navigate('/patient/videos-library');
       } else if (transcript.includes('reminder') || transcript.includes('medic') || transcript.includes('medicine') || transcript.includes('routine')) {
@@ -87,8 +95,8 @@ export default function PatientMicChat() {
         }
         .global-voice-tray {
           position: absolute;
-          right: 16px;
-          bottom: 120px;
+          right: 24px;
+          bottom: 24px;
           z-index: 999;
           display: flex;
           align-items: center;

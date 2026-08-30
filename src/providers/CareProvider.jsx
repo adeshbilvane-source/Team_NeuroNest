@@ -1,8 +1,20 @@
-import { createContext, useContext, useEffect, useRef } from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef } from 'react';
 import { useMachine } from '@xstate/react';
 import careMachine from '../orchestrator/careMachine';
 import { voiceService } from '../services/voiceService';
 import { getTodaysTask } from '../schedule/weeklyPlan';
+
+function isTaskDue(task, now = new Date()) {
+  if (!task?.time) {
+    return false;
+  }
+
+  const [hour, minute] = task.time.split(':').map(Number);
+  const minutes = now.getHours() * 60 + now.getMinutes();
+  const targetMinutes = hour * 60 + minute;
+
+  return Math.abs(minutes - targetMinutes) <= 15;
+}
 
 const CareContext = createContext(null);
 
@@ -19,6 +31,8 @@ export function useCare() {
 export default function CareProvider({ children }) {
   const [state, send] = useMachine(careMachine);
   const timerRef = useRef(null);
+  const scheduledTask = useMemo(() => getTodaysTask(), []);
+  const activeScheduledWalkthrough = state.matches('guidingTask') && Boolean(scheduledTask);
 
   useEffect(() => {
     if (state.matches('greeting')) {
@@ -26,14 +40,14 @@ export default function CareProvider({ children }) {
     }
 
     if (state.matches('announcingTask')) {
-      const taskName = getTodaysTask();
+      const taskName = scheduledTask?.taskName || 'your care activity';
       voiceService.speak(`Today’s activity is ${taskName}. Let’s get started.`);
     }
 
     if (state.matches('checkingIn')) {
       voiceService.speak('Just checking in. Are you ready to continue?');
     }
-  }, [state]);
+  }, [scheduledTask, state]);
 
   useEffect(() => {
     if (!state.matches('guidingTask')) {
@@ -100,7 +114,17 @@ export default function CareProvider({ children }) {
     };
   }, [state, send]);
 
-  const value = { state, send };
+  // TODO: enforce 1-2hr daily screen time cap — needs a decision on: is this wall-clock
+  // time since first app open today, or only time spent inside active tasks (guidingTask state),
+  // and what happens at the limit (hard lock? gentle wind-down message? does it interrupt a scheduled
+  // task in progress?) — confirm with product owner before implementing.
+
+  const value = {
+    state,
+    send,
+    scheduledTask,
+    activeScheduledWalkthrough,
+  };
 
   return <CareContext.Provider value={value}>{children}</CareContext.Provider>;
 }

@@ -113,25 +113,25 @@ export default function GamesHubPage() {
             <p className="lede">{t('games.pickOne')}</p>
             
             <div className="grid2">
-              <button className="card game-card-picture" onClick={() => navigate('/patient/games/identify-picture')}>
+              <button id="gameshub-picture-game" data-guide-id="gameshub-picture-game" className="card game-card-picture" onClick={() => navigate('/patient/games/identify-picture')}>
                 <div className="label">{t('games.pictureGame')}</div>
                 <div className="sub">{t('games.pictureDesc')}</div>
               </button>
-              <button className="card game-card-memory" onClick={() => navigate('/patient/games/memory-match')}>
+              <button id="gameshub-memory-cards" data-guide-id="gameshub-memory-cards" className="card game-card-memory" onClick={() => navigate('/patient/games/memory-match')}>
                 <div className="label">{t('games.memoryCards')}</div>
                 <div className="sub">{t('games.memoryDesc')}</div>
               </button>
-              <button className="card game-card-jigsaw" onClick={() => navigate('/patient/games/jigsaw')}>
+              <button id="gameshub-jigsaw" data-guide-id="gameshub-jigsaw" className="card game-card-jigsaw" onClick={() => navigate('/patient/games/jigsaw')}>
                 <div className="label">{t('games.jigsaw')}</div>
                 <div className="sub">{t('games.jigsawDesc')}</div>
               </button>
-              <button className="card game-card-sort" onClick={() => navigate('/patient/games/button-sorting')}>
+              <button id="gameshub-sort-buttons" data-guide-id="gameshub-sort-buttons" className="card game-card-sort" onClick={() => navigate('/patient/games/button-sorting')}>
                 <div className="label">{t('games.sortButtons')}</div>
                 <div className="sub">{t('games.sortDesc')}</div>
               </button>
             </div>
 
-            <button className="yoga-card" onClick={() => navigate('/patient/yoga')}>
+            <button id="gameshub-yoga" data-guide-id="gameshub-yoga" className="yoga-card" onClick={() => navigate('/patient/yoga')}>
               <div className="overlay"></div>
               <div className="content-text">
                 <div className="label">Yoga & Rest</div>

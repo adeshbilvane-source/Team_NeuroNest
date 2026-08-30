@@ -124,28 +124,28 @@ export default function ActivitiesPage() {
             <div className="section">
               <h2 className="section-title">Games</h2>
               <div className="grid2">
-                <button className="card game-card-picture" onClick={() => navigate('/patient/games/identify-picture')}>
+                <button id="activities-picture-game" data-guide-id="activities-picture-game" className="card game-card-picture" onClick={() => navigate('/patient/games/identify-picture')}>
                   <div>
                     <div className="label">{t('games.pictureGame') || 'Picture game'}</div>
                     <div className="sub">{t('games.pictureDesc') || 'Name what you see'}</div>
                   </div>
                 </button>
 
-                <button className="card game-card-memory" onClick={() => navigate('/patient/games/memory-match')}>
+                <button id="activities-memory-cards" data-guide-id="activities-memory-cards" className="card game-card-memory" onClick={() => navigate('/patient/games/memory-match')}>
                   <div>
                     <div className="label">{t('games.memoryCards') || 'Memory cards'}</div>
                     <div className="sub">{t('games.memoryDesc') || 'Find two alike'}</div>
                   </div>
                 </button>
 
-                <button className="card game-card-jigsaw" onClick={() => navigate('/patient/games/jigsaw')}>
+                <button id="activities-jigsaw" data-guide-id="activities-jigsaw" className="card game-card-jigsaw" onClick={() => navigate('/patient/games/jigsaw')}>
                   <div>
                     <div className="label">{t('games.jigsaw') || 'Jigsaw'}</div>
                     <div className="sub">{t('games.jigsawDesc') || 'Put the picture together'}</div>
                   </div>
                 </button>
 
-                <button className="card game-card-sort" onClick={() => navigate('/patient/games/button-sorting')}>
+                <button id="activities-sort-buttons" data-guide-id="activities-sort-buttons" className="card game-card-sort" onClick={() => navigate('/patient/games/button-sorting')}>
                   <div>
                     <div className="label">{t('games.sortButtons') || 'Sort buttons'}</div>
                     <div className="sub">{t('games.sortDesc') || 'Match shape and colour'}</div>
@@ -157,7 +157,7 @@ export default function ActivitiesPage() {
             <div className="section">
               <h2 className="section-title">Wellness</h2>
               <div className="wellness-grid">
-                <button className="card game-card-yoga" onClick={() => navigate('/patient/yoga')}>
+                <button id="activities-yoga" data-guide-id="activities-yoga" className="card game-card-yoga" onClick={() => navigate('/patient/yoga')}>
                   <div>
                     <div className="label">Yoga &amp; Rest</div>
                     <div className="sub">Gentle stretching and breathing</div>
