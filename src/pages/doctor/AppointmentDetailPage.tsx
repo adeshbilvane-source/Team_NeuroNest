@@ -2,6 +2,7 @@ import { ArrowLeft, MessageCircle, Phone, X } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import PatientAvatar from '../../components/PatientAvatar'
+import { showToast } from '../../components/Toast'
 
 export default function AppointmentDetailPage() {
   const navigate = useNavigate()
@@ -48,7 +49,7 @@ export default function AppointmentDetailPage() {
         </div>
         <button onClick={() => setShowReschedule(true)} className="w-full bg-marigold-tint text-[#8A5015] rounded-[15px] py-3 font-extrabold text-[13px]">Reschedule this visit</button>
       </div>
-      {showReschedule && <div className="fixed inset-0 bg-ink/40 flex items-end justify-center z-50"><form onSubmit={(event) => { event.preventDefault(); setShowReschedule(false) }} className="w-full max-w-[430px] bg-white rounded-t-[24px] p-5 space-y-3"><div className="flex justify-between items-center"><h2 className="font-display italic text-lg font-semibold">Choose a new time</h2><button type="button" onClick={() => setShowReschedule(false)} aria-label="Close"><X size={19} /></button></div><label className="block text-xs font-extrabold text-ink-soft">Date<input required type="date" value={date} onChange={(event) => setDate(event.target.value)} className="mt-1 w-full bg-canvas rounded-xl px-3 py-3 font-bold" /></label><label className="block text-xs font-extrabold text-ink-soft">Time<input required type="time" value={time} onChange={(event) => setTime(event.target.value)} className="mt-1 w-full bg-canvas rounded-xl px-3 py-3 font-bold" /></label><button className="w-full bg-brand-green text-white rounded-xl py-3 font-extrabold">Send new time</button></form></div>}
+      {showReschedule && <div className="fixed inset-0 bg-ink/40 flex items-end justify-center z-50"><form onSubmit={(event) => { event.preventDefault(); showToast('Appointment rescheduled successfully!', 'success'); setShowReschedule(false); setDate(''); setTime('10:00') }} className="w-full max-w-[430px] bg-white rounded-t-[24px] p-5 space-y-3"><div className="flex justify-between items-center"><h2 className="font-display italic text-lg font-semibold">Choose a new time</h2><button type="button" onClick={() => setShowReschedule(false)} aria-label="Close"><X size={19} /></button></div><label className="block text-xs font-extrabold text-ink-soft">Date<input required type="date" value={date} onChange={(event) => setDate(event.target.value)} className="mt-1 w-full bg-canvas rounded-xl px-3 py-3 font-bold" /></label><label className="block text-xs font-extrabold text-ink-soft">Time<input required type="time" value={time} onChange={(event) => setTime(event.target.value)} className="mt-1 w-full bg-canvas rounded-xl px-3 py-3 font-bold" /></label><button className="w-full bg-brand-green text-white rounded-xl py-3 font-extrabold">Send new time</button></form></div>}
     </div>
   )
 }

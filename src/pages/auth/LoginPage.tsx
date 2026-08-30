@@ -284,14 +284,6 @@ export default function LoginPage() {
                 </button>
               </div>
 
-              <div className="voice-hint">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--marigold)" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 15a3.5 3.5 0 0 0 3.5-3.5V6a3.5 3.5 0 0 0-7 0v5.5A3.5 3.5 0 0 0 12 15Z" />
-                  <path d="M6.5 11.5a5.5 5.5 0 0 0 11 0M12 18.5V21" />
-                </svg>
-                <span>{t('auth.voiceHint')}</span>
-              </div>
-
               <div className="footer-note">
                 <p>{t('auth.helpLogin')}<br />{t('auth.helpLoginDescription')}</p>
               </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { showToast } from '../../components/Toast';
 
 interface Appointment {
   id: string;
@@ -48,7 +49,7 @@ export default function PatientAppointmentsPage() {
   const handleBookAppointment = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedDate) {
-      alert("Please select a date!");
+      showToast("Please select a date!", "info");
       return;
     }
 
@@ -66,7 +67,7 @@ export default function PatientAppointmentsPage() {
     setAppointments(updated);
     localStorage.setItem('sahayak_appointments', JSON.stringify(updated));
 
-    alert("Appointment request sent successfully! Awaiting Caregiver/Doctor confirmation.");
+    showToast("Appointment booked! Waiting for confirmation.", "success");
     setShowModal(false);
     setSelectedDate('');
   };

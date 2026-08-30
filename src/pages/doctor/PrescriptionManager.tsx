@@ -10,6 +10,7 @@ import {
   X,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
+import { showToast } from "../../components/Toast";
 import PatientAvatar from "../../components/PatientAvatar";
 import {
   loadMedicineCatalog,
