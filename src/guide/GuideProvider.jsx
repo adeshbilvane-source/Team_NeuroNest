@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useCare } from '../providers/CareProvider';
-import { voiceService } from '../services/voiceService';
+import { setVoiceStatus, subscribeVoiceStatus, voiceService } from '../services/VoiceService';
 import Spotlight from './Spotlight';
 import pageScripts from './pageScripts';
 
@@ -31,12 +31,15 @@ export default function GuideProvider({ children }) {
   const { activeScheduledWalkthrough, scheduledTask } = useCare();
   const [scriptState, setScriptState] = useState(null);
   const lastScriptRef = useRef('');
+  const [voiceStatus, setVoiceStatusState] = useState({ phase: 'idle', text: '' });
 
   const routeKey = useMemo(() => resolveRouteKey(location.pathname), [location.pathname]);
 
+  useEffect(() => subscribeVoiceStatus(setVoiceStatusState), []);
+
   useEffect(() => {
     const scriptFactory = pageScripts[routeKey];
-    if (!scriptFactory) {
+    if (!scriptFactory || !activeScheduledWalkthrough) {
       setScriptState(null);
       return;
     }
@@ -62,19 +65,28 @@ export default function GuideProvider({ children }) {
 
     const runGuideTurn = async () => {
       await voiceService.speak(scriptState.onEnter);
+      setVoiceStatus({ phase: 'pause', text: scriptState.onEnter });
+      await new Promise((resolve) => window.setTimeout(resolve, 3000));
       if (cancelled || !scriptState.options || scriptState.options.length === 0) {
         return;
       }
 
-      const answer = await voiceService.listen({ timeoutMs: 6000 });
+      const answer = await voiceService.listen({ timeoutMs: 30000 });
       if (cancelled) {
         return;
       }
 
       const normalized = (answer || '').trim().toLowerCase();
+      if (normalized.includes('activit')) {
+        navigate('/patient/activities');
+        return;
+      }
+
       const selected = scriptState.options.find((option) => {
-        const label = (option.label || '').toLowerCase();
-        return normalized.includes(label.toLowerCase());
+        const labels = [option.label, ...(option.aliases || [])]
+          .filter(Boolean)
+          .map((label) => label.toLowerCase());
+        return labels.some((label) => normalized.includes(label));
       });
 
       if (selected?.route) {
@@ -95,6 +107,30 @@ export default function GuideProvider({ children }) {
   return (
     <>
       {children}
+      {voiceStatus.phase !== 'idle' && (
+        <div
+          role="status"
+          aria-live="polite"
+          style={{
+            position: 'fixed',
+            left: '50%',
+            bottom: 88,
+            transform: 'translateX(-50%)',
+            zIndex: 1300,
+            maxWidth: 'min(380px, calc(100vw - 32px))',
+            padding: '10px 16px',
+            borderRadius: 999,
+            background: '#24322A',
+            color: '#fff',
+            fontSize: 14,
+            fontWeight: 800,
+            textAlign: 'center',
+            pointerEvents: 'none',
+          }}
+        >
+          {voiceStatus.phase === 'listening' ? 'Listening...' : voiceStatus.text}
+        </div>
+      )}
       {scriptState && (
         <Spotlight
           script={scriptState}

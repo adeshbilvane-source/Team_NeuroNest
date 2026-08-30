@@ -1,13 +1,22 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getSupportedLanguage } from '../../i18n';
 import { getVoiceLocale } from '../../i18n/voiceLocale';
+import { setVoiceStatus, subscribeVoiceStatus } from '../../services/VoiceService';
+
+type VoiceStatus = { phase: 'speaking' | 'pause' | 'listening' | 'idle'; text: string };
 
 export default function PatientMicChat() {
   const navigate = useNavigate();
   const { i18n } = useTranslation();
   const [isListening, setIsListening] = useState(false);
+
+  useEffect(() => {
+    return subscribeVoiceStatus((status: VoiceStatus) => {
+      setIsListening(status.phase === 'listening');
+    });
+  }, []);
 
   const startVoiceAssistant = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -27,7 +36,13 @@ export default function PatientMicChat() {
     recognition.continuous = false;
     recognition.maxAlternatives = 3;
 
-    recognition.onstart = () => setIsListening(true);
+    let listeningTimer: number | undefined;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      setVoiceStatus({ phase: 'listening', text: 'Listening...' });
+      listeningTimer = window.setTimeout(() => recognition.stop(), 30000);
+    };
 
     recognition.onresult = (event: any) => {
       const transcript = Array.from(event.results)
@@ -36,6 +51,10 @@ export default function PatientMicChat() {
         .toLowerCase();
 
       setIsListening(false);
+      if (listeningTimer) {
+        window.clearTimeout(listeningTimer);
+      }
+      setVoiceStatus({ phase: 'idle', text: '' });
 
       if (!transcript) {
         return;
@@ -43,7 +62,9 @@ export default function PatientMicChat() {
 
       if (transcript.includes('home') || transcript.includes('main') || transcript.includes('dashboard')) {
         navigate('/patient');
-      } else if (transcript.includes('activity') || transcript.includes('activities') || transcript.includes('game') || transcript.includes('games') || transcript.includes('play') || transcript.includes('yoga') || transcript.includes('exercise')) {
+      } else if (transcript.includes('activit')) {
+        navigate('/patient/activities');
+      } else if (transcript.includes('game') || transcript.includes('games') || transcript.includes('play') || transcript.includes('yoga') || transcript.includes('exercise')) {
         navigate('/patient/activities');
       } else if (transcript.includes('identify picture') || transcript.includes('picture game') || transcript.includes('what is shown')) {
         navigate('/patient/games/identify-picture');
@@ -72,9 +93,27 @@ export default function PatientMicChat() {
       }
     };
 
-    recognition.onerror = () => setIsListening(false);
-    recognition.onend = () => setIsListening(false);
-    recognition.start();
+    recognition.onerror = () => {
+      if (listeningTimer) {
+        window.clearTimeout(listeningTimer);
+      }
+      setIsListening(false);
+      setVoiceStatus({ phase: 'idle', text: '' });
+    };
+    recognition.onend = () => {
+      if (listeningTimer) {
+        window.clearTimeout(listeningTimer);
+      }
+      setIsListening(false);
+      setVoiceStatus({ phase: 'idle', text: '' });
+    };
+
+    try {
+      recognition.start();
+    } catch {
+      setIsListening(false);
+      setVoiceStatus({ phase: 'idle', text: '' });
+    }
   };
 
   return (

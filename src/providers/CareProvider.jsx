@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useRef } from 'react';
 import { useMachine } from '@xstate/react';
 import careMachine from '../orchestrator/careMachine';
-import { voiceService } from '../services/voiceService';
+import { voiceService } from '../services/VoiceService';
 import { getTodaysTask } from '../schedule/weeklyPlan';
 
 function isTaskDue(task, now = new Date()) {

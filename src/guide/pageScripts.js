@@ -58,18 +58,18 @@ const yogaOptions = [
   { label: 'Gentle Cat-Cow Flow', route: '/patient/yoga', targetId: 'yoga-cat-cow' },
 ];
 
-const getSingleOptionScript = (label, route, targetId) => ({
+const getSingleOptionScript = (label, route, targetId, aliases = []) => ({
   onEnter: `Now say or press ${label}.`,
   targetId,
   route,
-  options: [{ label, route, targetId }],
+  options: [{ label, aliases, route, targetId }],
   single: true,
 });
 
 const pageScripts = {
   home: ({ activeScheduledWalkthrough, scheduledTask }) => {
     if (activeScheduledWalkthrough) {
-      return getSingleOptionScript('Activity', '/patient/activities', 'home-activity-card');
+      return getSingleOptionScript('Activity', '/patient/activities', 'home-activity-card', ['activities', 'go']);
     }
 
     return {
@@ -83,13 +83,13 @@ const pageScripts = {
     if (activeScheduledWalkthrough) {
       const taskName = (scheduledTask?.taskName || '').toLowerCase();
       if (taskName.includes('memory')) {
-        return getSingleOptionScript('Memory cards', '/patient/games/memory-match', 'activities-memory-cards');
+        return getSingleOptionScript('Games', '/patient/games', 'activities-memory-cards', ['games', 'game', 'go']);
       }
       if (taskName.includes('yoga') || taskName.includes('rest')) {
-        return getSingleOptionScript('Yoga and Rest', '/patient/yoga', 'activities-yoga');
+        return getSingleOptionScript('Games', '/patient/games', 'activities-yoga', ['games', 'game', 'go']);
       }
       if (taskName.includes('picture') || taskName.includes('family')) {
-        return getSingleOptionScript('Picture game', '/patient/games/identify-picture', 'activities-picture-game');
+        return getSingleOptionScript('Games', '/patient/games', 'activities-picture-game', ['games', 'game', 'go']);
       }
     }
 
@@ -104,13 +104,13 @@ const pageScripts = {
     if (activeScheduledWalkthrough) {
       const taskName = (scheduledTask?.taskName || '').toLowerCase();
       if (taskName.includes('yoga') || taskName.includes('rest')) {
-        return getSingleOptionScript('Yoga and Rest', '/patient/yoga', 'gameshub-yoga');
+        return getSingleOptionScript('Yoga and Rest', '/patient/yoga', 'gameshub-yoga', ['yoga', 'rest', 'go']);
       }
       if (taskName.includes('memory')) {
-        return getSingleOptionScript('Memory cards', '/patient/games/memory-match', 'gameshub-memory-cards');
+        return getSingleOptionScript('Memory cards', '/patient/games/memory-match', 'gameshub-memory-cards', ['memory', 'cards', 'go']);
       }
       if (taskName.includes('picture') || taskName.includes('family')) {
-        return getSingleOptionScript('Picture game', '/patient/games/identify-picture', 'gameshub-picture-game');
+        return getSingleOptionScript('Picture game', '/patient/games/identify-picture', 'gameshub-picture-game', ['picture', 'family', 'photos', 'go']);
       }
     }
 
@@ -147,7 +147,7 @@ const pageScripts = {
 
   memoryMatch: ({ activeScheduledWalkthrough, currentCategory } = {}) => {
     if (activeScheduledWalkthrough) {
-      return getSingleOptionScript('Fruits and Veg', '/patient/games/memory-match', 'memory-match-fruits');
+      return getSingleOptionScript('Fruits and Veg', '/patient/games/memory-match', 'memory-match-fruits', ['fruits', 'vegetables', 'fruit', 'go']);
     }
 
     return {
@@ -199,7 +199,7 @@ const pageScripts = {
 
   videosLibrary: ({ activeScheduledWalkthrough, currentTab } = {}) => {
     if (activeScheduledWalkthrough) {
-      return getSingleOptionScript('Videos', '/patient/videos-library', 'videos-tab-videos');
+      return getSingleOptionScript('Videos', '/patient/videos-library', 'videos-tab-videos', ['video', 'calming', 'uploaded', 'go']);
     }
 
     return {

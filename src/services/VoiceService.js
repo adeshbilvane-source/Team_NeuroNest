@@ -1,3 +1,20 @@
+const voiceStatusListeners = new Set();
+
+function publishVoiceStatus(status) {
+  voiceStatusListeners.forEach((listener) => listener(status));
+}
+
+export function subscribeVoiceStatus(listener) {
+  voiceStatusListeners.add(listener);
+  return () => {
+    voiceStatusListeners.delete(listener);
+  };
+}
+
+export function setVoiceStatus(status) {
+  publishVoiceStatus(status);
+}
+
 export function speak(text) {
   const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY;
   const voiceId = import.meta.env.VITE_ELEVENLABS_VOICE_ID;
@@ -6,15 +23,24 @@ export function speak(text) {
     return Promise.resolve();
   }
 
-  const finish = () => Promise.resolve();
+  publishVoiceStatus({ phase: 'speaking', text });
+
+  const finish = () => {
+    publishVoiceStatus({ phase: 'idle', text: '' });
+    return Promise.resolve();
+  };
 
   if (!apiKey || !voiceId) {
     console.warn('Missing ElevenLabs env vars. Falling back to browser voice.');
     if ('speechSynthesis' in window) {
       return new Promise((resolve) => {
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.onend = () => resolve();
-        utterance.onerror = () => resolve();
+        const onDone = () => {
+          publishVoiceStatus({ phase: 'idle', text: '' });
+          resolve();
+        };
+        utterance.onend = onDone;
+        utterance.onerror = onDone;
         window.speechSynthesis.cancel();
         window.speechSynthesis.speak(utterance);
       });
@@ -52,6 +78,8 @@ export function speak(text) {
         const onDone = () => {
           audio.removeEventListener('ended', onDone);
           audio.removeEventListener('error', onDone);
+          publishVoiceStatus({ phase: 'idle', text: '' });
+          URL.revokeObjectURL(audioUrl);
           resolve();
         };
 
@@ -69,52 +97,67 @@ export function speak(text) {
 
       return new Promise((resolve) => {
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.onend = () => resolve();
-        utterance.onerror = () => resolve();
+        const onDone = () => {
+          publishVoiceStatus({ phase: 'idle', text: '' });
+          resolve();
+        };
+        utterance.onend = onDone;
+        utterance.onerror = onDone;
         window.speechSynthesis.cancel();
         window.speechSynthesis.speak(utterance);
       });
     });
 }
 
-export function listen({ timeoutMs = 6000 } = {}) {
+export function listen({ timeoutMs = 30000 } = {}) {
   return new Promise((resolve) => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
       console.warn('Speech recognition is not supported in this browser.');
+      publishVoiceStatus({ phase: 'idle', text: '' });
       resolve(null);
       return;
     }
 
     const recognition = new SpeechRecognition();
+    publishVoiceStatus({ phase: 'listening', text: 'Listening...' });
+    let settled = false;
     recognition.lang = 'en-US';
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
     const timer = window.setTimeout(() => {
       recognition.stop();
-      resolve(null);
+      finishListening();
     }, timeoutMs);
 
-    recognition.onresult = (event) => {
+    const finishListening = (transcript = null) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
       window.clearTimeout(timer);
+      publishVoiceStatus({ phase: 'idle', text: '' });
+      resolve(transcript);
+    };
+
+    recognition.onresult = (event) => {
       const transcript = event.results[0][0]?.transcript || '';
-      resolve(transcript.trim() || null);
+      finishListening(transcript.trim() || null);
     };
 
     recognition.onerror = () => {
-      window.clearTimeout(timer);
-      resolve(null);
+      finishListening();
     };
 
     recognition.onend = () => {
-      window.clearTimeout(timer);
+      finishListening();
     };
 
     recognition.start();
   });
 }
 
-export const voiceService = { speak, listen };
-export default { speak, listen };
+export const voiceService = { speak, listen, subscribeVoiceStatus, setVoiceStatus };
+export default { speak, listen, subscribeVoiceStatus, setVoiceStatus };
