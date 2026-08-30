@@ -4,7 +4,7 @@ import LanguageSwitcher from './components/LanguageSwitcher';
 import CareProvider from './providers/CareProvider';
 import CheckInOverlay from './components/CheckInOverlay';
 import PatientMicChat from './pages/patient/mic_chat';
-import GuideProvider from './guide/GuideProvider';
+// import GuideProvider from './guide/GuideProvider'; // Commented out for now
 
 // Patient stack
 import PatientHomePage from './pages/patient/HomePage';
@@ -126,9 +126,9 @@ export default function App() {
   return (
     <CareProvider>
       <BrowserRouter>
-        <GuideProvider>
+        {/* <GuideProvider> */}
           <AppShell />
-        </GuideProvider>
+        {/* </GuideProvider> */}
       </BrowserRouter>
     </CareProvider>
   );

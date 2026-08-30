@@ -7,6 +7,115 @@ import { setVoiceStatus, subscribeVoiceStatus } from '../../services/VoiceServic
 
 type VoiceStatus = { phase: 'speaking' | 'pause' | 'listening' | 'idle'; text: string };
 
+// --- AI VOICE FUNCTION ---
+const speakText = (text: string) => {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel(); 
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'en-US'; 
+  utterance.rate = 0.85; 
+  utterance.pitch = 1.0;
+  window.speechSynthesis.speak(utterance);
+};
+
+// --- SMART QUESTION & OPTIONS READER ---
+const readQuestionAndOptions = () => {
+  let questionText = "";
+
+  // 1. Sawal Dhundna (Question Scanner): Screen par wo text dhundega jisme '?' ho
+  const allTextElements = document.querySelectorAll('h1, h2, h3, h4, p, span, div');
+  for (let i = 0; i < allTextElements.length; i++) {
+    const el = allTextElements[i] as HTMLElement;
+    // Agar element ke andar direct text hai (bahut saare child tags nahi hain)
+    if (el.children.length === 0 || el.tagName.toLowerCase() === 'p' || el.tagName.match(/^h[1-6]$/)) {
+      const text = el.innerText?.trim();
+      if (text && text.includes('?')) {
+        questionText = text; // Question mil gaya!
+        break;
+      }
+    }
+  }
+
+  // Agar '?' nahi mila, toh pehli heading ya paragraph uthayega (Level wale text ko chhod kar)
+  if (!questionText) {
+    const fallbackNodes = document.querySelectorAll('h1, h2, h3, h4, p');
+    for (let i = 0; i < fallbackNodes.length; i++) {
+      const text = (fallbackNodes[i] as HTMLElement).innerText?.trim();
+      if (text && text.length > 5 && !text.toLowerCase().includes('level')) {
+        questionText = text;
+        break;
+      }
+    }
+  }
+
+  // 2. Options dhundna: Bekar buttons (<, ?, EN) aur Level buttons ko hata dega
+  const optionElements = document.querySelectorAll('button:not(.voice-mic-btn)');
+  const validOptions: string[] = [];
+  
+  optionElements.forEach((btn) => {
+    const text = (btn as HTMLElement).innerText.trim();
+    // Chote words aur upar wale filter/level buttons ko ignore karega (jinke naam bahut lambe ya irrelevant hain)
+    if (text.length > 1 && text.toLowerCase() !== 'en' && !text.toLowerCase().includes('playing random')) {
+      validOptions.push(text);
+    }
+  });
+
+  if (!questionText && validOptions.length === 0) {
+    speakText("There is nothing specific to read on this screen.");
+    return;
+  }
+
+  // 3. AI Script Taiyar Karna
+  let speechText = "";
+  if (questionText) {
+    speechText += "The question is: " + questionText + ". ";
+  }
+  
+  if (validOptions.length > 0) {
+    speechText += "Your options are: ";
+    validOptions.forEach((opt, index) => {
+      // Clean up text ("Shapes (Lvl 1)" -> "Shapes")
+      let cleanOpt = opt.replace(/\(lvl\s*\d+\)/gi, '').trim();
+      speechText += "Option " + (index + 1) + ". " + cleanOpt + ". ";
+    });
+  }
+
+  speakText(speechText);
+};
+
+// --- SMART AUTO-CLICKER ---
+const attemptClickOnScreen = (transcript: string): boolean => {
+  const buttons = Array.from(document.querySelectorAll('button:not(.voice-mic-btn)'));
+  
+  for (const btn of buttons) {
+    const btnText = (btn as HTMLElement).innerText.toLowerCase().trim();
+    if (!btnText || btnText.length < 2 || btnText === 'en') continue;
+
+    const cleanText = btnText.replace(/\(lvl\s*\d+\)/gi, '').trim();
+    
+    let matched = false;
+    if (transcript.includes(cleanText)) {
+      matched = true;
+    } else {
+      const words = cleanText.split(/[\s&]+/);
+      for (const w of words) {
+        if (w.length >= 4 && transcript.includes(w)) {
+          matched = true;
+          break;
+        }
+      }
+    }
+
+    if (matched) {
+      (btn as HTMLElement).click();
+      speakText("Selecting " + cleanText);
+      return true;
+    }
+  }
+  return false; 
+};
+
+
 export default function PatientMicChat() {
   const navigate = useNavigate();
   const { i18n } = useTranslation();
@@ -18,6 +127,10 @@ export default function PatientMicChat() {
     });
   }, []);
 
+  useEffect(() => {
+    window.speechSynthesis.cancel();
+  }, [navigate]);
+
   const startVoiceAssistant = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
@@ -26,12 +139,10 @@ export default function PatientMicChat() {
       return;
     }
 
-    if (isListening) {
-      return;
-    }
+    if (isListening) return;
 
     const recognition = new SpeechRecognition();
-    recognition.lang = getVoiceLocale(getSupportedLanguage(i18n.language));
+    recognition.lang = 'en-US'; 
     recognition.interimResults = false;
     recognition.continuous = false;
     recognition.maxAlternatives = 3;
@@ -39,6 +150,7 @@ export default function PatientMicChat() {
     let listeningTimer: number | undefined;
 
     recognition.onstart = () => {
+      window.speechSynthesis.cancel(); 
       setIsListening(true);
       setVoiceStatus({ phase: 'listening', text: 'Listening...' });
       listeningTimer = window.setTimeout(() => recognition.stop(), 30000);
@@ -51,59 +163,104 @@ export default function PatientMicChat() {
         .toLowerCase();
 
       setIsListening(false);
-      if (listeningTimer) {
-        window.clearTimeout(listeningTimer);
-      }
+      if (listeningTimer) window.clearTimeout(listeningTimer);
       setVoiceStatus({ phase: 'idle', text: '' });
 
-      if (!transcript) {
+      if (!transcript) return;
+
+      // 0. READ COMMANDS
+      if (transcript.includes('read question') || transcript.includes('read option') || transcript.includes('what is the question')) {
+        readQuestionAndOptions();
+        return;
+      }
+      else if (transcript.includes('read') || transcript.includes('padh') || transcript.includes('sunao')) {
+        readQuestionAndOptions(); 
+        return; 
+      }
+
+      // 1. AUTO-CLICKER
+      if (attemptClickOnScreen(transcript)) {
         return;
       }
 
-      if (transcript.includes('home') || transcript.includes('main') || transcript.includes('dashboard')) {
-        navigate('/patient');
-      } else if (transcript.includes('activit')) {
-        navigate('/patient/activities');
-      } else if (transcript.includes('game') || transcript.includes('games') || transcript.includes('play') || transcript.includes('yoga') || transcript.includes('exercise')) {
-        navigate('/patient/activities');
-      } else if (transcript.includes('identify picture') || transcript.includes('picture game') || transcript.includes('what is shown')) {
-        navigate('/patient/games/identify-picture');
-      } else if (transcript.includes('memory') || transcript.includes('match cards') || transcript.includes('card game')) {
+      // 2. SPECIFIC GAMES
+      if (transcript.includes('memory') || transcript.includes('match cards') || transcript.includes('card game')) {
         navigate('/patient/games/memory-match');
-      } else if (transcript.includes('jigsaw') || transcript.includes('puzzle')) {
+        speakText("Opening memory match game.");
+      } 
+      else if (transcript.includes('identify picture') || transcript.includes('picture game') || transcript.includes('what is shown')) {
+        navigate('/patient/games/identify-picture');
+        speakText("Opening identify picture game.");
+      } 
+      else if (transcript.includes('jigsaw') || transcript.includes('puzzle')) {
         navigate('/patient/games/jigsaw');
-      } else if (transcript.includes('sort') || transcript.includes('button sorting')) {
+        speakText("Opening jigsaw puzzle.");
+      } 
+      else if (transcript.includes('sort') || transcript.includes('button sorting')) {
         navigate('/patient/games/button-sorting');
-      } else if (transcript.includes('video') || transcript.includes('videos') || transcript.includes('library') || transcript.includes('watch')) {
+        speakText("Opening button sorting game.");
+      } 
+      
+      // 3. SPECIFIC MEDIA & YOGA
+      else if (transcript.includes('video') || transcript.includes('videos') || transcript.includes('library') || transcript.includes('watch')) {
         navigate('/patient/videos-library');
-      } else if (transcript.includes('reminder') || transcript.includes('medic') || transcript.includes('medicine') || transcript.includes('routine')) {
+        speakText("Opening video library.");
+      } 
+      else if (transcript.includes('yoga') || transcript.includes('exercise') || transcript.includes('meditation')) {
+        navigate('/patient/yoga');
+        speakText("Opening yoga and exercise.");
+      }
+      else if (transcript.includes('reminder') || transcript.includes('medic') || transcript.includes('medicine') || transcript.includes('routine')) {
         navigate('/patient/reminders');
-      } else if (transcript.includes('family') || transcript.includes('relative') || transcript.includes('caregiver')) {
+        speakText("Opening your daily reminders.");
+      } 
+      
+      // 4. GENERAL CATEGORIES
+      else if (transcript.includes('activit')) {
+        navigate('/patient/activities');
+        speakText("Opening activities page.");
+      } 
+      else if (transcript.includes('game') || transcript.includes('games') || transcript.includes('play')) {
+        navigate('/patient/games');
+        speakText("Opening games hub.");
+      } 
+      
+      // 5. BAAKI PAGES
+      else if (transcript.includes('family') || transcript.includes('relative') || transcript.includes('caregiver')) {
         navigate('/patient/family');
-      } else if (transcript.includes('analytics') || transcript.includes('report') || transcript.includes('stats') || transcript.includes('graph')) {
+        speakText("Opening family emergency page.");
+      } 
+      else if (transcript.includes('analytics') || transcript.includes('report') || transcript.includes('stats') || transcript.includes('graph')) {
         navigate('/patient/analytics');
-      } else if (transcript.includes('appointment') || transcript.includes('calendar')) {
+      } 
+      else if (transcript.includes('appointment') || transcript.includes('calendar')) {
         navigate('/patient/appointments');
-      } else if (transcript.includes('chat') || transcript.includes('message') || transcript.includes('support')) {
+        speakText("Opening your appointments.");
+      } 
+      else if (transcript.includes('chat') || transcript.includes('message') || transcript.includes('support')) {
         navigate('/patient/chat');
-      } else if (transcript.includes('settings') || transcript.includes('preferences')) {
+        speakText("Opening chat support.");
+      } 
+      else if (transcript.includes('settings') || transcript.includes('preferences')) {
         navigate('/patient/settings');
-      } else if (transcript.includes('emergency') || transcript.includes('sos') || transcript.includes('help me') || transcript.includes('help')) {
+      } 
+      else if (transcript.includes('emergency') || transcript.includes('sos') || transcript.includes('help me') || transcript.includes('help')) {
         navigate('/patient/emergency');
+        speakText("Emergency page opened. Don't panic, help is available.");
+      } 
+      else if (transcript.includes('home') || transcript.includes('main') || transcript.includes('dashboard')) {
+        navigate('/patient');
+        speakText("Going back to the home page.");
       }
     };
 
     recognition.onerror = () => {
-      if (listeningTimer) {
-        window.clearTimeout(listeningTimer);
-      }
+      if (listeningTimer) window.clearTimeout(listeningTimer);
       setIsListening(false);
       setVoiceStatus({ phase: 'idle', text: '' });
     };
     recognition.onend = () => {
-      if (listeningTimer) {
-        window.clearTimeout(listeningTimer);
-      }
+      if (listeningTimer) window.clearTimeout(listeningTimer);
       setIsListening(false);
       setVoiceStatus({ phase: 'idle', text: '' });
     };
