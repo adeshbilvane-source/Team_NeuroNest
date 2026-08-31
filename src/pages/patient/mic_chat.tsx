@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getSupportedLanguage } from '../../i18n';
@@ -18,14 +18,13 @@ const speakText = (text: string, setAssistantStatus: (msg: string) => void) => {
   
   if (textClearTimeout) clearTimeout(textClearTimeout);
   
-  setAssistantStatus(text); // Text screen par dikhao
+  setAssistantStatus(text); 
 
   currentUtterance = new SpeechSynthesisUtterance(text);
   currentUtterance.lang = 'en-US'; 
   currentUtterance.rate = 0.85; 
   currentUtterance.pitch = 1.0;
 
-  // Jab bolna khatam ho jaye, toh 3 seconds baad text gayab karna
   currentUtterance.onend = () => {
     textClearTimeout = window.setTimeout(() => {
       setAssistantStatus('');
@@ -138,17 +137,31 @@ export default function PatientMicChat() {
   const [isListening, setIsListening] = useState(false);
   const [assistantMessage, setAssistantMessage] = useState(''); 
 
+  // Mic ko continuously run karne ke liye naye refs
+  const keepListening = useRef<boolean>(false);
+  const recognitionRef = useRef<any>(null);
+
   useEffect(() => {
     return subscribeVoiceStatus((status: VoiceStatus) => {
       setIsListening(status.phase === 'listening');
     });
   }, []);
 
+  // Component unmount hone par mic band karne ke liye
+  useEffect(() => {
+    return () => {
+      keepListening.current = false;
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
+
   if (!location.pathname.startsWith('/patient')) {
     return null; 
   }
 
-  const startVoiceAssistant = () => {
+  const toggleVoiceAssistant = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
@@ -156,9 +169,19 @@ export default function PatientMicChat() {
       return;
     }
 
-    if (isListening) return;
+    // Agar mic pehle se chal raha hai, toh usko rok do
+    if (isListening) {
+      keepListening.current = false;
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      setAssistantMessage('');
+      setVoiceStatus({ phase: 'idle', text: '' });
+      return;
+    }
 
-    if (textClearTimeout) clearTimeout(textClearTimeout); // Purana timer clear karein
+    // Mic start karne ka process
+    keepListening.current = true;
+    if (textClearTimeout) clearTimeout(textClearTimeout);
 
     const recognition = new SpeechRecognition();
     recognition.lang = 'en-US'; 
@@ -182,13 +205,11 @@ export default function PatientMicChat() {
         .join(' ')
         .toLowerCase();
 
-      setIsListening(false);
       if (listeningTimer) window.clearTimeout(listeningTimer);
-      setVoiceStatus({ phase: 'idle', text: '' });
-
+      
       if (!transcript) {
         setAssistantMessage('');
-        return;
+        return; // Auto-loop handled by onend
       }
 
       // 0. READ COMMANDS
@@ -275,21 +296,40 @@ export default function PatientMicChat() {
       }
     };
 
-    recognition.onerror = () => {
+    recognition.onerror = (event: any) => {
       if (listeningTimer) window.clearTimeout(listeningTimer);
-      setIsListening(false);
-      setAssistantMessage('');
-      setVoiceStatus({ phase: 'idle', text: '' });
-    };
-    recognition.onend = () => {
-      if (listeningTimer) window.clearTimeout(listeningTimer);
-      setIsListening(false);
-      setVoiceStatus({ phase: 'idle', text: '' });
+      // Agar browser mic block karde toh loop tod do
+      if (event.error === 'not-allowed' || event.error === 'audio-capture') {
+        keepListening.current = false;
+        setIsListening(false);
+        setAssistantMessage('');
+        setVoiceStatus({ phase: 'idle', text: '' });
+      }
     };
 
+    // Auto-loop logic
+    recognition.onend = () => {
+      if (listeningTimer) window.clearTimeout(listeningTimer);
+      
+      if (keepListening.current) {
+        try {
+          recognition.start();
+        } catch {
+          setIsListening(false);
+          setVoiceStatus({ phase: 'idle', text: '' });
+        }
+      } else {
+        setIsListening(false);
+        setVoiceStatus({ phase: 'idle', text: '' });
+      }
+    };
+
+    recognitionRef.current = recognition;
+    
     try {
       recognition.start();
     } catch {
+      keepListening.current = false;
       setIsListening(false);
       setAssistantMessage('');
       setVoiceStatus({ phase: 'idle', text: '' });
@@ -341,8 +381,6 @@ export default function PatientMicChat() {
           max-width: 240px;
           text-align: right;
           animation: fadeInOut 0.3s ease-in-out;
-          
-          /* Extra styling to make text wrap properly if it's long */
           white-space: normal; 
           word-wrap: break-word;
         }
@@ -401,7 +439,7 @@ export default function PatientMicChat() {
         <button
           className="voice-mic-btn"
           type="button"
-          onClick={startVoiceAssistant}
+          onClick={toggleVoiceAssistant}
           aria-label={isListening ? 'Stop listening' : 'Start microphone'}
         >
           <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
