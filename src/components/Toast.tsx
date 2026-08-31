@@ -19,7 +19,7 @@ export default function Toast() {
 
   useEffect(() => {
     if (!toast) return
-    const timer = window.setTimeout(() => setToast(null), 3200)
+    const timer = window.setTimeout(() => setToast(null), 4500)
     return () => window.clearTimeout(timer)
   }, [toast])
 

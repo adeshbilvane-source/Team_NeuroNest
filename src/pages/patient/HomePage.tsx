@@ -24,9 +24,12 @@ export default function PatientHomePage() {
     if (savedUser) {
       try {
         const u = JSON.parse(savedUser);
-        if (u.name) setUserName(u.name);
+        if (u?.name && typeof u.name === 'string') {
+          setUserName(u.name);
+        }
       } catch (e) {
-        console.error(e);
+        console.warn('Failed to parse saved user data, using default name');
+        // User already has default value, no need to reset
       }
     }
 
@@ -58,17 +61,34 @@ export default function PatientHomePage() {
           --canvas: #F8FAF7; --ink: #24322A; --ink-soft: #5B6A61;
           --green: #3F6B4F; --green-tint: #E3EDE5; --green-dark: #2E5140;
           --marigold: #D98A2B; --white: #FFFFFF; --shadow: 0 8px 24px rgba(36,50,42,0.06);
-          --red: #B33F33; --slate: #5B7A9E; --teal: #3F8E82;
+          --red: #8B2F27; --slate: #5B7A9E; --teal: #3F8E82;
         }
         * { box-sizing: border-box; }
         
         .home-root-container {
           display: flex; align-items: center; justify-content: center; min-height: 100vh;
-          width: 100%; background: #E1E6DD; padding: 24px; font-family: 'Nunito', sans-serif;
+          width: 100%; background: #E1E6DD; padding: 12px; font-family: 'Nunito', sans-serif;
         }
         .phone {
-          width: 100%; max-width: 410px; background: #111614; border-radius: 46px;
+          width: 100%; max-width: 410px; min-width: 320px; background: #111614; border-radius: 46px;
           padding: 14px; box-shadow: 0 30px 60px rgba(0,0,0,0.35); position: relative; overflow: hidden;
+        }
+        @media (max-width: 380px) {
+          .phone { border-radius: 24px; }
+          .header { padding: 40px 16px 0 16px; }
+          .main-actions { padding: 16px; gap: 12px; }
+          .mini-grid { gap: 8px; padding: 0 16px; }
+          .fixed-bottom { padding: 16px; }
+          .action-card { min-height: 100px; padding: 14px 16px; }
+          .grid-card { min-height: 100px; }
+          .card-copy .title { font-size: 18px; }
+          .greeting { font-size: 28px; }
+          .header-actions { gap: 4px; }
+          .lang-btn { padding: 0 8px; font-size: 11px; height: 30px; }
+          .settings-btn { width: 30px; height: 30px; }
+        }
+        @media (min-width: 1400px) {
+          .home-root-container { background: linear-gradient(135deg, #E1E6DD 0%, #D6DED3 100%); }
         }
         .screen {
           background: var(--canvas); border-radius: 34px;
@@ -82,6 +102,8 @@ export default function PatientHomePage() {
           overflow-x: hidden;
           scrollbar-width: none;
           padding-bottom: 130px;
+          background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.02) 90%, rgba(0,0,0,0.04) 100%);
+          background-attachment: local;
         }
         .scroll-area::-webkit-scrollbar { display: none; }
         
@@ -93,19 +115,27 @@ export default function PatientHomePage() {
         .header { padding: 48px 24px 0 24px; }
         .top-row { display: flex; justify-content: space-between; align-items: center; }
         .orient { font-weight: 800; color: var(--ink-soft); font-size: 14px; }
-        .header-actions { display: flex; align-items: center; gap: 8px; position: relative; }
+        .header-actions { display: flex; align-items: center; gap: 8px; position: relative; flex-wrap: wrap; justify-content: flex-end; }
         .settings-btn {
           width: 34px; height: 34px; border-radius: 10px; background: var(--white);
           display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow);
           border: 1px solid rgba(0,0,0,0.05); cursor: pointer; padding: 0; color: var(--green);
+          transition: all 0.2s ease; outline: none;
         }
+        .settings-btn:hover { background: #E3EDE5; transform: scale(1.05); }
+        .settings-btn:active { transform: scale(0.95); }
+        .settings-btn:focus { box-shadow: 0 0 0 3px rgba(63, 107, 79, 0.2), var(--shadow); }
         .settings-btn svg { width: 16px; height: 16px; stroke: var(--green); }
         .lang-wrapper { position: relative; }
         .lang-btn {
           height: 34px; padding: 0 12px; border-radius: 12px; background: var(--white);
           display: flex; align-items: center; gap: 6px; box-shadow: var(--shadow);
           border: 1px solid rgba(0,0,0,0.05); cursor: pointer; font-weight: 800; font-size: 13px; color: var(--green);
+          transition: all 0.2s ease; outline: none;
         }
+        .lang-btn:hover { background: #E3EDE5; transform: scale(1.05); }
+        .lang-btn:active { transform: scale(0.95); }
+        .lang-btn:focus { box-shadow: 0 0 0 3px rgba(63, 107, 79, 0.2), var(--shadow); }
         .lang-btn svg { width: 15px; height: 15px; stroke: var(--green); }
         .lang-btn .label { font-size: 12.5px; letter-spacing: 0.02em; }
         .lang-menu {
@@ -116,8 +146,10 @@ export default function PatientHomePage() {
         .lang-option {
           width: 100%; border: none; background: transparent; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px;
           padding: 8px 10px; color: var(--ink); font-weight: 700; font-size: 13px; cursor: pointer; text-align: left;
+          transition: all 0.2s ease; outline: none;
         }
         .lang-option:hover { background: #F0F5F0; }
+        .lang-option:focus { box-shadow: inset 0 0 0 2px rgba(63, 107, 79, 0.4); }
         .lang-option.active { background: #E6F0E9; color: var(--green); }
 
         .greeting { font-family: 'Fraunces', serif; font-style: italic; font-weight: 600; font-size: 32px; color: var(--ink); margin: 20px 0 0 0; line-height: 1.15; }
@@ -130,8 +162,11 @@ export default function PatientHomePage() {
           display: flex; align-items: center; justify-content: flex-start; cursor: pointer; text-align: left;
           box-shadow: 0 12px 24px rgba(0,0,0,0.12); min-height: 120px;
           background-size: cover; background-position: center; background-repeat: no-repeat;
-          filter: brightness(1.15) saturate(1.08);
+          filter: brightness(1.15) saturate(1.08); transition: all 0.3s ease; outline: none;
         }
+        .action-card:hover { transform: translateY(-4px); box-shadow: 0 16px 32px rgba(0,0,0,0.18); }
+        .action-card:active { transform: translateY(-2px); }
+        .action-card:focus { box-shadow: 0 0 0 4px rgba(63, 107, 79, 0.3), 0 12px 24px rgba(0,0,0,0.12); }
         .action-card::before {
           content: ''; position: absolute; inset: 0;
           background: linear-gradient(90deg, rgba(17, 22, 20, 0.30), rgba(17, 22, 20, 0.10));
@@ -155,8 +190,11 @@ export default function PatientHomePage() {
           position: relative; overflow: hidden; border-radius: 20px; padding: 16px 12px; border: none;
           display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 10px; cursor: pointer;
           box-shadow: var(--shadow); min-height: 120px; background-size: cover; background-position: center; background-repeat: no-repeat;
-          filter: brightness(1.12) saturate(1.05);
+          filter: brightness(1.12) saturate(1.05); transition: all 0.3s ease; outline: none;
         }
+        .grid-card:hover { transform: translateY(-4px); box-shadow: 0 16px 32px rgba(0,0,0,0.18); }
+        .grid-card:active { transform: translateY(-2px); }
+        .grid-card:focus { box-shadow: 0 0 0 3px rgba(63, 107, 79, 0.3), var(--shadow); }
         .grid-card::before {
           content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(17,22,20,0.12), rgba(17,22,20,0.42));
         }
@@ -177,9 +215,16 @@ export default function PatientHomePage() {
         }
         
         .sos-btn {
-          width: 100%; background: var(--red); border: none; border-radius: 24px; padding: 18px 20px;
-          display: flex; align-items: center; gap: 16px; box-shadow: 0 12px 24px rgba(179,63,51,0.35); pointer-events: auto; cursor: pointer;
+          width: 100%; background: var(--red); border: 2px solid #fff; border-radius: 24px; padding: 18px 20px;
+          display: flex; align-items: center; gap: 16px; box-shadow: 0 12px 24px rgba(139, 47, 39, 0.35); pointer-events: auto; cursor: pointer;
+          transition: all 0.3s ease; outline: none;
         }
+        .sos-btn:hover { transform: translateY(-2px); box-shadow: 0 16px 32px rgba(139, 47, 39, 0.45); }
+        .sos-btn:active { transform: translateY(0); }
+        .sos-btn:focus { box-shadow: 0 0 0 4px rgba(139, 47, 39, 0.3), 0 12px 24px rgba(139, 47, 39, 0.35); }
+        .toggle-link a { transition: all 0.2s ease; }
+        .toggle-link a:hover { color: var(--green); }
+        .toggle-link a:focus { outline: 2px solid var(--green); outline-offset: 2px; }
         .sos-icon {
           width: 46px; height: 46px; border-radius: 50%; background: rgba(255,255,255,0.2);
           display: flex; align-items: center; justify-content: center; flex-shrink: 0;
@@ -187,7 +232,7 @@ export default function PatientHomePage() {
         .sos-icon svg { width: 24px; height: 24px; stroke: #fff; }
         .sos-copy { text-align: left; }
         .sos-copy .t1 { font-size: 18px; font-weight: 900; color: #fff; }
-        .sos-copy .t2 { font-size: 12.5px; font-weight: 700; color: #F6D9D4; margin-top: 2px; }
+        .sos-copy .t2 { font-size: 12.5px; font-weight: 700; color: #FFFFFF; margin-top: 2px; }
       `}</style>
 
       <div className="phone">
@@ -236,19 +281,19 @@ export default function PatientHomePage() {
             </div>
 
             <div className="main-actions">
-              <button id="home-activity-card" data-guide-id="home-activity-card" className="action-card card-activity" onClick={() => navigate('/patient/activities')}>
-                <div className="card-copy">
-                  <div className="title">{t('nav.activity')}</div>
-                </div>
-              </button>
+            <button id="home-activity-card" data-guide-id="home-activity-card" className="action-card card-activity" onClick={() => navigate('/patient/activities')} aria-label="Activity - Cognitive games and exercises">
+              <div className="card-copy">
+                <div className="title">{t('nav.activity')}</div>
+              </div>
+            </button>
 
-              <button id="home-family-card" data-guide-id="home-family-card" className="action-card card-family" onClick={() => navigate('/patient/family')}>
-                <div className="card-copy">
-                  <div className="title">{t('nav.family')}</div>
-                </div>
-              </button>
+            <button id="home-family-card" data-guide-id="home-family-card" className="action-card card-family" onClick={() => navigate('/patient/family')} aria-label="Family and emergency contacts">
+              <div className="card-copy">
+                <div className="title">{t('nav.family')}</div>
+              </div>
+            </button>
 
-              <button id="home-videos-card" data-guide-id="home-videos-card" className="action-card card-videos" onClick={() => navigate('/patient/videos-library')}>
+            <button id="home-videos-card" data-guide-id="home-videos-card" className="action-card card-videos" onClick={() => navigate('/patient/videos-library')} aria-label="Video library">
                 <div className="card-copy">
                   <div className="title">{t('nav.videos')}</div>
                 </div>
@@ -262,12 +307,12 @@ export default function PatientHomePage() {
 
             {showAllFeatures && (
               <div className="mini-grid">
-                <button className="grid-card reminders" onClick={() => navigate('/patient/reminders')}>
-                  <div className="icon-img"><img src="/patients_pp/patient4.jpg" alt={t('nav.reminders')} onError={(e) => (e.currentTarget.style.display = 'none')} /></div>
+                <button className="grid-card reminders" onClick={() => navigate('/patient/reminders')} aria-label="Reminders">
+                  <div className="icon-img"><img src="/patients_pp/patient4.jpg" alt="" onError={(e) => { e.currentTarget.parentElement!.innerHTML = '<div style="width: 40px; height: 40px; border-radius: 50%; background: #D98A2B; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; border: 2px solid #E3EDE5;">R</div>'; }} /></div>
                   <div className="title">{t('nav.reminders')}</div>
                 </button>
-                <button className="grid-card appointments" onClick={() => navigate('/patient/appointments')}>
-                  <div className="icon-img"><img src="/patients_pp/patient6.jpeg" alt={t('nav.appointments')} onError={(e) => (e.currentTarget.style.display = 'none')} /></div>
+                <button className="grid-card appointments" onClick={() => navigate('/patient/appointments')} aria-label="Appointments">
+                  <div className="icon-img"><img src="/patients_pp/patient6.jpeg" alt="" onError={(e) => { e.currentTarget.parentElement!.innerHTML = '<div style="width: 40px; height: 40px; border-radius: 50%; background: #3F8E82; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; border: 2px solid #E3EDE5;">A</div>'; }} /></div>
                   <div className="title">{t('nav.appointments')}</div>
                 </button>
               </div>
@@ -277,9 +322,9 @@ export default function PatientHomePage() {
           </div>
 
           <div className="fixed-bottom">
-            <button className="sos-btn" onClick={() => navigate('/patient/emergency')}>
+            <button className="sos-btn" onClick={() => navigate('/patient/emergency')} aria-label="Emergency call - Alerts family instantly with your location">
               <div className="sos-icon">
-                <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+                <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="M22 16.9v2.6a2 2 0 0 1-2.2 2 19.7 19.7 0 0 1-8.6-3.1 19.4 19.4 0 0 1-6-6 19.7 19.7 0 0 1-3.1-8.6A2 2 0 0 1 4.1 1.9h2.6a2 2 0 0 1 2 1.7c.1 1 .3 2 .7 3a2 2 0 0 1-.5 2.1L7.6 10a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c1 .4 2 .6 3 .7a2 2 0 0 1 1.7 2Z"/>
                 </svg>
               </div>

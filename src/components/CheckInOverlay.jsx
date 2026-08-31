@@ -19,6 +19,9 @@ export default function CheckInOverlay() {
         zIndex: 9999,
         padding: '1rem',
       }}
+      role="dialog"
+      aria-label="Check-in prompt"
+      aria-live="polite"
     >
       <div
         style={{
@@ -34,7 +37,25 @@ export default function CheckInOverlay() {
           width: '100%',
         }}
       >
-        Just checking in... Listening for your answer.
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+          <div
+            style={{
+              width: '12px',
+              height: '12px',
+              borderRadius: '50%',
+              backgroundColor: '#3F6B4F',
+              animation: 'pulse 1.5s ease-in-out infinite',
+            }}
+            aria-hidden="true"
+          />
+          <span>Listening... Please speak now</span>
+        </div>
+        <style>{`
+          @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+          }
+        `}</style>
       </div>
     </div>
   );

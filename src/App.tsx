@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import ErrorBoundary from './components/ErrorBoundary';
+import VoiceFeedback from './components/VoiceFeedback';
 import LoginPage from './pages/auth/LoginPage';
 import LanguageSwitcher from './components/LanguageSwitcher';
 import CareProvider from './providers/CareProvider';
@@ -59,6 +61,7 @@ function AppShell() {
   return (
     <>
       <LanguageSwitcher />
+      <VoiceFeedback />
       <div className="patient-global-mic-layer">
         <PatientMicChat />
       </div>
@@ -124,12 +127,14 @@ function AppShell() {
 
 export default function App() {
   return (
-    <CareProvider>
-      <BrowserRouter>
-        {/* <GuideProvider> */}
-          <AppShell />
-        {/* </GuideProvider> */}
-      </BrowserRouter>
-    </CareProvider>
+    <ErrorBoundary>
+      <CareProvider>
+        <BrowserRouter>
+          {/* <GuideProvider> */}
+            <AppShell />
+          {/* </GuideProvider> */}
+        </BrowserRouter>
+      </CareProvider>
+    </ErrorBoundary>
   );
 }

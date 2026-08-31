@@ -1,7 +1,9 @@
 import { createContext, useContext, useEffect, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useMachine } from '@xstate/react';
 import careMachine from '../orchestrator/careMachine';
 import { voiceService } from '../services/VoiceService';
+import { getSupportedLanguage } from '../i18n';
 import { getTodaysTask } from '../schedule/weeklyPlan';
 
 function isTaskDue(task, now = new Date()) {
@@ -29,6 +31,8 @@ export function useCare() {
 }
 
 export default function CareProvider({ children }) {
+  const { i18n } = useTranslation();
+  const currentLanguage = getSupportedLanguage(i18n.resolvedLanguage || i18n.language);
   const [state, send] = useMachine(careMachine);
   const timerRef = useRef(null);
   const scheduledTask = useMemo(() => getTodaysTask(), []);
@@ -36,18 +40,18 @@ export default function CareProvider({ children }) {
 
   useEffect(() => {
     if (state.matches('greeting')) {
-      voiceService.speak('Hello! I am Sahayak. Let us begin your care session.');
+      voiceService.speak('Hello! I am Sahayak. Let us begin your care session.', currentLanguage);
     }
 
     if (state.matches('announcingTask')) {
       const taskName = scheduledTask?.taskName || 'your care activity';
-      voiceService.speak(`Today’s activity is ${taskName}. Let’s get started.`);
+      voiceService.speak(`Today's activity is ${taskName}. Let's get started.`, currentLanguage);
     }
 
     if (state.matches('checkingIn')) {
-      voiceService.speak('Just checking in. Are you ready to continue?');
+      voiceService.speak('Just checking in. Are you ready to continue?', currentLanguage);
     }
-  }, [scheduledTask, state]);
+  }, [scheduledTask, state, currentLanguage]);
 
   useEffect(() => {
     if (!state.matches('guidingTask')) {
@@ -81,30 +85,35 @@ export default function CareProvider({ children }) {
     let cancelled = false;
 
     const runCheckIn = async () => {
-      const answer = await voiceService.listen({ timeoutMs: 6000 });
+      try {
+        const answer = await voiceService.listen({ timeoutMs: 8000, language: currentLanguage });
 
-      if (cancelled) {
-        return;
-      }
+        if (cancelled) {
+          return;
+        }
 
-      const normalized = (answer || '').toLowerCase();
+        const normalized = (answer || '').toLowerCase().trim();
 
-      if (!normalized) {
+        if (!normalized) {
+          send({ type: 'NO_RESPONSE' });
+          return;
+        }
+
+        if (/(continue|keep going|yes|yep|okay|ready|go)/.test(normalized)) {
+          send({ type: 'WANTS_TO_CONTINUE' });
+          return;
+        }
+
+        if (/(switch|change|different|stop|pause|later|another)/.test(normalized)) {
+          send({ type: 'WANTS_TO_SWITCH' });
+          return;
+        }
+
         send({ type: 'NO_RESPONSE' });
-        return;
+      } catch (error) {
+        console.error('Error during check-in:', error);
+        send({ type: 'NO_RESPONSE' });
       }
-
-      if (/(continue|keep going|yes|yep|okay|ready|go)/.test(normalized)) {
-        send({ type: 'WANTS_TO_CONTINUE' });
-        return;
-      }
-
-      if (/(switch|change|different|stop|pause|later|another)/.test(normalized)) {
-        send({ type: 'WANTS_TO_SWITCH' });
-        return;
-      }
-
-      send({ type: 'NO_RESPONSE' });
     };
 
     runCheckIn();
@@ -112,12 +121,12 @@ export default function CareProvider({ children }) {
     return () => {
       cancelled = true;
     };
-  }, [state, send]);
+  }, [state, send, currentLanguage]);
 
-  // TODO: enforce 1-2hr daily screen time cap — needs a decision on: is this wall-clock
-  // time since first app open today, or only time spent inside active tasks (guidingTask state),
-  // and what happens at the limit (hard lock? gentle wind-down message? does it interrupt a scheduled
-  // task in progress?) — confirm with product owner before implementing.
+  // Note: Screen time cap feature deferred pending product requirements:
+  // - Definition: wall-clock time since first app open, or only active task time?
+  // - Enforcement: hard lock, gentle wind-down, or task interruption?
+  // - Implementation status: Requires product owner decision before coding.
 
   const value = {
     state,

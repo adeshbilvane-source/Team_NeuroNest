@@ -1,3 +1,5 @@
+import { getVoiceLocale } from '../i18n/voiceLocale';
+
 const voiceStatusListeners = new Set();
 
 function publishVoiceStatus(status) {
@@ -15,7 +17,7 @@ export function setVoiceStatus(status) {
   publishVoiceStatus(status);
 }
 
-export function speak(text) {
+export function speak(text, language = 'en') {
   const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY;
   const voiceId = import.meta.env.VITE_ELEVENLABS_VOICE_ID;
 
@@ -31,18 +33,26 @@ export function speak(text) {
   };
 
   if (!apiKey || !voiceId) {
-    console.warn('Missing ElevenLabs env vars. Falling back to browser voice.');
     if ('speechSynthesis' in window) {
       return new Promise((resolve) => {
-        const utterance = new SpeechSynthesisUtterance(text);
-        const onDone = () => {
-          publishVoiceStatus({ phase: 'idle', text: '' });
-          resolve();
-        };
-        utterance.onend = onDone;
-        utterance.onerror = onDone;
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(utterance);
+        try {
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = getVoiceLocale(language);
+          const onDone = () => {
+            publishVoiceStatus({ phase: 'idle', text: '' });
+            resolve();
+          };
+          utterance.onend = onDone;
+          utterance.onerror = (event) => {
+            console.warn('Speech synthesis error:', event.error);
+            onDone();
+          };
+          window.speechSynthesis.cancel();
+          window.speechSynthesis.speak(utterance);
+        } catch (error) {
+          console.warn('Speech synthesis failed:', error);
+          finish().then(resolve);
+        }
       });
     }
     return finish();
@@ -67,7 +77,6 @@ export function speak(text) {
       if (!response.ok) {
         throw new Error(`ElevenLabs request failed with status ${response.status}`);
       }
-
       return response.blob();
     })
     .then((audioBlob) => {
@@ -84,38 +93,56 @@ export function speak(text) {
         };
 
         audio.addEventListener('ended', onDone, { once: true });
-        audio.addEventListener('error', onDone, { once: true });
-        audio.play().catch(() => onDone());
+        audio.addEventListener('error', (event) => {
+          console.warn('Audio playback error:', event);
+          onDone();
+        }, { once: true });
+
+        audio.play().catch((error) => {
+          console.warn('Audio playback failed:', error);
+          onDone();
+        });
       });
     })
     .catch((error) => {
       console.warn('Cloud voice failed, falling back to browser voice:', error);
 
       if (!('speechSynthesis' in window)) {
-        return undefined;
+        publishVoiceStatus({ phase: 'idle', text: '' });
+        return Promise.resolve();
       }
 
       return new Promise((resolve) => {
-        const utterance = new SpeechSynthesisUtterance(text);
-        const onDone = () => {
-          publishVoiceStatus({ phase: 'idle', text: '' });
-          resolve();
-        };
-        utterance.onend = onDone;
-        utterance.onerror = onDone;
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(utterance);
+        try {
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = getVoiceLocale(language);
+          const onDone = () => {
+            publishVoiceStatus({ phase: 'idle', text: '' });
+            resolve();
+          };
+          utterance.onend = onDone;
+          utterance.onerror = (event) => {
+            console.warn('Speech synthesis error:', event.error);
+            onDone();
+          };
+          window.speechSynthesis.cancel();
+          window.speechSynthesis.speak(utterance);
+        } catch (error) {
+          console.warn('Speech synthesis failed:', error);
+          finish().then(resolve);
+        }
       });
     });
 }
 
-export function listen({ timeoutMs = 30000 } = {}) {
+export function listen({ timeoutMs = 30000, language = 'en' } = {}) {
   return new Promise((resolve) => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      console.warn('Speech recognition is not supported in this browser.');
       publishVoiceStatus({ phase: 'idle', text: '' });
+      // Publish unsupported browser event for UI to handle
+      publishVoiceStatus({ phase: 'error', text: 'Speech recognition not supported in this browser' });
       resolve(null);
       return;
     }
@@ -123,12 +150,16 @@ export function listen({ timeoutMs = 30000 } = {}) {
     const recognition = new SpeechRecognition();
     publishVoiceStatus({ phase: 'listening', text: 'Listening...' });
     let settled = false;
-    recognition.lang = 'en-US';
+    recognition.lang = getVoiceLocale(language);
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
     const timer = window.setTimeout(() => {
-      recognition.stop();
+      try {
+        recognition.stop();
+      } catch (e) {
+        console.warn('Error stopping recognition:', e);
+      }
       finishListening();
     }, timeoutMs);
 
@@ -143,11 +174,12 @@ export function listen({ timeoutMs = 30000 } = {}) {
     };
 
     recognition.onresult = (event) => {
-      const transcript = event.results[0][0]?.transcript || '';
+      const transcript = event.results[0]?.[0]?.transcript || '';
       finishListening(transcript.trim() || null);
     };
 
-    recognition.onerror = () => {
+    recognition.onerror = (event) => {
+      console.warn('Speech recognition error:', event.error);
       finishListening();
     };
 
@@ -155,7 +187,12 @@ export function listen({ timeoutMs = 30000 } = {}) {
       finishListening();
     };
 
-    recognition.start();
+    try {
+      recognition.start();
+    } catch (error) {
+      console.warn('Error starting recognition:', error);
+      finishListening();
+    }
   });
 }
 
